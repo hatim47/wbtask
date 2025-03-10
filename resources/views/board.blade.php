@@ -195,7 +195,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
 
 <script>
-    const socket = io("http://localhost:3000"); // Use correct port
+    // const socket = io("http://localhost:3000"); // Use correct port
+    const socket = io("http://task.wbsoftech.com/", {
+    path: "/socket.io",
+    transports: ["websocket", "polling"]
+});
     console.log(io,"ggfg");
     socket.on("connect", () => {
         console.log("✅ Connected to Socket.io server");

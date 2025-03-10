@@ -417,7 +417,11 @@ $names = array_map(function($item) {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
 
 <script>
-    const socket = io("http://localhost:3000"); // Use correct port
+    // const socket = io("http://localhost:3000"); // Use correct port
+    const socket = io("http://task.wbsoftech.com/", {
+    path: "/socket.io",
+    transports: ["websocket", "polling"]
+});
     console.log(io,"ggfg");
 
     socket.on("connect", () => {
@@ -752,7 +756,7 @@ const members = <?php echo json_encode($names); ?>;
 @endif
     async function fetchDataById() {
     try {
-        const response = await fetch(`/taskly/public/get-comment/<?php echo $card->id; ?>`);
+        const response = await fetch(`/public/get-comment/<?php echo $card->id; ?>`);
         // const response = await fetch(`get-comment/<?php echo$card->id; ?>`); // Replace with your actual URL
         if (!response.ok) {
             throw new Error('Data not found');
@@ -815,7 +819,7 @@ fetchDataById();
         // Create an image tag for the avatar
         const avatarImg = document.createElement('img');
         avatarImg.classList.add('rounded-full');
-        avatarImg.src = '/taskly/public/'+ asset; // Use the asset path for the image
+        avatarImg.src = '/public/'+ asset; // Use the asset path for the image
         avatarImg.alt = name;  // Use the name as the alt text for accessibility
         // Append the image to the avatar div
         avatarDiv.appendChild(avatarImg);

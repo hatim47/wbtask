@@ -378,7 +378,7 @@ function getContrastColor(hex) {
     imageContainer.classList.add("image-container");
     // Generate background images
     const firstImage = cardData.images[0]; 
-    const imageUrl = `/taskly/storage/app/public/${firstImage.file_path}`;
+    const imageUrl = `/storage/app/public/${firstImage.file_path}`;
     imageContainer.style.backgroundImage = `url('${imageUrl}')`;    
     imageContainer.style.backgroundSize = "contain"; // Ensures small images fit
     imageContainer.style.backgroundPosition = "center"; // Centers images
