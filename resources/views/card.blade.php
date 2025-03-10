@@ -135,7 +135,7 @@
                         </div>
                     </section>
 
-                    <x-form.button primary type="button" id="save-btn">Delete</x-form.button>
+                    <x-form.button primary type="button" id="save-btn">Add</x-form.button>
                 </div>
             </div>
         </template>
