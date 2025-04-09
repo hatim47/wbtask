@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Logic\UserLogic;
 use Illuminate\Http\Request;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
@@ -69,5 +70,45 @@ class AuthController extends Controller
 
         return redirect()->route("login")
             ->with("notif", ["Succsess\nRegistration success, please login using your account!"]);
+    }
+
+    public function forgetview()
+    {
+        return view("forgot");
+
+    }
+
+    public function forgot(Request $request)
+    {
+        $request->validate([
+            "email" => "|required|max:35" 
+        ]);
+        $forgot = User::where('email', $request->email)->first();
+
+    if (!$forgot) {
+        return redirect()->back()
+            ->withErrors(['email' => 'No account found with that email.'])
+            ->withInput(); // optional: keep old input
+    }
+
+    // Optional: store the email in session or generate token etc.
+    return redirect()->route('reseted')
+        ->with('notif', ['Success', 'Email found, please reset your password!']);
+    }
+    public function reseted()
+    {
+        return view("reset");
+
+    }
+    public function passGen()
+    {
+        return view("forgot");
+
+    }
+    
+    public function passet()
+    {
+        return view("passet");
+
     }
 }

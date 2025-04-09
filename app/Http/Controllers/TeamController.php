@@ -110,6 +110,10 @@ class TeamController extends Controller
             ->with("boards", $team_boards);
     }
 
+    
+    public function allmember(Request $request)
+    {
+    }
     public function search(Request $request)
     {
         $validator = Validator::make($request->all(), ["team_name" => "required"]);
@@ -124,10 +128,18 @@ class TeamController extends Controller
 
         return view("teams")
             ->with("teams", $teams)
+            ->with("patterns", TeamLogic::PATTERN)
             ->with("invites", $invites);
     }
     
+    public function allmembera()
+    {   $team = Team::with('users')
+        ->get();
+        //dd($team);
 
+            return view("Allmember")
+            ->with("team", $team);
+    }
     public function searchBoard(Request $request, $team_id)
     {
         $request->validate([
@@ -224,9 +236,6 @@ class TeamController extends Controller
         return response()->json(["message" => "delete success"]);
     }
 
-   
-
-
     public function inviteMembers(Request $request, $team_id)
     {
         $emails = $request->emails;
@@ -251,6 +260,37 @@ class TeamController extends Controller
                 "status" => "Pending"
             ]);
         }
+
+        return redirect()->back()->with('notif', ["Success\nInvite sent, please wait."]);
+    }
+
+    public function inviteMemberto(Request $request)
+    {
+        $emails = $request->emails;
+        $team_id = $request->id;
+      
+
+        if ($emails == null)
+            return redirect()->back();
+
+
+            foreach ($team_ids as $team_id) {
+                foreach ($emails as $email) {
+                    $user = User::where("email", $email)->first();
+                    if (!$user) continue;
+            
+                    $alreadyInTeam = UserTeam::where('user_id', $user->id)
+                                             ->where('team_id', $team_id)
+                                             ->exists();
+                    if ($alreadyInTeam) continue;
+            
+                    UserTeam::create([
+                        'user_id' => $user->id,
+                        'team_id' => $team_id,
+                        'status'  => 'Pending',
+                    ]);
+                }
+            }
 
         return redirect()->back()->with('notif', ["Success\nInvite sent, please wait."]);
     }

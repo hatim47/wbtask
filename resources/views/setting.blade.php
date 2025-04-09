@@ -1,8 +1,9 @@
-@extends('layout.page')
+@extends('layout.pagesetting')
 
-@section('app-header')
+{{-- @section('app-header')
     <h1 class="text-xl font-bold">Setting</h1>
-@endsection
+@endsection --}}
+
 
 @section('content')
     <template is-modal="changeProfile">
@@ -43,10 +44,13 @@
 
     <div class="flex flex-col w-full h-full gap-4 p-6 overflow-x-hidden overflow-y-auto">
         <section class="flex flex-col">
-            <h2 class="mb-4 ml-6 text-2xl font-bold">My Account</h2>
-            <div class="overflow-hidden border-2 shadow-sm rounded-xl border-b-gray-200">
-                <header class="relative w-full shadow-md h-14 bg-pattern-triangle">
-                    <div class="absolute w-20 h-20 -bottom-10 left-8">
+            <div class="flex items-center gap-2"> <a href="javascript:void(0);" onclick="location.replace(document.referrer);"
+                class="p-1 bg-white shadow-md cursor-pointer select-none rounded-full">
+                <x-fas-circle-left class="w-4 h-4" /> </a> <h2 class=" text-2xl font-bold">My Account</h2>
+            </div>
+            <div class="overflow-hidden rounded-xl ">
+                <header class="relative w-full  h-24">
+                    <div class="absolute w-24 h-24 -bottom-10 left-8">
                         <x-avatar name="{{ Auth::user()->name }}" asset="{{ Auth::user()->image_path }}" action="ModalView.show('changeProfile')"
                             class="w-full h-full text-2xl shadow-md" >
                             <div class="flex flex-wrap items-center justify-center w-full h-full transition-all bg-black opacity-0 hover:opacity-70">
@@ -57,20 +61,22 @@
                 </header>
                 <form class="px-10 mb-4" method="POST" action="{{ route('doUserDataUpdate') }}">
                     @csrf
-                    <div class="grid items-center grid-cols-2 grid-rows-3 gap-6 align-middle mt-14">
-                        <label for="input-text-name" class="text-lg font-semibold">Full Name</label>
-                        <x-form.text name="name" :value="Auth::user()->name" />
-
-                        <label for="input-text-email" class="text-lg font-semibold">Email</label>
+                    <div class="grid items-center grid-cols-2 grid-rows-3 gap-x-8 gap-y-1 align-middle mt-14">
+                        <label for="input-text-name" class="text-lg ps-4 font-semibold">Full Name</label>
+                        <label for="input-text-email" class="text-lg ps-4 font-semibold">Email</label>
+                          
+                        <x-form.text name="name" :value="Auth::user()->name" /> 
                         <x-form.text name="email" :value="Auth::user()->email" />
 
                         <label class="text-lg font-semibold">Change Password</label>
                         <x-form.button type="button" action="ModalView.show('changePassword')">Change</x-form.button>
 
-                        <div class="flex items-center justify-end col-span-2 mt-4">
-                            <div class="w-min">
-                                <x-form.button primary type="submit">Submit</x-form.button>
-                            </div>
+
+                        
+                    </div>
+                    <div class="flex items-center justify-start mt-4">
+                        <div class="w-full">
+                            <x-form.button primary type="submit">Submit</x-form.button>
                         </div>
                     </div>
                 </form>
@@ -80,14 +86,11 @@
         <section class="flex flex-col">
             <h2 class="mb-4 ml-6 text-2xl font-bold">General</h2>
             <div
-                class="grid items-center grid-cols-2 grid-rows-2 gap-6 px-10 py-8 align-middle border-2 shadow-sm pxoverflow-hidden rounded-xl border-b-gray-200">
-
-                <label class="text-lg font-semibold">Logout From Application</label>
-                <a href="{{ route('doLogout') }}">
+                class="grid items-center grid-cols-1 grid-rows-2 gap-6 px-10 py-8 align-middle  pxoverflow-hidden rounded-xl">
+               
+                <a href="{{ route('doLogout') }}" class="">
                     <x-form.button type="button">Logout</x-form.button>
-                </a>
-
-                <label class="text-lg font-semibold">Delete Account</label>
+                </a>              
                 <x-form.button primary action="ModalView.show('deleteAccount')" type="button">DELETE</x-form.button>
 
             </div>

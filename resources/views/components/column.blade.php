@@ -3,7 +3,7 @@
 
     @if (isset($isowner) && $isowner == true)
         <template is-modal="updateColumn">
-            <div class="flex flex-col w-full gap-4 p-4">
+            <div class="flex flex-col w-full gap-4 p-4 ">
                 <form class="flex flex-col gap-4" method="POST">
                     @csrf
                     <input type="hidden" name="column_id" id="column_id">
@@ -28,8 +28,8 @@
 
     <template id="column">
         <div data-role="column"
-            class="flex flex-col flex-shrink-0 max-h-full border-2 shadow-lg group h-min border-slate-50 w-72 rounded-xl bg-slate-100">
-            <header class="flex items-center gap-2 px-4 py-2 select-none rounded-t-xl" draggable="true">
+            class="your-class flex flex-col flex-shrink-0 max-h-full shadow-lg group h-min w-72 rounded-xl bg-slate-100">
+            <header class="flex items-center gap-2 px-4 py-4 select-none rounded-t-xl shadow-md" draggable="true">
                 <h2 class="w-full overflow-hidden text-sm font-bold truncate"></h2>
                 @if (isset($isowner) && $isowner == true)
                     <div type="button" id="col-upd-btn"
@@ -42,7 +42,7 @@
                     </div>
                 @endif
             </header>
-            <hr>
+            <hr class="border-neutral-800/50  ">
             <section class="w-full overflow-hidden overflow-y-auto">
                 <div class="flex flex-col gap-3 p-2" id="card-container">
 
@@ -50,7 +50,7 @@
             </section>
             
             <button id="btn-add"
-                class="flex items-center gap-2 py-1 pl-4 mx-2 mb-2 text-sm transition select-none rounded-2xl hover:bg-slate-200">
+                class="flex items-center gap-2 py-2 pl-4  text-gray-600 text-sm transition bg-slate-300 select-none rounded-b-xl hover:bg-slate-200">
                 <x-fas-plus class="w-4 h-4" />
                 Add Card...
             </button>
@@ -98,6 +98,8 @@
 //     socket.emit("board-action");
 // }, 2000);
 //   }
+
+
         const columnTemplate = document.querySelector("template#column");
         class Column {
             constructor(board, id, name, cards = []) {
@@ -126,7 +128,26 @@
                 const cardContainer = this.ref.querySelector("#card-container");
                 const colHeader = this.ref.querySelector(":scope > header");
 
-    
+  function getRandomTailwindColor() {
+    const colors = ['bg-red-100', 'bg-blue-100', 'bg-green-100', 'bg-yellow-100', 'bg-purple-100', 'bg-pink-100', 'bg-orange-100', 'bg-teal-100'];
+    return colors[Math.floor(Math.random() * colors.length)];
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    const columns = document.querySelectorAll('[data-role="column"]'); // Select all columns
+
+    columns.forEach(column => {
+        // Remove existing bg-* classes
+        column.classList.forEach(cls => {
+            if (cls.startsWith('bg-')) column.classList.remove(cls);
+        });
+
+        // Assign a random color
+        column.classList.add(getRandomTailwindColor());
+    });
+});
+
+
 
                 colHeader.setAttribute('draggable', (id != null));
 
@@ -397,7 +418,7 @@ console.log(cardData.lables,"label");
 // Loop through cardData.lables to create labels
 cardData.lables.forEach(label => {
     const labelElement = document.createElement("span");
-    labelElement.classList.add("px-3", "py-1", "rounded-full", "cursor-pointer", "text-sm", "font-semibold","label-item");
+    labelElement.classList.add("px-2", "py-1", "rounded-lg", "cursor-pointer", "text-sm", "font-semibold","label-item");
     labelElement.style.backgroundColor = label.color;
     labelElement.dataset.text = label.text;
     // labelElement.textContent = label.text;
@@ -448,7 +469,13 @@ cardData.lables.forEach(label => {
 footer.classList.add("card-footer");
 
 const iconContainer = document.createElement("div");
-iconContainer.classList.add("icon-container", "flex" ,"flex-row" ,"item-center");
+iconContainer.classList.add("icon-container", "flex" ,"flex-row","justify-between","w-full");
+
+const innerone = document.createElement("div");
+innerone.classList.add("inner-one", "flex" ,"flex-row" ,"item-center");
+
+const innertwo = document.createElement("div");
+innertwo.classList.add("inner-two", "flex" ,"flex-row" ,"item-center");
 if (cardData.comments == "") {
     
     const attachmentIcon = document.createElement("span");
@@ -494,7 +521,10 @@ if (notificationCount > 0) {
         </svg>${notificationCount}`;
         document.body.appendChild(notify); // Append to body or desired container
 } else {    notify.style.display = "none"; }
-iconContainer.append(notify,attachmentIcon, commentIcon, avatarContainer );
+// iconContainer.append(notify,attachmentIcon, commentIcon, avatarContainer );
+innerone.append(notify,attachmentIcon, commentIcon);
+innertwo.append(avatarContainer);
+iconContainer.append(innerone,innertwo)
 footer.appendChild(iconContainer);
 card.ref.appendChild(labelContainer)
 card.ref.appendChild(footer);

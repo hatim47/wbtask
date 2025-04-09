@@ -20,7 +20,7 @@
 @endphp
 
 <div data-role="avatar"
-    {{ $attributes->merge(['class' => 'relative aspect-square flex flex-wrap items-center justify-center gap-2 overflow-hidden text-lg font-semibold text-center text-white bg-black rounded-full cursor-default select-none border-2 border-gray-200']) }}>
+    {{ $attributes->merge(['class' => 'relative aspect-square flex flex-wrap items-center justify-center gap-2 overflow-hidden text-lg font-semibold text-center  rounded-full cursor-default select-none ']) }}>
     @if (isset($action) || isset($href))
         @if (isset($action))
             <div onclick="{{ $action }}" class="absolute top-0 left-0 z-10 w-full h-full">
@@ -40,7 +40,7 @@
             <img class="object-fill" src="{{ asset($asset) }}" alt="profil_picture">
         </div>
     @else
-        <div class="flex items-center w-full h-full justify-center-center">
+        <div class="flex items-center w-full h-full  border-2 border-black bg-white rounded-full justify-center-center">
             <p class="w-full text-center">{{ $initials }}</p>
         </div>
     @endif

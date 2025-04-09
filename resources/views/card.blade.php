@@ -1,14 +1,12 @@
 @extends('layout.page')
 
 @section('app-header')
-    <h1 class="text-xl font-bold">Card</h1>
+    {{-- <h1 class="text-xl font-bold">Card</h1> --}}
 @endsection
 
-@section('app-side')
-
 
 @section('app-side')
-    <div class="flex flex-col gap-6 px-8 pl-4 mt-2">
+    {{-- <div class="flex flex-col gap-1 px-8 pl-4 mt-2">
         <a class="w-full p-2 border-2 border-gray-200 cursor-pointer select-none rounded-xl"
             href="{{ route('board', ['team_id' => $team->id, 'board_id' => $board->id]) }}">
             <div class="flex items-center w-full gap-2">
@@ -16,28 +14,37 @@
                 <article class="flex flex-col gap-2 text-sm">
                     <h2 class="font-bold">{{ $board->name }}</h2>
                     
-                    <p class="text-sm line-clamp-3">
-                        {{ $team->description }}
-                    </p>
+                   
                 </article>
             </div>
         </a>
+    </div>   --}}
+        <div class="flex flex-col items-center justify-start w-full">
 
-        <section class="w-full overflow-hidden border-2 border-gray-200 cursor-pointer select-none rounded-xl">
           
+
+            <div data-role="menu-item" href="{{ route('home') }}"
+            class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
+            <x-fas-cube class="w-6 h-6" />
+                <p class="text-lg font-normal"> Team </p>
+            </div> 
+            <a data-role="menu-item" href="{{ route('viewTeam', ['team_id' => $team->id]) }}"
+                class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
+                <x-fas-square class="w-6 h-6" />
+                <p class="text-lg font-normal">Board </p>
+            </a>
+          {{-- {{dd(Auth::user())}} --}}
             @if ($workers->contains(Auth::user()))
+           
             <div data-role="menu-item" onclick="ModalView.show('editCard')"
-            class="flex items-center w-full gap-3 px-6 py-2 text-black cursor-pointer select-none hover:bg-black hover:text-white">
-            <x-fas-pen class="w-4 h-4" />
-            <p> Edit </p>
+            class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer my-2 rounded-xl select-none hover:bg-neutral-500">
+            <x-fas-pen class="w-6 h-6" />
+            <p class="text-lg font-normal"> Edit </p>
         </div>
-        <hr> @if (Auth::user()->id != $owner->id || Auth::user()->id != $chatOwner->user_id  )
-                <div data-role="menu-item" onclick="ModalView.show('leaveCard')"
-                    class="flex items-center w-full gap-3 px-6 py-2 text-black cursor-pointer select-none hover:bg-black hover:text-white">
-                    <x-fas-right-from-bracket class="w-4 h-4" />
-                    <p> Quit Card </p>
-                </div>
-                @endif
+
+
+
+      
             
                 {{-- <div data-role="menu-item" onclick="ModalView.show('assignSelf')"
                     class="flex items-center w-full gap-3 px-6 py-2 text-black cursor-pointer select-none hover:bg-black hover:text-white">
@@ -46,60 +53,34 @@
                 </div> --}}
             @endif
             @if (Auth::user()->id == $owner->id || Auth::user()->id == $chatOwner->user_id  )
-            <hr class="w-full border">
+         
             <div data-role="menu-item" onclick="ModalView.show('manageMember')"
-                    class="flex items-center w-full gap-3 px-6 py-2 text-black cursor-pointer select-none hover:bg-black hover:text-white">
-                    <x-fas-user-plus class="w-4 h-4" />
-                    <p>Invite</p>
-                </div>
-                <hr class="w-full border">
+            class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer my-2 rounded-xl select-none hover:bg-neutral-500">
+            <x-fas-user-plus class="w-6 h-6" />
+            <p class="text-lg font-normal">Invite</p>
+        </div> 
+               
                 <div data-role="menu-item" onclick="ModalView.show('deleteCard')"
-                    class="flex items-center w-full gap-3 px-6 py-2 text-red-600 cursor-pointer select-none hover:bg-black hover:text-white">
+                class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer my-2 rounded-xl select-none hover:bg-neutral-500">
                     <x-fas-trash class="w-4 h-4" />
-                    <p>Delete</p>
-                </div>
+                    <p class="text-lg font-normal">Delete</p>
+                </div> 
             @endif
-        </section>
-        <section class="w-full overflow-hidden border-2 border-gray-200 cursor-pointer select-none rounded-xl">
-
-            <div class="max-w-md mx-auto bg-white shadow-lg rounded-lg overflow-hidden mt-6">
-                <div class="px-4 py-2">
-                    <h1 class="text-gray-800 font-bold text-2xl uppercase">Lables</h1>
-                </div>
-                <form class="w-full max-w-sm mx-auto px-4 py-2 " id="lablesa">
-                    @csrf
-                    <div class="flex items-center border-b-2 border-teal-500 py-2 flex-col  ">
-                        <input
-                            class="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
-                            type="text" name="label" placeholder="Add Lable">
-                        </div>
-                            <div class="  mt-8 flex items-center">
-                            <input
-                            class="appearance-none bg-transparent border-2 border-solid border-red-700 w-full  mr-3 py-1 px-2 leading-tight focus:outline-none"
-                            type="color" name="rang">
-                        <button 
-                            class="flex-shrink-0 bg-teal-500 hover:bg-teal-700 border-teal-500 hover:border-teal-700 text-sm border-4 text-white py-1 px-2 rounded"
-                            type="button" id="lable-btn" >
-                            Add
-                        </button>
-                    </div>
-                </form>
-                <ul  id="taskList" class="divide-y divide-gray-200 px-4">
-                    {{-- <li class="py-4">
-                        <div class="flex items-center">
-                            
-                            <label for="todo1" class="ml-3 block text-gray-900">
-                                <span class="text-lg font-medium">Finish project proposal</span>                                
-                            </label>
-                        </div>
-                    </li> --}}
-                 
-                </ul>
-            </div>
-
-    </section>
-
-    </div>
+            <a data-role="menu-item" href="{{ route('setting') }}"
+            class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
+            <x-fas-gear class="w-6 h-6" />
+                <p class="text-lg font-normal"> Setting </p>
+            </a> 
+            @if (Auth::user()->id != $owner->id || Auth::user()->id != $chatOwner->user_id  )
+            <div data-role="menu-item" onclick="ModalView.show('leaveCard')"
+            class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer my-2 rounded-xl select-none hover:bg-neutral-500">
+            <x-fas-arrow-right-from-bracket class="w-6 h-6 transform rotate-180" />
+            <p class="text-lg font-normal"> Quit Card </p>
+        </div> 
+            @endif
+    
+</div>
+    
    
     <template is-modal="manageMember" class="bg-red-200">
             <div class="flex flex-col w-full gap-4 p-4">
@@ -145,65 +126,107 @@
 @section('content')
 
     <div class="flex flex-col w-full h-full">
-        <header class="w-full h-24 flex items-center p-6 bg-pattern-{{ $team->pattern }} border-b border-gray-200">
-        </header>
+        {{-- <header class="w-full h-24 flex items-center p-6 bg-pattern-{{ $team->pattern }} border-b border-gray-200">
+        </header> --}}
 
         {{-- page content --}}
-        <div class="flex flex-grow gap-8 px-6 py-4 overflow-hidden">
+        <div class="flex flex-grow gap-8 px-2 py-4 overflow-hidden">
 
             {{-- left section --}}
             <section class="flex flex-col flex-grow h-full px-2 pr-6 overflow-x-hidden overflow-y-scroll">
-                <article class="flex flex-col gap-2">
-                    <div class="flex items-start gap-2">
-                        <p>#</p>
-                        <h2 class="text-2xl font-bold">{{ $card->name }}</h2>
+                <article class="flex flex-row gap-2 justify-between pt-4  pb-6 border-b-2">
+                    <div class="flex items-center gap-2">
+                        <a href="{{ route('board', ['team_id' => $team->id, 'board_id' => $board->id]) }}"
+                     class="p-1 bg-white shadow-md cursor-pointer select-none rounded-full">
+                     <x-fas-circle-left class="w-4 h-4" /> </a>
+                        <h2 class="text-4xl font-bold">{{ $card->name }}</h2>
                     </div>
-                    <hr class="border">
+                    @php
                     
+                    $i=1;
+                @endphp
+<div class="flex flex-row-reverse">
+<a href="{{ route('viewmember', ['card_id' => $card->id,'team_id' => $team->id,'board_id' => $board->id]) }}" class="flex items-center flex-row">
+    @foreach ($workers as $worker)
+    @if ($worker->id == $owner->id || $worker->id == $chatOwner->user_id)
+        <div class="flex items-center relative" style="left: -{{$i * 10}}px; z-index:{{$i -1}}; ">
+            <div class="flex items-center flex-col-reverse">
+                <x-avatar name="{{ $worker->name }}" asset="{{ $worker->image_path }}"
+                    class="!flex-shrink-0 !flex-grow-0 w-6" />
+                <x-fas-crown class="w-2 h-2 text-yellow-400 !flex-shrink-0 !flex-grow-0" />
+            </div>
+        </div>
+        @else
+        <div class="flex items-center relative " style="left: -{{$i * 10}}px; z-index:{{$i -1}};">
+                <x-avatar name="{{ $worker->name }}" asset="{{ $worker->image_path }}"
+                    class="!flex-shrink-0 !flex-grow-0 w-6 mt-2" />    
+        </div>
+@endif 
+@php
+    
+$i++;
+@endphp
+    @endforeach
+    </a>
+<div  id="taskList" class=" flex flex-row pe-6">
+                   
+                 
+</div>
+</div>
+</article>
+<article class="flex flex-col gap-2 ">
                     
-                    <hr class="border">
-                    <div class="w-full h-32 p-2 px-5 mt-1 rounded bg-slate-50">
+
+                    <div class="w-full h-32 p-2 px-6 mt-4 rounded ">
+                        @if ($card->description)
+                        <div class="flex items-start pb-1">  <x-fas-align-left class="w-6 h-6 pe-2" />Description </div>
                         <p class="text-base line-clamp-4">
-                            @if ($card->description)
-                                {{ $card->description }}
+                             {{ $card->description }}
                                
                             @else
-                            <div class="flex items-center justify-center w-full h-full text-gray-500">
-                                - no description -
+                            <div class="flex items-start  w-full h-full ">
+                                <x-fas-align-left class="w-6 h-6 pe-2" />  No Description
+                                   
                               
                             </div>
-                            @endif
-                          
-                        </p>
-                    </div> 
-                  
-                    <div x-data="{ showModal: false, modalImage: '' }" class="p-4 bg-white shadow-md rounded-lg">
-                  
-                        <h3 class="text-lg font-semibold flex items-center">
-                            📎 Attachments                    
-                        </h3>
-                        @if ($workers->contains(Auth::user()))
                             
-                        <div class="flex flex-row-reverse  mt-2 ">
+                        </p>
+                        @endif
+                    </div> 
+                   </article>   <article class="flex flex-col w-full h-3/4">
+                    <div x-data="{ showModal: false, modalImage: '' }" class="p-4 rounded-lg ">
+                        @if ($workers->contains(Auth::user()))
+                        <div class="flex flex-row  mt-2  justify-between">
+                            <h3 class="text-lg px-2 font-semibold flex items-center">
+                                <x-fas-paperclip class="w-6 h-6 pe-2" /> Attachments                    
+                            </h3>
                             {{-- Upload Button --}}
-                            <button id="addAttachmentBtn" class="px-4 py-2 bg-gray-200 text-black rounded">Add Attachment</button>
+                            <button id="addAttachmentBtn" class="px-4 py-2 bg-neutral-700 text-white rounded hover:bg-neutral-300 hover:text-black">Add</button>
                         </div>
                             {{-- File Input (Hidden) --}}
                             <input type="file" id="fileInput" multiple class="hidden">
                     
                             {{-- Uploaded Files List --}}
-                         
+                         @else
+                         <h3 class="text-lg font-semibold flex items-center">
+                            <x-fas-paperclip class="w-6 h-6 px-2" /> Attachments                   
+                        </h3>
                             @endif
-                    
-                        <div class="mt-2 space-y-2">
+                            <div x-show="showModal" x-transition class="fixed inset-0 bg-black absolute bg-opacity-70 flex items-center justify-center">
+                                <div class="bg-white p-4 rounded-lg shadow-lg max-w-lg">
+                                    <button @click.prevent="showModal = false" class="absolute top-20 right-40 text-white">Close</button>
+                                    <img :src="modalImage" class="w-full rounded">
+                                </div>
+                            </div>
+                        <div class="mt-2 h-3/4 overflow-auto">
                             @foreach ($upload as $file)
-                                <div class="flex items-center p-2 bg-gray-100 rounded-lg">
+                                <div class="flex items-center p-2  rounded-lg">
                                     @if (in_array(pathinfo($file->file_path, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png', 'webp']))
                                   
                                     <div 
                                     x-data="{ bgColor: '#f3f4f6' }"
                                     :style="'background: ' + bgColor + ' url({{ asset('../storage/app/public/' . $file->file_path) }}) center/contain no-repeat;'"
-                                    class="w-14 h-14 rounded cursor-pointer"
+                                    class="w-14 h-14 rounded-lg border-2 shadow-md   cursor-pointer"
                                     @click="showModal = true; modalImage = '{{ asset('../storage/app/public/' . $file->file_path) }}'"
                                     x-init="setContrastBackground('{{ asset('../storage/app/public/' . $file->file_path) }}', value => bgColor = value)">
                                 </div>
@@ -219,86 +242,64 @@
                                     </div>
                     
                                     @if (in_array(pathinfo($file->file_path, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png', 'webp']))
-                                        <button   class="ml-auto text-blue-600" @click.prevent="showModal = true; modalImage = '{{ asset('../storage/app/public/' . $file->file_path) }}'">👁 View</a>
+                                        <button class="ml-auto text-blue-600" @click.prevent="showModal = true; modalImage = '{{ asset('../storage/app/public/' . $file->file_path) }}'"><x-fas-download class="w-6 h-6 text-neutral-700" /></button>
                                     @else
-                                        <a href="{{ asset('../storage/app/public/' . $file->file_path) }}" class="ml-auto text-blue-600" target="_blank">↗</a>
+                                        <a href="{{ asset('../storage/app/public/' . $file->file_path) }}" class="ml-auto text-blue-600" target="_blank"> <x-fas-download class="w-6 h-6 text-neutral-700" /></a>
                                     @endif
                                 </div>
                             @endforeach
                         </div>
-                        <div x-show="showModal" x-transition class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center">
-                            <div class="bg-white p-4 rounded-lg shadow-lg max-w-lg">
-                                <button @click.prevent="showModal = false" class="absolute top-20 right-40 text-white">Close</button>
-                                <img :src="modalImage" class="w-full rounded">
-                            </div>
-                        </div>
+                     
                     </div>
                    
                 </article>
 
              
                 @if ($workers->contains(Auth::user()))
-                    <form class="flex items-end w-full gap-4 mt-3" rows="30" id="search-form"
+                <div class="flex flex-col items-center justify-start w-full gap-2">   
+
+                <h3 for="textarea-comment" class="w-full pl-6 flex flex-row"><x-fas-bars-staggered class="w-4 h-4" />&nbsp; &nbsp;  Write a Comment</h3>
+            </div>
+                    <form class="flex items-center w-full gap-4 mt-3 px-4" rows="30" id="search-form"
                         action="{{ route('commentCard', ['team_id' => $team->id, 'board_id' => $board->id, 'card_id' => $card->id]) }}"
                         method="POST">
                         @csrf
                         {{-- <x-form.textarea name="content" id="comment-box" placeholder="Add Comment.." required /> --}}
                         {{-- <textarea name="content"  id="comment-box" placeholder="Add Comment.."> </textarea> --}}
-                        <div data-role="form-textarea" class="flex flex-col items-center justify-center w-full gap-2">
-                            <label for="textarea-comment" class="w-full pl-6">Write a Comment</label>
-                            <div class="flex items-center justify-center w-full gap-2 px-6 py-2 text-base border-2 border-black rounded-lg">
-                                <textarea class="flex-grow outline-none resize-none" 
+                        <x-avatar name="{{ Auth::user()->name }}" asset="{{ Auth::user()->image_path }}" class="w-6 h-6" />
+
+                        <div data-role="form-textarea" class="flex flex-col items-center justify-center w-full gap-2">                                                    
+                            <div class="flex items-center justify-center shadow-md w-full gap-2 px-6 py-2 text-base rounded-lg bg-slate-100">
+                                <textarea class="flex-grow outline-none bg-transparent resize-none" 
                                           placeholder="Type here..." 
                                           name="content" 
                                          id="comment-box"
-                                          required rows="4">
+                                          required rows="1">
                                 </textarea>
                                 <div id="mention-suggestions" class="suggestions-dropdown"></div>
                             </div>
                         </div>
                        
-                        <x-form.button type="button" id="submit-btn" outline class="h-min w-min">
-                            <x-fas-comment-medical class="w-4 h-4" />Post
-                        </x-form.button>
+                        <button type="button" id="submit-btn" class="px-4 py-2 bg-neutral-700 text-white rounded-lg hover:bg-neutral-300 hover:text-black">
+                            Comment
+                        </button>
                     </form>
              
                 @endif
-                <hr class="w-full mt-4 border">
-                <hr class="w-full mt-4 border">   <hr class="w-full mt-4 border">   <hr class="w-full mt-4 border">
                
-            {{-- <div class="flex flex-col w-full h-4 gap-6 mt-4">
-                    @foreach ($histories as $event)
-                        <div class="flex flex-col items-end w-full">
-                            <div class="flex items-start w-full gap-3">
-                                <div class="flex-grow-0 flex-shrink-0 w-11 h-11">
-                                    <x-avatar name="{{ $event->user->name }}" asset="{{ $event->user->image_path }}" />
-                                </div>
-                                <div class="flex-grow w-full min-h-full px-4 py-2 bg-slate-100 rounded-xl ">
-                                    @if ($event->type == 'event')
-                                    <p class="text-base font-bold">{{ $event->user->name }}, {{ $event->content }}</p>
-                                   @else
-                                        <p class="text-base font-bold">{{ $event->user->name }}</p>
-                                        <p>{{ $event->content }}</p>
-                                    @endif
-                                </div>
-                            </div>
-                            <p class="pr-4 text-xs text-gray-700">{{ $event->created_at->diffForHumans() }}</p>
-                        </div>
-                    @endforeach
-                </div>--}}
 
-                <div id="event-container" class="flex flex-col w-full h-4 gap-6 mt-4">
-    <!-- Events will be dynamically appended here -->
+                <div id="event-container" class="flex flex-col w-full h-4 ps-4 pe-10 gap-6 mt-4">
+    
 </div>
 
             </section>
 
             {{-- right-section --}}
-            <aside class="flex flex-col h-full gap-4 w-72">
+            {{-- <aside class="flex flex-col h-full gap-4 w-72">
                 <h2 class="ml-4 text-2xl font-bold">Wokers</h2>
                 <div
-                    class="flex flex-col flex-grow w-full gap-2 p-4 overflow-x-hidden overflow-y-auto truncate border-2 border-gray-200 rounded-xl">
-                    @foreach ($workers as $worker)
+                    class="flex flex-col flex-grow w-full gap-2 p-4 overflow-x-hidden overflow-y-auto truncate border-2 border-gray-200 rounded-xl"> --}}
+                    {{-- @foreach ($workers as $worker)
                     @if ($worker->id == $owner->id || $worker->id == $chatOwner->user_id)
                         <div class="flex items-center gap-4">
                             <div class="flex items-center gap-4">
@@ -318,10 +319,10 @@
                             </div>
                         </div>
 @endif
-                    @endforeach
-                </div>
+                    @endforeach --}}
+                {{-- </div>
 
-            </aside>
+            </aside> --}}
         </div>
     </div>
 
@@ -364,7 +365,7 @@
             </div>
         </form>
     </template>
-
+    
     <template is-modal="editCard">
         <div class="flex flex-col w-full gap-4 p-4">
             <h1 class="text-3xl font-bold">Edit Card</h1>
@@ -373,8 +374,37 @@
                 action="{{ route('updateCard', ['team_id' => $team->id, 'board_id' => $board->id, 'card_id' => $card->id]) }}"
                 method="POST" class="flex flex-col gap-4">
                 @csrf
-                <x-form.textarea name="card_name" label="Card's Title" required value="{{ $card->name }}" />
-                <x-form.textarea name="card_description" label="Card's Description" value="{{ $card->description }}" />
+                <x-form.textarea name="card_name" label="Card's Title" required value="{{ $card->name }}" />    
+                    <x-form.textarea name="card_description" label="Card's Description" value="{{ $card->description }}" />
+
+                    <div class="w-full flex flex-row items-center justify-between ps-4 py-2 ">
+                <label  class="font-bold">labels</label>                  
+                    <form class="flex flex-row w-5/6" id="lablesa">
+                        @csrf
+                        <div class="flex items-center w-full border-b-2 border-slate-200 py-2 pe-4 flex-col">
+                            <input
+                                class="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
+                                type="text" name="label" placeholder="Add Lable">
+                            </div>
+                                <div class="flex flex-row items-center">
+                                <div x-data="{ color: '#ff0000' }" class="relative w-6 h-6 mx-4 rounded-full overflow-hidden border-1 border-slate-200">
+                                    <input name="rang" type="color" x-model="color" class="absolute z-10 inset-0 w-full h-full opacity-0 cursor-pointer">
+                                    <div class="absolute inset-0 rounded-full" :style="'background-color: ' + color"></div>
+                                </div>
+                            <button 
+                                class="flex-shrink-0 hover:bg-slate-600 hover:text-slate-100 text-slate-600 py-1 px-2"
+                                type="button" id="lable-btn" >
+                                <x-fas-plus class="w-6 h-6" />
+                            </button>
+                        </div>
+                    </form>
+                   
+
+
+                </div>
+                <div id="taskList123" class="flex flex-col">  
+    
+                </div>
                 <x-form.button class="mt-4" type="submit" primary>Submit</x-form.button>
             </form>
         </div>
@@ -417,11 +447,11 @@ $names = array_map(function($item) {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
 
 <script>
-    // const socket = io("http://localhost:3000"); // Use correct port
-    const socket = io("http://task.wbsoftech.com/", {
-    path: "/socket.io",
-    transports: ["websocket", "polling"]
-});
+     const socket = io("http://localhost:3000"); // Use correct port
+//     const socket = io("http://task.wbsoftech.com", {
+//     path: "/socket-server/socket.io",
+//     transports: ["polling"]
+// });
     console.log(io,"ggfg");
 
     socket.on("connect", () => {
@@ -429,34 +459,7 @@ $names = array_map(function($item) {
     });
 
 
-    document.getElementById("lable-btn").addEventListener("click", function (e) {
-    e.preventDefault(); // Prevent default form submission
-    var cardId = {{ $card->id }};
-    let form = document.getElementById("lablesa");
-    let formData = new FormData(form);
-    formData.append("card_id", cardId);
-    const storeTaskUrl = "{{ route('tasks.store') }}"; 
-    fetch(storeTaskUrl, {
-        method: "POST",
-        body: formData,
-        headers: {
-            "X-Requested-With": "XMLHttpRequest", // Helps Laravel detect AJAX requests
-            "Accept": "application/json"
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // console.log("✅ Task Added:", data);
-            // alert(data.message);
-            fetchTasks();
-            form.reset(); // Reset form fields after submission
-        } else {
-            console.log("⚠️ Validation Failed:", data);
-        }
-    })
-    .catch(error => console.error("❌ Error:", error));
-});
+
 
 
 function fetchTasks() {
@@ -466,7 +469,7 @@ function fetchTasks() {
         .then(response => response.json())
         .then(data => {
             appendTasks(data); // Call function to append tasks
-        
+          
         })
         .catch(error => console.error("Error:", error));
 
@@ -488,23 +491,34 @@ function getContrastColor(hex) {
 
 function appendTasks(tasks) {
     let ul = document.getElementById("taskList");
+    let modal = document.querySelector('[is-modal="editCard"]');
+    let ull = modal.querySelectorAll("#taskList123");
+    // let ull = document.getElementById("taskList123");
     ul.innerHTML = ""; // Clear existing tasks before appending new ones
-
+if (ull) {
+    console.log("task",ull)
+}
+    ull.innerHTML = "";
     tasks.forEach(task => {
-        let li = document.createElement("li");
-        li.classList.add("py-2", "rounded-xl", "cursor-pointer" ,"flex","flex-row" ,"justify-around");
+        let li = document.createElement("div");
+        li.classList.add("py-1","m-2", "rounded-lg", "cursor-pointer" ,"flex","flex-row" ,"justify-center");
         li.style.backgroundColor = task.color;
         li.dataset.taskId = task.id;
         li.dataset.status = task.status; // Store status for toggling
+        let lii = document.createElement("div");
+        lii.classList.add("py-1","m-2", "rounded-lg", "cursor-pointer" ,"flex","flex-row" ,"justify-center");
+        lii.dataset.taskId = task.id;
+        lii.dataset.status = task.status;
+
 
         let div = document.createElement("div");
         div.classList.add("flex", "items-center");
 
         let label = document.createElement("label");
-        label.classList.add("ml-3", "block");
+        label.classList.add("mx-2", "block");
 
         let span = document.createElement("span");
-        span.classList.add("text-lg", "font-medium");
+        span.classList.add("text-md", "font-normal");
         span.textContent = task.text;
         
         // Adjust text color for contrast
@@ -521,6 +535,16 @@ function appendTasks(tasks) {
         div.appendChild(label);
         li.appendChild(div);
         ul.appendChild(li);
+        // ull.appendChild(lii);
+
+
+
+
+
+
+
+
+        
      // 🛑 Add Remove Button
      let removeBtn = document.createElement("button");
         removeBtn.textContent = "X";
@@ -542,7 +566,7 @@ function appendTasks(tasks) {
             }).catch(error => console.error("Error:", error));
         });
 
-        li.appendChild(removeBtn); // ✅ Append button to list item
+        // li.appendChild(removeBtn); // ✅ Append button to list item
         ul.appendChild(li);
    
 
@@ -669,6 +693,85 @@ document.addEventListener("DOMContentLoaded", function () {
             modal.querySelectorAll("form[action][method]").forEach(
                 form => form.addEventListener("submit", () => PageLoader.show())
             );
+            var cardId = {{ $card->id }};
+    let url = "{{ route('lable.List', ['id' => '__CARD_ID__']) }}".replace('__CARD_ID__', cardId);
+    fetch(url) // Fetch all tasks from backend
+        .then(response => response.json())
+        .then(data => {
+            appendT(data);
+        })
+        .catch(error => console.error("Error:", error));
+
+
+            function appendT(tasks) {
+            let ull = modal.querySelector("#taskList123");
+    // let ull = document.getElementById("taskList123");
+    ull.innerHTML = ""; // Clear existing tasks before appending new ones
+if (ull) {
+    console.log("task",ull)
+}
+    ull.innerHTML = "";
+    tasks.forEach(task => {
+        let lii = document.createElement("div");
+        lii.classList.add("py-1","bg-stone-200","my-2", "rounded-lg", "cursor-pointer" ,"flex","flex-row" ,"justify-between" ,"items-center");
+        lii.dataset.taskId = task.id;
+        lii.dataset.status = task.status;
+
+
+        let div = document.createElement("div");
+        div.classList.add("flex", "items-center");
+
+        let label = document.createElement("div");
+        label.classList.add("mx-2", "rounded-full" ,"w-4" ,"h-4");
+        label.style.backgroundColor = task.color;
+        let span = document.createElement("h6");
+        span.classList.add("text-md", "font-normal","text-black" ,"ps-4");
+        span.textContent = task.text;
+        
+        // Adjust text color for contrast
+        let textColor = getContrastColor(task.color);
+        // span.style.color = textColor;
+
+        // Apply line-through if status is not 1
+        if (task.status !== 1) {
+            span.style.textDecoration = "line-through";
+            span.classList.add("opacity-50"); 
+        }
+
+        // label.appendChild(span);
+        div.appendChild(label);
+        lii.appendChild(span);
+        lii.appendChild(div);
+        // ul.appendChild(li);
+         ull.appendChild(lii);
+
+     // 🛑 Add Remove Button
+     let removeBtn = document.createElement("button");
+        removeBtn.textContent = "X";
+        removeBtn.classList.add( "text-slate-800", "px-3", "py-1", "ml-3");
+
+        // 🔥 Remove task when clicked
+        removeBtn.addEventListener("click", function (event) {
+            event.stopPropagation(); // Prevent triggering status change when clicking the button
+
+            let taskId = lii.dataset.taskId;
+
+            ServerRequest.post("{{ route('delete.lable') }}", { id: taskId })
+            .then(response => {
+                if (response.data.success) {
+                    lii.remove(); // ✅ Remove from UI
+                } else {
+                    console.error("Failed to delete task", response.data);
+                }
+            }).catch(error => console.error("Error:", error));
+        });
+
+        div.appendChild(removeBtn); // ✅ Append button to list item
+        ull.appendChild(lii);
+    });
+
+            }
+
         });
 
         ModalView.onShow('leaveCard', (modal) => {
@@ -756,7 +859,7 @@ const members = <?php echo json_encode($names); ?>;
 @endif
     async function fetchDataById() {
     try {
-        const response = await fetch(`/public/get-comment/<?php echo $card->id; ?>`);
+        const response = await fetch(`/wbtask/public/get-comment/<?php echo $card->id; ?>`);
         // const response = await fetch(`get-comment/<?php echo$card->id; ?>`); // Replace with your actual URL
         if (!response.ok) {
             throw new Error('Data not found');
@@ -815,7 +918,7 @@ fetchDataById();
     function createAvatar(name, asset) {
         // Create the avatar container div
         const avatarDiv = document.createElement('div');
-        avatarDiv.classList.add('flex-grow-0', 'flex-shrink-0', 'w-11', 'h-11');
+        avatarDiv.classList.add('flex-grow-0', 'flex-shrink-0', 'w-6', 'h-6');
         // Create an image tag for the avatar
         const avatarImg = document.createElement('img');
         avatarImg.classList.add('rounded-full');
@@ -836,10 +939,11 @@ fetchDataById();
         console.warn("⚠️ No events to append.");
         return;
     }
+    
     eventContainer.innerHTML = ""; // Clear previous messages
     events.forEach(event => {
         const eventDiv = document.createElement('div');
-        eventDiv.classList.add('flex', 'flex-col', 'items-end', 'w-full');
+        eventDiv.classList.add('flex', 'flex-row', 'items-start');
         const eventInnerDiv = document.createElement('div');
         eventInnerDiv.classList.add('flex', 'items-start', 'w-full', 'gap-3');
         // ✅ Fix: Prevent undefined `user` errors
@@ -863,7 +967,7 @@ fetchDataById();
         eventInnerDiv.appendChild(contentDiv);
         // Time section
         const timeP = document.createElement('p');
-        timeP.classList.add('pr-4', 'text-xs', 'text-gray-700');
+        timeP.classList.add('px-4', 'text-xs', 'text-gray-700');
         timeP.textContent = timeAgo(event.created_at);
         // Append elements
         eventDiv.appendChild(eventInnerDiv);
@@ -907,9 +1011,7 @@ ModalView.onShow("inviteMember", (modal) => {
                         <p class="flex-grow overflow-hidden truncate">
                             ${email}
                         </p>
-                        <button onclick="DOM.find('#email-tag-${id}')?.remove()" type="button" class="flex items-center justify-center w-full gap-2 px-6 py-1 text-base font-bold border-4 border-black rounded-full bg-white text-black hover:bg-black hover:text-white !border-2 !text-sm w-min !px-4">
-                                <svg class="w-4 h-4" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.3.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc. --><path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"></path></svg>
-                        </button>
+                       
                     </div>
                     `);
                     inviteList.append(emailtag);
@@ -959,5 +1061,42 @@ ModalView.onShow("inviteMember", (modal) => {
                     }
                 })
             });
+
+
+    document.getElementById("lable-btn").addEventListener("click", function (e) {
+    e.preventDefault(); // Prevent default form submission
+    var cardId = {{ $card->id }};
+    let form = document.getElementById("lablesa");
+    let formData = new FormData(form);
+    formData.append("card_id", cardId);
+    const storeTaskUrl = "{{ route('tasks.store') }}"; 
+    fetch(storeTaskUrl, {
+        method: "POST",
+        body: formData,
+        headers: {
+            "X-Requested-With": "XMLHttpRequest", // Helps Laravel detect AJAX requests
+            "Accept": "application/json"
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // console.log("✅ Task Added:", data);
+            // alert(data.message);
+            fetchTasks();
+           
+            form.reset(); // Reset form fields after submission
+        } else {
+            console.log("⚠️ Validation Failed:", data);
+        }
+    })
+    .catch(error => console.error("❌ Error:", error));
+});
+
+
+
+
+
+
     </script>
 @endPushOnce

@@ -254,13 +254,13 @@ background: #ccc;
 }
 
 .bg-pattern-zig-zag {
-    background-color: #ffffff;
+    background-color: #353535;
     opacity: 1;
     background: linear-gradient(135deg, #79797955 25%, transparent 25%) -21px 0/
             42px 42px,
         linear-gradient(225deg, #797979 25%, transparent 25%) -21px 0/ 42px 42px,
         linear-gradient(315deg, #79797955 25%, transparent 25%) 0px 0/ 42px 42px,
-        linear-gradient(45deg, #797979 25%, #ffffff 25%) 0px 0/ 42px 42px;
+        linear-gradient(45deg, #797979 25%, #a3a3a3  25%) 0px 0/ 42px 42px;
 }
 
 .bg-pattern-isometric {

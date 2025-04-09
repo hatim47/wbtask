@@ -45,6 +45,8 @@ class BoardController extends Controller
         return redirect()->back()->with("notif", ["Success\nBoard created successfully!"]);
     }
 
+
+
     public function addColumn(Request $request, $team_id, $board_id,)
     {
         $request->validate([
@@ -75,7 +77,15 @@ class BoardController extends Controller
             ->with("board", $board)
             ->with("patterns", BoardLogic::PATTERN);
     }
-
+ public function viewmember(Request $request ,$team_id)
+    { $team = Team::find($team_id);
+        $teamOwner = $this->teamLogic->getTeamOwner($team_id);
+        $team_members = $this->teamLogic->getTeamMember($team_id);
+        return view("boardmember")
+        ->with("owner", $teamOwner)
+        ->with("members", $team_members)
+        ->with("team", $team);
+    }
     public function updateBoard(Request $request)
     {
         $request->validate([
