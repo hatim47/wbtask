@@ -16,7 +16,8 @@ class TeamMemeberMiddlerware
         $user_id = Auth::user()->id;
         $team_id = intval($request->route('team_id'));
         if(!$this->teamLogic->userHasAccsess($user_id, $team_id)){
-            return redirect()->route("home")->with("notif", ["Problem\nThe team is not found or you have been kicked out, please contact the owner."]);
+
+            return redirect()->route("home")->with("notif", ["Problem\nThe $user_id   hatim       $team_id  is not found or you have been kicked out, please contact the owner."]);
         }
         return $next($request);
     }

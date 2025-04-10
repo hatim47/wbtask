@@ -40,7 +40,33 @@ class TeamController extends Controller
 
         return redirect()->route("viewTeam", ['team_id' => $createdTeam->id]);
     }
+    public function updateDataSec(Request $request)
+    {
+        $request->validate([
+            "team_id" => "required|integer",
+            "team_name" => "required|min:5|max:20",
+            "team_description" => 'required|min:8|max:90',
+            "team_pattern" => 'required',
+        ]);
+        $team_id = intval($request->team_id);
+        $selectedTeam = Team::find($team_id);
 
+        if ($selectedTeam == null) {
+            return redirect()->route("home")->withErrors("This team is alredy deleted please contact team owner");
+        }
+
+        $selectedTeam->name = $request->team_name;
+        $selectedTeam->description = $request->team_description;
+        $selectedTeam->pattern = $request->team_pattern;
+        $selectedTeam->save();
+        
+        return response()->json([
+            'success' => true,
+            'message' => "Success\nEdit successfully applied!",
+        ]);
+
+         //return redirect()->back()->with("notif", ["Success\nEdit succesfully applied!"]);
+    }
     public function updateData(Request $request)
     {
         $request->validate([
@@ -60,8 +86,8 @@ class TeamController extends Controller
         $selectedTeam->description = $request->team_description;
         $selectedTeam->pattern = $request->team_pattern;
         $selectedTeam->save();
-
-        return redirect()->back()->with("notif", ["Success\nEdit succesfully applied!"]);
+        
+    return redirect()->back()->with("notif", ["Success\nEdit succesfully applied!"]);
     }
 
     public function updateImage(Request $request)
@@ -92,6 +118,7 @@ class TeamController extends Controller
             ->with("patterns", TeamLogic::PATTERN)
             ->with("invites", $invites);
     }
+
 
     public function showTeam($team_id)
     {
@@ -294,7 +321,17 @@ class TeamController extends Controller
 
         return redirect()->back()->with('notif', ["Success\nInvite sent, please wait."]);
     }
+    public function deleteTeamSec(Request $request)
+    {
+        $request->validate([
+            "team_id" => "required"
+        ]);
 
+        $team_id = intval($request->team_id);
+        $this->teamLogic->deleteTeam($team_id);
+
+        return redirect()->route("home")->with("notif", ["Deleted\nTeam deleted successfully"]);
+    }
     public function deleteTeam(Request $request, $team_id)
     {
         $request->validate([

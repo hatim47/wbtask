@@ -105,8 +105,7 @@
                             @endforeach
                         </div>
                     </div>
-
-                    <x-form.button class="mt-4" type="submit" primary>Submit</x-form.button>
+                    <x-form.button class="mt-4" type="submit" id="update-btn" primary>Submit</x-form.button>
                 </form>
             </div>
         </template>

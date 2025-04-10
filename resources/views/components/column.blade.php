@@ -162,7 +162,6 @@ document.addEventListener("DOMContentLoaded", function () {
                             name: this.ref.dataset.name,
                             id: this.ref.dataset.id
                         }));
-
                     ModalView.onShow("updateColumn", (modal, payload) => {
                         this.board.IS_EDITING = true;
                         const board_id = this.board.ref.dataset.id;
