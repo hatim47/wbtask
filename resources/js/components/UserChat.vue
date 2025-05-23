@@ -1,5 +1,5 @@
 <template>
-  <div class="w-80 bg-white h-screen p-4 shadow-md overflow-y-auto">
+  <div class="w-80 bg-white h-[82vh] p-4  overflow-y-auto">
     <!-- Header -->
     <div class="flex items-center justify-between mb-4">
       <button class="text-gray-600 hover:text-black">

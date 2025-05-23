@@ -9,6 +9,12 @@ import "./bootstrap";         // Your bootstrap/init file
 import Alpine from "alpinejs";
 import Croppie from "croppie";
 import { createApp } from "vue";
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faPhone, faVideo, faMicrophone, faStop, faTrash, faPlay, faPause, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+
+/* add icons to the library */
+library.add(faPhone, faVideo, faMicrophone, faStop, faTrash, faPlay, faPause, faPaperPlane);
 
 // Setup Alpine
 window.Alpine = Alpine;
@@ -29,4 +35,6 @@ import ParentChat from './components/ParentChat.vue';
 //   },
 // });
 const app = createApp(ParentChat);
+
+app.component('font-awesome-icon', FontAwesomeIcon);
 app.mount("#appp");

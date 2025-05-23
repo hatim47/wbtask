@@ -3,85 +3,69 @@
 
 
 @pushOnce('metasa')
-
-<meta name="csrf-token" content="{{ csrf_token() }}">
-@vite(['resources/css/app.css', 'resources/js/app.js'])
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 @endPushOnce
 
-{{-- @section('app-header')
 
-    <h1 class="text-xl font-bold">Teams</h1>
-
-@endsection --}}
 
 
 
 @section('app-side')
-
     <div class="flex flex-col gap-1 px-8 pl-4 mt-2">
-
-
-
-            <div data-role="menu-item" onclick="ModalView.show('createTeam')"
-
+        <div data-role="menu-item" onclick="ModalView.show('createTeam')"
             class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'hover:bg-neutral-500' : 'hover:bg-neutral-500' }}">
 
-                <x-fas-cube class="w-6 h-6" />
+            <x-fas-cube class="w-6 h-6" />
 
-                <p class="text-lg font-normal">  Add Team </p>
+            <p class="text-lg font-normal"> Add Team </p>
 
-            </div>
+        </div>
 
-            <a href="{{ route('allmember') }}" data-role="menu-item" 
+        <a href="{{ route('allmember') }}" data-role="menu-item"
+            class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'hover:bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
 
-                class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'hover:bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
+            <x-fas-users class="w-6 h-6" />
 
-                <x-fas-users class="w-6 h-6" />
+            <p class="text-lg font-normal">Members</p>
 
-                   <p class="text-lg font-normal">Members</p>
+        </a>
 
-            </a>        
-
-            <div data-role="menu-item" onclick="ModalView.show('inviteMember')"
-
+        <div data-role="menu-item" onclick="ModalView.show('inviteMember')"
             class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'hover:bg-neutral-500' : 'hover:bg-neutral-500' }}">
 
             <x-fas-user-plus class="w-6 h-6" />
 
             <p class="text-lg font-normal"> Invite</p>
 
-            </div>
+        </div>
 
 
 
         <a data-role="menu-item" href="{{ route('setting') }}"
+            class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'hover:bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
 
-        class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'hover:bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
-
-        <x-fas-gear class="w-6 h-6" />
+            <x-fas-gear class="w-6 h-6" />
 
             <p class="text-lg font-normal"> Setting </p>
 
-        </a> 
-<a data-role="menu-item" href="{{ route('chats') }}"
+        </a>
+        <a data-role="menu-item" href="{{ route('chats') }}"
+            class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'hover:bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
 
-        class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'hover:bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
-
-        <x-fas-comments class="w-6 h-6" />
+            <x-fas-comments class="w-6 h-6" />
 
             <p class="text-lg font-normal"> chat </p>
 
-        </a> 
+        </a>
 
 
     </div>
-
 @endsection
 
 
 
 @section('content')
-
     <template is-modal="createTeam">
 
         <div class="flex flex-col w-full gap-4 p-4">
@@ -120,29 +104,19 @@
 
                 <div class="flex gap-4">
 
-                    <x-form.select 
+                    <x-form.select name="teamsa" icon="fas-users">
 
-                    name="teamsa" 
+                        <option value="">Select Team</option>
 
-                    icon="fas-users"  
+                        @foreach ($teams as $team)
+                            <option value="{{ $team->id }}">
 
+                                {{ $team->name }}
 
+                            </option>
+                        @endforeach
 
-                >
-
-                    <option value="">Select Team</option>
-
-                     @foreach($teams as $team )
-
-        <option value="{{ $team->id }}" >
-
-            {{ $team->name}}
-
-        </option>
-
-    @endforeach
-
-                </x-form.select>
+                    </x-form.select>
 
                     <x-form.text name="inv-email" icon="fas-user-plus" placeholder="name@email.com..." />
 
@@ -159,44 +133,16 @@
 
 
                 <form method="POST" id="invite-members-form" action="{{ route('InviteMemberto') }}"
-
                     class="flex justify-center w-full p-4 overflow-hidden overflow-y-auto border-2 border-black h-80 rounded-xl">
 
                     @csrf
 
                     <input type="hidden" name="team_id", value="">
 
-          
-
-                    <div class="flex flex-col w-full gap-2" id="invite-container">
 
 
-
-                        {{-- <div class="flex gap-2" id="email-tag-1">
-
-                            <input type="hidden" value="">
-
-                            <p class="flex-grow overflow-hidden truncate">William@email.com</p>
-
-                            <x-form.button outline type="button" action="DOM.find('#email-tag-1')?.remove()"
-
-                                class="!border-2 !text-sm w-min !px-4">
-
-                                <x-fas-trash class="w-6 h-6" />
-
-                            </x-form.button>
-
-                        </div> --}}
-
-
-
-
-
-                    </div>
-
+                    <div class="flex flex-col w-full gap-2" id="invite-container"> </div>
                 </form>
-
-
 
                 <x-form.button primary type="submit" id="save-btn" form="invite-members-form">Save</x-form.button>
 
@@ -219,11 +165,9 @@
                 <header class="w-full p-4 h-28" id="header-overlay">
 
                     <div
-
                         class="relative flex items-center justify-center w-20 overflow-hidden bg-black border-4 border-white rounded-full aspect-square">
 
                         <img id="team-image" src="" alt=""
-
                             class="absolute top-0 left-0 z-40 object-fill w-full h-full">
 
                         <p class="text-2xl font-bold text-white" id="team-initial"></p>
@@ -253,11 +197,9 @@
                     <p>Sincerely, <span id="owner-name" class="font-bold"></span></p>
 
                     <div
-
                         class="relative flex items-center justify-center w-12 overflow-hidden bg-black border-4 border-white rounded-full aspect-square">
 
                         <img id="owner-image" src="" alt=""
-
                             class="absolute top-0 left-0 z-40 object-fill w-full h-full">
 
                         <p class="text-base font-bold text-white" id="owner-initial"></p>
@@ -313,19 +255,14 @@
                     <input type="hidden" id="pattern-field" name="team_pattern" x-bind:value="selected">
 
                     <div
-
                         class="flex items-center justify-start w-full max-w-2xl gap-2 px-4 py-2 overflow-hidden overflow-x-scroll border-2 border-gray-200 h-36 rounded-xl">
 
                         @foreach ($patterns as $pattern)
-
                             <div x-on:click="selected = '{{ $pattern }}'"
-
                                 x-bind:class="(selected == '{{ $pattern }}') ? 'border-black' : 'border-gray-200'"
-
                                 class="{{ $pattern == $patterns[0] ? 'order-first' : '' }} h-full flex-shrink-0 border-4 rounded-lg w-36 bg-pattern-{{ $pattern }} hover:border-black">
 
                                 <div x-bind:class="(selected == '{{ $pattern }}') ? 'opacity-100' : 'opacity-0'"
-
                                     class="flex items-center justify-center w-full h-full">
 
                                     <x-fas-circle-check class="w-6 h-6" />
@@ -333,7 +270,6 @@
                                 </div>
 
                             </div>
-
                         @endforeach
 
                     </div>
@@ -350,15 +286,14 @@
 
     <template is-modal="deleteTeam">
 
-         <form class="flex flex-col items-center justify-center w-full h-full gap-6 p-4" method="POST"
-
+        <form class="flex flex-col items-center justify-center w-full h-full gap-6 p-4" method="POST"
             action="{{ route('doDeleteTeamSec') }}">
 
-            @csrf 
+            @csrf
 
-             {{-- <div class="flex flex-col items-center justify-center w-full h-full gap-6 p-4"> --}}
+            {{-- <div class="flex flex-col items-center justify-center w-full h-full gap-6 p-4"> --}}
 
-            <input type="hidden" name="team_id" id="input-text-team_id"  >
+            <input type="hidden" name="team_id" id="input-text-team_id">
 
             <p class="mb-6 text-lg text-center"> Are you sure you want to delete this team?</p>
 
@@ -374,7 +309,7 @@
 
     </template>
 
-    
+
 
     <template is-modal="updateTeam">
 
@@ -386,96 +321,86 @@
 
             {{-- <div action="{{ route('doTeamDataUpdate', ['team_id' => $team->id]) }}" method="POST" class="flex flex-col gap-4"> --}}
 
-                {{-- @csrf --}}
+            {{-- @csrf --}}
 
-            <from method="POST" id="update-team-form"  class="flex flex-col gap-4">
+            <from method="POST" id="update-team-form" class="flex flex-col gap-4">
 
-               
 
-                <input type="hidden" name="team_id"  id="input-text-team_id">
 
-                    <x-form.text name="team_name" label="Team's Name"  required />
+                <input type="hidden" name="team_id" id="input-text-team_id">
 
-                    <x-form.textarea name="team_description" label="Team's Description"
+                <x-form.text name="team_name" label="Team's Name" required />
 
-                        required />
+                <x-form.textarea name="team_description" label="Team's Description" required />
 
-                    <div class="flex flex-col w-full gap-2" >
+                <div class="flex flex-col w-full gap-2">
 
-                        <label class="pl-6">Team's Background</label>
+                    <label class="pl-6">Team's Background</label>
 
-                        <input type="hidden" id="pattern-field" name="team_pattern" x-bind:value="selected">
+                    <input type="hidden" id="pattern-field" name="team_pattern" x-bind:value="selected">
 
-                        <div
+                    <div
+                        class="flex items-center justify-start w-full max-w-2xl gap-2 px-4 py-2 overflow-hidden overflow-x-scroll border-2 border-gray-200 h-36 rounded-xl">
 
-                            class="flex items-center justify-start w-full max-w-2xl gap-2 px-4 py-2 overflow-hidden overflow-x-scroll border-2 border-gray-200 h-36 rounded-xl">
+                        @foreach ($patterns as $pattern)
+                            <div x-on:click="selected = '{{ $pattern }}'"
+                                x-bind:class="(selected == '{{ $pattern }}') ? 'border-black' : 'border-gray-200'"
+                                class="{{ $pattern == '' ? 'order-first' : '' }} h-full flex-shrink-0 border-4 rounded-lg w-36 bg-pattern-{{ $pattern }} hover:border-black">
 
-                            @foreach ($patterns as $pattern)
+                                <div x-bind:class="(selected == '{{ $pattern }}') ? 'opacity-100' : 'opacity-0'"
+                                    class="flex items-center justify-center w-full h-full">
 
-                                <div x-on:click="selected = '{{ $pattern }}'"
-
-                                    x-bind:class="(selected == '{{ $pattern }}') ? 'border-black' : 'border-gray-200'"
-
-                                    class="{{ $pattern == '' ? 'order-first' : '' }} h-full flex-shrink-0 border-4 rounded-lg w-36 bg-pattern-{{ $pattern }} hover:border-black">
-
-                                    <div x-bind:class="(selected == '{{ $pattern }}') ? 'opacity-100' : 'opacity-0'"
-
-                                        class="flex items-center justify-center w-full h-full">
-
-                                        <x-fas-circle-check class="w-6 h-6" />
-
-                                    </div>
+                                    <x-fas-circle-check class="w-6 h-6" />
 
                                 </div>
 
-                            @endforeach
-
-                        </div>
+                            </div>
+                        @endforeach
 
                     </div>
 
+                </div>
 
 
-                    <x-form.button class="mt-4" type="submit" id="update-btn" primary>Submit</x-form.button>
 
-            </form>
+                <x-form.button class="mt-4" type="submit" id="update-btn" primary>Submit</x-form.button>
+
+                </form>
 
         </div>
 
     </template>
 
-    <div class="flex flex-col w-full h-full gap-6 px-8 py-6 overflow-auto">
+    <div class="flex flex-col w-full   px-8 py-6 h-3/4 ">
 
         <header class="w-full">
 
-            <h2 class="ml-6 mb-5 text-4xl font-extrabold"> Chats</h2>
+            {{-- <h2 class="ml-6 mb-5 text-4xl font-extrabold"> Chats</h2> --}}
 
 
 
-          
+
 
         </header>
 
 
 
-<div id="appp">
- <parent-chat></parent-chat>
-</div>
+        <div id="appp" class="h-[80vh]">
+            <parent-chat></parent-chat>
+        </div>
 
 
 
 
 
-</div>
+    </div>
 @endsection
 
 
 
 @pushOnce('page')
-
     <script>
-
-        ModalView.onShow("createTeam", (modal) =>{
+        ModalView.onShow("createTeam", (modal) => {
 
             modal.querySelectorAll("form[method][action]").forEach(
 
@@ -495,175 +420,180 @@
 
         function openEditTeamModal(button) {
 
-        // Get data from the button     
+            // Get data from the button     
 
-        const teamId = button.getAttribute('data-id');
+            const teamId = button.getAttribute('data-id');
 
-        const teamName = button.getAttribute('data-name');
+            const teamName = button.getAttribute('data-name');
 
-        const teamDescription = button.getAttribute('data-description');
+            const teamDescription = button.getAttribute('data-description');
 
-        const teamPattern = button.getAttribute('data-pattern');
+            const teamPattern = button.getAttribute('data-pattern');
 
-        console.log(teamId);
+            console.log(teamId);
 
-        // Populate the modal fields with the data
+            // Populate the modal fields with the data
 
-        // Show the modal    
+            // Show the modal    
 
-      
 
-        ModalView.onShow("updateTeam", (modal) => {
 
-    document.getElementById('input-text-team_id').value = teamId;
+            ModalView.onShow("updateTeam", (modal) => {
 
-    document.getElementById('input-text-team_name').value = teamName;
+                document.getElementById('input-text-team_id').value = teamId;
 
-    document.getElementById('textarea-team_description').value = teamDescription;
+                document.getElementById('input-text-team_name').value = teamName;
 
-    const btnSubmit = modal.querySelector("#update-btn");
+                document.getElementById('textarea-team_description').value = teamDescription;
 
-    btnSubmit.addEventListener("click", (event) => {
+                const btnSubmit = modal.querySelector("#update-btn");
 
+                btnSubmit.addEventListener("click", (event) => {
 
 
-      
 
 
 
-// Get the form and input elements
 
-const form = document.getElementById('update-team-form');
 
-const teamId = document.getElementById('input-text-team_id').value; // Example of fetching a value
+                    // Get the form and input elements
 
+                    const form = document.getElementById('update-team-form');
 
+                    const teamId = document.getElementById('input-text-team_id')
+                        .value; // Example of fetching a value
 
-const teamName = document.getElementById('input-text-team_name').value;
 
-const teamDescription = document.getElementById('textarea-team_description').value;
 
-const team_pattern = document.getElementById('pattern-field').value;
+                    const teamName = document.getElementById('input-text-team_name').value;
 
+                    const teamDescription = document.getElementById('textarea-team_description').value;
 
+                    const team_pattern = document.getElementById('pattern-field').value;
 
-if (!teamName || !teamDescription || !team_pattern ) {
 
 
+                    if (!teamName || !teamDescription || !team_pattern) {
 
-    alert("Please fill in all fields.");
 
-    return;  // Stop execution if validation fails
 
-}
+                        alert("Please fill in all fields.");
 
+                        return; // Stop execution if validation fails
 
+                    }
 
-// Optionally show a loading indicator
 
-// PageLoader.show();
 
+                    // Optionally show a loading indicator
 
+                    // PageLoader.show();
 
-// Build the action URL (or get it dynamically from a data attribute as mentioned earlier)
 
-const actionUrl = `team/${teamId}/update/profile`;  // Assuming teamId is already set
 
-console.log(team_pattern,"ghj");
+                    // Build the action URL (or get it dynamically from a data attribute as mentioned earlier)
 
-// Uconsole.log(form.action,"ghj");pdate form action dynamically if needed
+                    const actionUrl = `team/${teamId}/update/profile`; // Assuming teamId is already set
 
-form.action = actionUrl;
+                    console.log(team_pattern, "ghj");
 
+                    // Uconsole.log(form.action,"ghj");pdate form action dynamically if needed
 
+                    form.action = actionUrl;
 
 
 
-// Prepare form data for submission
 
-const formData = new FormData();
 
-formData.append('team_id', teamId);
+                    // Prepare form data for submission
 
-        formData.append('team_name', teamName);
+                    const formData = new FormData();
 
-        formData.append('team_description', teamDescription);
+                    formData.append('team_id', teamId);
 
-        formData.append('team_pattern', team_pattern);
+                    formData.append('team_name', teamName);
 
+                    formData.append('team_description', teamDescription);
 
+                    formData.append('team_pattern', team_pattern);
 
-// Submit form via Fetch (AJAX)
 
-fetch(form.action, {
 
-    method: 'POST',  // Ensure it's the correct HTTP method
+                    // Submit form via Fetch (AJAX)
 
-    body: formData,  // Include the form data
+                    fetch(form.action, {
 
-    headers: {
+                            method: 'POST', // Ensure it's the correct HTTP method
 
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'), // CSRF token
+                            body: formData, // Include the form data
 
-    'Accept': 'application/json',},
+                            headers: {
 
-})
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                    .getAttribute('content'), // CSRF token
 
-.then(response => response.json()) // Handle the response
+                                'Accept': 'application/json',
+                            },
 
-.then(data => {
+                        })
 
-    // Handle the success response here
+                        .then(response => response.json()) // Handle the response
 
-    if (data.success) {
+                        .then(data => {
 
-        // Show notification using Toastr
+                            // Handle the success response here
 
-        ToastView.notif("Notification",data.message);  // You can replace this with success/error or custom notification
+                            if (data.success) {
 
-        PageLoader.close();
+                                // Show notification using Toastr
 
-        ModalView.close('updateTeam');
+                                ToastView.notif("Notification", data
+                                    .message
+                                    ); // You can replace this with success/error or custom notification
 
-        location.reload();
+                                PageLoader.close();
 
+                                ModalView.close('updateTeam');
 
+                                location.reload();
 
-    } else {
 
-        ToastView.notif("Notification",data.message); 
 
-       
+                            } else {
 
-    }
+                                ToastView.notif("Notification", data.message);
 
-})
 
-    })
 
-});
+                            }
 
-ModalView.show('updateTeam');
+                        })
 
+                })
 
+            });
 
-}
+            ModalView.show('updateTeam');
 
-function deleteTeamModal(button) {
 
-ModalView.onShow("deleteTeam", (modal) => {
 
-    const teamId = button.getAttribute('data-id');
+        }
 
-    document.getElementById('input-text-team_id').value = teamId;
+        function deleteTeamModal(button) {
 
+            ModalView.onShow("deleteTeam", (modal) => {
 
+                const teamId = button.getAttribute('data-id');
 
-});
+                document.getElementById('input-text-team_id').value = teamId;
 
-ModalView.show('deleteTeam');
 
-}
+
+            });
+
+            ModalView.show('deleteTeam');
+
+        }
 
 
 
@@ -741,53 +671,53 @@ ModalView.show('deleteTeam');
 
         ModalView.onShow("inviteMember", (modal) => {
 
-                const addBtn = modal.querySelector('#add-btn');
+            const addBtn = modal.querySelector('#add-btn');
 
-                const saveBtn = modal.querySelector('#save-btn');
+            const saveBtn = modal.querySelector('#save-btn');
 
-                const emailField = modal.querySelector('#input-text-inv-email');
+            const emailField = modal.querySelector('#input-text-inv-email');
 
-                const countrySelect = modal.querySelector('#input-text-teamsa');
+            const countrySelect = modal.querySelector('#input-text-teamsa');
 
-                const inviteList = modal.querySelector('#invite-container');
+            const inviteList = modal.querySelector('#invite-container');
 
-                emailField.addEventListener("keypress", () => {
+            emailField.addEventListener("keypress", () => {
 
-                    if (event.key === "Enter") {
+                if (event.key === "Enter") {
 
-                        event.preventDefault();
+                    event.preventDefault();
 
-                        handleInsert();
+                    handleInsert();
 
-                    }
+                }
 
-                });
-
-
-
-                addBtn.addEventListener('click', handleInsert);
-
-                saveBtn.addEventListener('click', () => PageLoader.show());
-
-                function handleInsert() {
-
-                    const email = emailField.value.trim();
-
-                    const selectedValue = countrySelect.value;
-
-                    const selectedText = countrySelect.options[countrySelect.selectedIndex].text;
-
-                    if (email === "") return;
-
-                    if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) return;
+            });
 
 
 
-                    emailField.value = "";
+            addBtn.addEventListener('click', handleInsert);
 
-                    const id = DOM.newid();
+            saveBtn.addEventListener('click', () => PageLoader.show());
 
-                    let emailtag = DOM.create(`
+            function handleInsert() {
+
+                const email = emailField.value.trim();
+
+                const selectedValue = countrySelect.value;
+
+                const selectedText = countrySelect.options[countrySelect.selectedIndex].text;
+
+                if (email === "") return;
+
+                if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) return;
+
+
+
+                emailField.value = "";
+
+                const id = DOM.newid();
+
+                let emailtag = DOM.create(`
 
                     <div class="flex gap-2" id="email-tag-${id}">
 
@@ -819,35 +749,32 @@ ModalView.show('deleteTeam');
 
 
 
-                    inviteList.append(emailtag);
+                inviteList.append(emailtag);
 
-                }
-
-
-
-            })
-
-            
-
-            ModalView.onShow('updateTeam', (modal) => {
-
-                modal.querySelectorAll("a").forEach(
-
-                    link => link.addEventListener("click", () => PageLoader.show())
-
-                );
+            }
 
 
 
-                modal.querySelectorAll("form[method]").forEach(
+        })
 
-                    form => form.addEventListener("submit", () => PageLoader.show())
 
-                );
 
-            });
+        ModalView.onShow('updateTeam', (modal) => {
 
+            modal.querySelectorAll("a").forEach(
+
+                link => link.addEventListener("click", () => PageLoader.show())
+
+            );
+
+
+
+            modal.querySelectorAll("form[method]").forEach(
+
+                form => form.addEventListener("submit", () => PageLoader.show())
+
+            );
+
+        });
     </script>
-
 @endPushOnce
-

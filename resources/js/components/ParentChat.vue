@@ -1,5 +1,5 @@
 <template>
-  <div class="parent-chat">
+  <div class="parent-chat h-[83vh]" >
       <user-chat :users="users" @select-user="selectUser" />
       <chat-box :selectedUser="selectedUser" />
   </div>
