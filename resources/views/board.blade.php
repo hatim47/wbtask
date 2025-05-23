@@ -1,7 +1,7 @@
-@extends('layout.page')
+@extends('layout.pages')
 
 @section('app-header')
-    <div class="flex items-center gap-2">
+    <div class="flex items-center text-white gap-2">
         <h1 class="text-xl font-bold">Board: </h1>
         <p class="text-xl" id="board-title">{{ $board->name }}</p>
     </div>
@@ -9,37 +9,52 @@
 
 <!-- mindrelaxation7860@gmail.com -->
 @section('app-side')
-    <div class="flex flex-col gap-6 px-8 pl-4 mt-2">
-        <a class="w-full p-2 border-2 border-gray-200 cursor-pointer select-none rounded-xl"
-            href="{{ route('viewTeam', ['team_id' => $team->id]) }}">
-            <div class="flex items-center w-full gap-2">
-                <div class="w-16 h-16">
-                    <x-avatar name="{{ $team->name }}" asset="{{ $team->image_path }}"
-                        class="!w-16 !h-16 !aspect-square !text-xl" />
-                </div>
-                <article class="flex flex-col gap-2 text-sm">
-                    <h2 class="font-bold">{{ $team->name }}</h2>
-                    <p class="text-sm line-clamp-3">
-                        {{ $team->description }}
-                    </p>
-                </article>
-            </div>
-        </a>
+<div id="menu" class="flex flex-col items-center justify-start w-full">
+
+    <a data-role="menu-item" href="{{ route('setting') }}"
+        class="flex items-start justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'setting' ? 'bg-neutral-500' : 'hover:bg-neutral-500' }}">
+        <x-fas-gear class="w-6 h-6" />
+        <p class="text-lg font-normal"> Setting </p>
+    </a>
+
+    <a data-role="menu-item" href="{{ route('home') }}"
+        class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
+        <x-fas-cube class="w-6 h-6" />
+        <p class="text-lg font-normal"> Team </p>
+    </a>
+    <a data-role="menu-item" href="{{ route('viewTeam', ['team_id' => $team->id]) }}"
+    class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
+    <x-fas-backward class="w-6 h-6" />
+    <p class="text-lg font-normal">Back To Board </p>
+</a>
+       
 
         @if (Auth::user()->id == $owner->id)
-            <section class="w-full overflow-hidden border-2 border-gray-200 cursor-pointer select-none rounded-xl">
-                <div data-role="menu-item" onclick="ModalView.show('updateBoard')"
-                    class="flex items-center w-full gap-3 px-6 py-2 text-black cursor-pointer select-none hover:bg-black hover:text-white">
-                    <x-fas-pen class="w-4 h-4" />
-                    <p> Edit </p>
-                </div>
-                <hr class="w-full border">
-                <div data-role="menu-item" onclick="ModalView.show('deleteBoard')"
-                    class="flex items-center w-full gap-3 px-6 py-2 text-red-600 cursor-pointer select-none hover:bg-black hover:text-white">
-                    <x-fas-trash class="w-4 h-4" />
-                    <p>Delete</p>
-                </div>
-            </section>
+        <div data-role="menu-item"  onclick="ModalView.show('updateBoard')"
+            class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer my-2 rounded-xl select-none hover:bg-neutral-500">
+            <x-fas-pen class="w-6 h-6" />
+            <p class="text-lg font-normal"> Edit </p>
+        </div>
+
+        <div data-role="menu-item"  onclick="ModalView.show('deleteBoard')"
+        class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none hover:bg-neutral-500">
+        <x-fas-trash class="w-6 h-6" />
+        <p class="text-lg font-normal"> Delete </p>
+    </div>
+    <a data-role="menu-item" href="{{route('setting')}}"
+    class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none hover:bg-neutral-500">
+    <x-fas-gear class="w-6 h-6" />
+   
+    <p class="text-lg font-normal"> Setting </p>
+</a> 
+{{-- <a data-role="menu-item" href="{{route('setting')}}"
+class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none hover:bg-neutral-500">
+
+<x-fas-arrow-right-from-bracket class="w-6 h-6 transform rotate-180" />
+<p class="text-lg font-normal"> leave board </p>
+</a> --}}
+                
+           
         @endif
     </div>
 @endsection
@@ -54,10 +69,10 @@
             <div class="flex h-full gap-4" id="column-container" data-role="board" data-id="{{ $board->id }}">
             </div>
             <div onclick="ModalView.show('addCol')"
-                class="flex flex-col flex-shrink-0 gap-2 px-4 py-2 transition shadow-lg cursor-pointer select-none h-min w-72 rounded-xl bg-slate-100 hover:scale-105 hover:relative">
-                <div class="flex items-center justify-center gap-4 text-black">
-                    <x-fas-plus class="w-4 h-4" />
+                class="flex flex-col flex-shrink-0 gap-2 px-4 py-4 transition shadow-lg cursor-pointer select-none h-min w-72 rounded-3xl bg-slate-100 hover:scale-105 hover:relative">
+                <div class="flex items-center justify-between gap-4 text-black">
                     <p>Add...</p>
+                    <x-fas-plus class="w-4 h-4" />
                 </div>
 
             </div>
@@ -195,10 +210,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
 
 <script>
+
+
+
+
+
     // const socket = io("http://localhost:3000"); // Use correct port
     const socket = io("http://task.wbsoftech.com/", {
-    path: "/socket.io",
-    transports: ["websocket", "polling"]
+        path: "/socket.io",
+        transports: ["websocket", "polling"]
 });
     console.log(io,"ggfg");
     socket.on("connect", () => {

@@ -36,7 +36,7 @@ class CardController extends Controller
         $chatOwner = CardUser::with('user')->where("card_id", $card->id)->where("status","Owner")->get()->first();
         $lables = Lable::where("card_id", $card->id)->get()->all();
         // dd($card, $upload, $board, $team, $workers, $hist, $owner);
-                //    dd($lables);
+                    //dd($workers);
         return view("card")
             ->with("card", $card)
             ->with("upload", $upload)
@@ -50,6 +50,20 @@ class CardController extends Controller
             ->with("chatOwner", $chatOwner)
             ->with("owner", $owner);
     }
+
+
+    public function viewmember($card_id ,$team_id,$board_id) {
+        $owner = $this->teamLogic->getTeamOwner($team_id);
+        $workers = $this->cardLogic->getWorkers($card_id);
+        $board = Board::find($board_id);
+        $team = Team::find($team_id);
+          $card = Card::find($card_id);
+        $chatUser = CardUser::with('user')->where("card_id", $card_id)->get()->all();
+        $chatOwner = CardUser::with('user')->where("card_id", $card_id)->where("status","Owner")->get()->first();
+        return view("members")
+        ->with("chatUser", $chatUser)->with("chatOwner", $chatOwner)->with("card", $card_id)->with("team", $team)->with("board", $board)->with("owner", $owner)->with("workers", $workers);
+    }
+
 
     public function notify(Request $request) {
                
@@ -122,10 +136,10 @@ class CardController extends Controller
 
     public function leaveCard(Request $request, $team_id, $board_id, $card_id)
     {
-        $user_id = Auth::user()->id;
+        $id = $request->id;
         $card_id = intval($card_id);
-        $this->cardLogic->removeUser($card_id, $user_id);
-        $this->cardLogic->cardAddEvent($card_id, $user_id, "Left card.");
+        $this->cardLogic->removeUser($card_id, $id);
+        $this->cardLogic->cardAddEvent($card_id, $id, "Left card.");
         return redirect()
             ->route("board", ["team_id" => $team_id, "board_id" => $board_id])
             ->with("notif", ["Success\nQuit Card"]);

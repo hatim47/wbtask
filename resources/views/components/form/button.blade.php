@@ -5,11 +5,11 @@
     @isset($type) type="{{ $type }}" @endisset
     @isset($id) id="{{ $id }}" @endisset
     @if (isset($primary))
-    {{ $attributes->merge(['class' => 'flex items-center justify-center w-full gap-2 px-6 py-1 text-base font-bold border-4 border-black rounded-full bg-black text-white hover:bg-white hover:text-black']) }}>
+    {{ $attributes->merge(['class' => 'flex items-center justify-center w-full gap-2 px-6 py-1 text-base font-bold border-4 border-black rounded-lg  bg-black text-white hover:bg-white hover:text-black']) }}>
     @elseif (isset($outline))
-    {{ $attributes->merge(['class' => 'flex items-center justify-center w-full gap-2 px-6 py-1 text-base font-bold border-4 border-black rounded-full bg-white text-black hover:bg-black hover:text-white']) }}>
+    {{ $attributes->merge(['class' => 'flex items-center justify-center w-full gap-2 px-6 py-1 text-base font-bold border-4 border-black rounded-lg bg-white text-black hover:bg-black hover:text-white']) }}>
     @else
-    {{ $attributes->merge(['class' => 'flex items-center justify-center w-full gap-2 px-6 py-1 text-base font-bold border-4 rounded-full text-black bg-slate-300 border-slate-300 hover:bg-black hover:text-white hover:border-black ']) }}>
+    {{ $attributes->merge(['class' => 'flex items-center justify-center w-full gap-2 px-6 py-2 text-base font-bold rounded-lg text-black bg-stone-200 hover:bg-stone-300 hover:text-black ']) }}>
     @endif
     {{ $slot }}
 </button>

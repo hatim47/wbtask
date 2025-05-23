@@ -1,14 +1,20 @@
-import express from "express";
-import { createServer } from "http";
-import { Server } from "socket.io";
+import express from 'express';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+import cors from 'cors';
 
 const app = express();
+app.use(cors());
+
 const server = createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "*", // Allow requests from any frontend
-        methods: ["GET", "POST"]
-    }
+        origin: "*", // Allow all origins (change for security)
+        methods: ["GET", "POST"],
+    },
+});
+app.get('/', (req, res) => {
+    res.redirect('/auth/login');
 });
 
 io.on("connection", (socket) => {
@@ -19,14 +25,10 @@ io.on("connection", (socket) => {
         io.emit("board-refresh"); // Broadcast update
     });
 
-
     socket.on("comment-action", () => {
-        console.log("📢 Board action received, notifying all users...");
+        console.log("📢 Comment action received, notifying all users...");
         io.emit("comment-refresh"); // Broadcast update
     });
-    
-
-    
 
     socket.on("disconnect", () => {
         console.log("A user disconnected");

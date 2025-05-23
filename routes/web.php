@@ -22,6 +22,13 @@ Route::middleware("guest")->get("auth/login", [AuthController::class, "showLogin
 Route::middleware("guest")->post("auth/login", [AuthController::class, "doLogin"])->name("doLogin");
 Route::middleware("guest")->get("auth/register", [AuthController::class, "showRegister"])->name("register");
 Route::middleware("guest")->post("auth/register", [AuthController::class, "doRegister"])->name("doRegister");
+Route::middleware("guest")->get("auth/forget", [AuthController::class, "forgetview"])->name("forget");
+Route::middleware("guest")->post("auth/forgot", [AuthController::class, "forgot"])->name("forgot");
+Route::middleware("guest")->get("auth/reseted", [AuthController::class, "reseted"])->name("reseted");
+Route::middleware("guest")->post("auth/reset", [AuthController::class, "reset"])->name("reset");
+Route::middleware("guest")->get("auth/make-password", [AuthController::class, "passGen"])->name("passgen");
+Route::middleware("guest")->post("auth/reset", [AuthController::class, "passet"])->name("passet");
+
 
 
 Route::get("get-comment/{card_id}", [CardController::class, "showComment"])->name("showcomment");
@@ -33,11 +40,16 @@ Route::middleware(["auth", "auth.session"])->get("team/search", [TeamController:
 Route::middleware(["auth", "auth.session", ])->get("team/{team_id}/invite/accept/{user_id}", [TeamController::class, "acceptInvite"])->name("acceptTeamInvite");
 Route::middleware(["auth", "auth.session", ])->get("team/{team_id}/invite/reject/{user_id}", [TeamController::class, "rejectInvite"])->name("rejectTeamInvite");
 Route::middleware(["auth", "auth.session", ])->get("team/{team_id}/invite/{user_id}", [TeamController::class, "getInvite"])->name("getInvite");
-Route::middleware(["auth", "auth.session", "userInTeam"])->post("team/{team_id}/delete", [TeamController::class, "deleteTeam"])->name("doDeleteTeam");
+Route::middleware(["auth", "auth.session", "userInTeam"])->post("team/{team_id}/deletesa", [TeamController::class, "deleteTeam"])->name("doDeleteTeam");
+Route::middleware(["auth", "auth.session"])->post("team/delete", [TeamController::class, "deleteTeamSec"])->name("doDeleteTeamSec");
 Route::middleware(["auth", "auth.session", "userInTeam"])->post("team/{team_id}/leave", [TeamController::class, "leaveTeam"])->name("doLeaveTeam");
+Route::middleware(["auth", "auth.session"])->get("user/add/member", [TeamController::class, "allmembera"])->name("allmember");
+Route::middleware(["auth", "auth.session" ])->post("team/invite", [TeamController::class, "inviteMemberto"])->name("InviteMemberto");
+
 Route::middleware(["auth", "auth.session", "userInTeam"])->post("team/{team_id}/invite", [TeamController::class, "inviteMembers"])->name("doInviteMembers");
 Route::middleware(["auth", "auth.session", "userInTeam"])->get("team/{team_id}board/search", [TeamController::class, "searchBoard"])->name("searchBoard");
 Route::middleware(["auth", "auth.session"])->post("team/user/add", [CardController::class, "AddTeamMember"])->name("AddTeamMember");
+
 Route::middleware(["auth", "auth.session"])->post("lable/card/add", [CardController::class, "Addlable"])->name("tasks.store");
 Route::middleware(["auth", "auth.session"])->get("lable/card/{id}", [CardController::class, "lableList"])->name("lable.List");
 Route::middleware(["auth", "auth.session"])->post("update/lable/status", [CardController::class, "updateTaskStatus"])->name("status.lable");
@@ -46,7 +58,8 @@ Route::middleware(["auth", "auth.session"])->post("delete/lable", [CardControlle
 
 Route::middleware(["auth", "auth.session", "userInTeam"])->post("team/{team_id}/user/delete", [TeamController::class, "deleteMembers"])->name("deleteTeamMember");
 Route::middleware(["auth", "auth.session", "userInTeam"])->get("team/{team_id}/view", [TeamController::class, "showTeam"])->name("viewTeam");
-Route::middleware(["auth", "auth.session", "userInTeam"])->post("team/{team_id}/update/profile", [TeamController::class, "updateData"])->name("doTeamDataUpdate");
+Route::middleware(["auth", "auth.session", "userInTeam"])->post("team/{team_id}/update/profilesa", [TeamController::class, "updateData"])->name("doTeamDataUpdate");
+Route::middleware(["auth", "auth.session", "userInTeam"])->post("team/{team_id}/update/profile", [TeamController::class, "updateDataSec"])->name("doTeamDataUpdateSec");
 Route::middleware(["auth", "auth.session", "userInTeam"])->post("team/{team_id}update/picture", [TeamController::class, "updateImage"])->name("doChangeTeamImage");
 
 Route::middleware(["auth", "auth.session", "userInTeam"])->post("team/{team_id}/board", [BoardController::class, "createBoard"])->name("createBoard");
@@ -72,6 +85,8 @@ Route::middleware(["auth", "auth.session", "boardAccess","cardExist"])->post("te
 Route::middleware(["auth", "auth.session", "boardAccess","cardExist"])->post("team/{team_id}/board/{board_id}/card/{card_id}/update", [CardController::class, "updateCard"])->name("updateCard");
 Route::middleware(["auth", "auth.session", "boardAccess","cardExist"])->post("team/{team_id}/board/{board_id}/card/{card_id}/comment", [CardController::class, "addComment"])->name("commentCard");
 
+Route::middleware(["auth", "auth.session"])->get("user/member/{card_id}/{team_id}/{board_id}", [CardController::class, "viewmember"])->name("viewmember");
+Route::middleware(["auth", "auth.session"])->get("members/{team_id}", [BoardController::class, "viewmember"])->name("boardmember");
 Route::middleware(["auth", "auth.session"])->get("user/setting", [UserController::class, "showSetting"])->name("setting");
 Route::middleware(["auth", "auth.session"])->get("user/logout", [UserController::class, "logout"])->name("doLogout");
 Route::middleware(["auth", "auth.session"])->post("user/deactivate", [UserController::class, "deactivate"])->name("doDeactivateUser");

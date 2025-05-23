@@ -1,72 +1,68 @@
 @extends('layout.page')
 
 @section('app-header')
-    <div class="flex items-center gap-2">
+    {{-- <div class="flex items-center gap-2">
         <h1 class="text-xl font-bold">Team:</h1>
         <p class="text-xl">{{ $team->name }}</p>
-    </div>
+    </div> --}}
 @endsection
 
 @section('app-side')
-    <div class="flex flex-col gap-6 px-8 pl-4 mt-2">
-        <a class="w-full p-2 overflow-hidden border-2 border-gray-200 cursor-pointer select-none rounded-xl"
-            href="{{ route('viewTeam', ['team_id' => $team->id]) }}">
-            <div class="flex items-center w-full gap-2">
-                <div class="w-16 h-16">
-                    <x-avatar name="{{ $team->name }}" asset="{{ $team->image_path }}"
-                        class="!w-16 !h-16 !aspect-square !text-xl" />
-                </div>
-                <article class="flex flex-col gap-2 text-sm">
-                    <h2 class="max-w-full overflow-hidden font-bold truncate">{{ $team->name }}</h2>
-                    <p class="text-sm line-clamp-3">
-                        {{ $team->description }}
-                    </p>
-                </article>
-            </div>
-        </a>
+    <div class="flex flex-col gap-1 px-8 pl-4 mt-2">
+        <a data-role="menu-item" href="{{ route('home') }}"
+        class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
+        <x-fas-cube class="w-6 h-6" />
+        <p class="text-lg font-normal"> Team </p>
+    </a>
 
-        <section class="w-full overflow-hidden border-2 border-gray-200 cursor-pointer select-none rounded-xl">
+       
            
                 <div data-role="menu-item" onclick="ModalView.show('updateTeam')"
-                    class="flex items-center w-full gap-3 px-6 py-2 text-black cursor-pointer select-none hover:bg-black hover:text-white">
-                    <x-fas-pen class="w-4 h-4" />
-                    <p> Edit </p>
+                class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
+                <x-fas-pen class="w-6 h-6" />
+                   <p class="text-lg font-normal">  Edit </p>
                 </div>
                 
-                <hr class="w-full border">
+               
                 <div data-role="menu-item" onclick="ModalView.show('inviteMember')"
-                    class="flex items-center w-full gap-3 px-6 py-2 text-black cursor-pointer select-none hover:bg-black hover:text-white">
-                    <x-fas-user-plus class="w-4 h-4" />
-                    <p>Invite</p>
+                class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
+                <x-fas-user-plus class="w-6 h-6" />
+                   <p class="text-lg font-normal"> Invite</p>
                 </div>
-                <hr class="w-full border">
+              
                 <div data-role="menu-item" onclick="ModalView.show('createBoard')"
-                    class="flex items-center w-full gap-3 px-6 py-2 text-black cursor-pointer select-none hover:bg-black hover:text-white">
-                    <x-fas-table-columns class="w-4 h-4" />
-                    <p>Add Board</p>
+                class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
+                <x-fas-table-columns class="w-6 h-6" />
+                   <p class="text-lg font-normal"> Add Board</p>
                 </div>
-                <hr class="w-full border">
+              
                 @if (Auth::user()->id == $owner->id)
              
                 <div data-role="menu-item" onclick="ModalView.show('manageMember')"
-                    class="flex items-center w-full gap-3 px-6 py-2 text-black cursor-pointer select-none hover:bg-black hover:text-white">
-                    <x-fas-user-gear class="w-4 h-4" />
-                    <p>Members</p>
+                class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
+                <x-fas-user-xmark class="w-6 h-6" />
+                   <p class="text-lg font-normal"> Remove Members</p>
                 </div>
-                <hr class="w-full border">
+
+                <a href="{{ route('boardmember', ['team_id' => $team->id]) }}" data-role="menu-item" 
+                class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
+                <x-fas-users class="w-6 h-6" />
+                   <p class="text-lg font-normal">Members</p>
+            </a>
+                
                 <div data-role="menu-item" onclick="ModalView.show('deleteTeam')"
-                    class="flex items-center w-full gap-3 px-6 py-2 text-red-600 cursor-pointer select-none hover:bg-black hover:text-white">
-                    <x-fas-trash class="w-4 h-4" />
-                    <p>Delete</p>
+                class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
+                <x-fas-trash class="w-6 h-6" />
+                   <p class="text-lg font-normal"> Delete</p>
                 </div>
             @else
                 <div data-role="menu-item" onclick="ModalView.show('leaveTeam')"
-                    class="flex items-center w-full gap-3 px-6 py-2 text-red-600 cursor-pointer select-none hover:bg-black hover:text-white">
-                    <x-fas-right-from-bracket class="w-4 h-4" />
-                    <p> Leave Team </p>
+                class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
+                <x-fas-right-from-bracket class="w-6 h-6" />
+                   <p class="text-lg font-normal">  Leave Team </p>
                 </div>
             @endif
-        </section>
+    
 
     </div>
 @endsection
@@ -109,8 +105,7 @@
                             @endforeach
                         </div>
                     </div>
-
-                    <x-form.button class="mt-4" type="submit" primary>Submit</x-form.button>
+                    <x-form.button class="mt-4" type="submit" id="update-btn" primary>Submit</x-form.button>
                 </form>
             </div>
         </template>
@@ -188,7 +183,7 @@
                     <div class="flex gap-4">
                         <x-form.text name="inv-email" icon="fas-user-plus" placeholder="name@email.com..." />
                         <x-form.button type="button" primary class="w-min" id="add-btn">
-                            <x-fas-plus class="w-4 h-4" />
+                            <x-fas-plus class="w-6 h-6" />
                             Add
                         </x-form.button>
                     </div>
@@ -204,7 +199,7 @@
                                 <p class="flex-grow overflow-hidden truncate">William@email.com</p>
                                 <x-form.button outline type="button" action="DOM.find('#email-tag-1')?.remove()"
                                     class="!border-2 !text-sm w-min !px-4">
-                                    <x-fas-trash class="w-4 h-4" />
+                                    <x-fas-trash class="w-6 h-6" />
                                 </x-form.button>
                             </div> --}}
 
@@ -245,7 +240,7 @@
     @endif
 
     <div class="flex flex-col w-full h-full overflow-auto">
-        <header class="w-full h-24 flex items-center p-6 bg-pattern-{{ $team->pattern }} border-b border-gray-200">
+        {{-- <header class="w-full h-24 flex items-center p-6 bg-pattern-{{ $team->pattern }} border-b border-gray-200">
             <div class="w-20 h-20">
                 @if (Auth::user()->id == $owner->id)
                     <x-avatar name="{{ $team->name }}" asset="{{ $team->image_path }}"
@@ -260,7 +255,7 @@
                         class="!w-20 !aspect-square !text-4xl" />
                 @endif
             </div>
-        </header>
+        </header> --}}
 
         <div class="flex flex-grow gap-8 px-6 py-4 overflow-hidden">
             {{-- page left section --}}
@@ -277,12 +272,10 @@
                         @csrf
                         <input type="hidden" name="team_id" value="{{ $team->id }}">
                         <input type="hidden" name="user_id" value="{{ Auth::user()->id }}">
-                        <x-form.text icon="fas-table-columns" name="board_name" placeholder="Boards's name"
+                        <x-form.search icon="fas-search" name="board_name" placeholder="Boards's name"
                             value="{{ session('__old_board_name') }}" />
 
-                        <x-form.button type="submit" outline class="h-full w-min">
-                            <x-fas-magnifying-glass class="w-4 h-4" />Search
-                        </x-form.button>
+                        
                     </form>
 
                     <div class="flex flex-wrap mt-2 gap-x-8 gap-y-6">
@@ -313,10 +306,8 @@
             </section>
 
             {{-- page right section --}}
-            <aside class="flex flex-col h-full gap-4 w-72">
-                <h2 class="ml-4 text-2xl font-bold">Members</h2>
-
-                {{-- members list --}}
+            {{-- <aside class="flex flex-col h-full gap-4 w-72">
+                <h2 class="ml-4 text-2xl font-bold">Members</h2>                
                 <div
                     class="flex flex-col flex-grow w-full gap-2 p-4 overflow-x-hidden overflow-y-auto border-2 border-gray-200 rounded-xl">
                     <div class="flex items-center gap-4">
@@ -334,7 +325,7 @@
                         </div>
                     @endforeach
                 </div>
-            </aside>
+            </aside> --}}
         </div>
 
     </div>
@@ -479,7 +470,7 @@
                             ${email}
                         </p>
                         <button onclick="DOM.find('#email-tag-${id}')?.remove()" type="button" class="flex items-center justify-center w-full gap-2 px-6 py-1 text-base font-bold border-4 border-black rounded-full bg-white text-black hover:bg-black hover:text-white !border-2 !text-sm w-min !px-4">
-                                <svg class="w-4 h-4" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.3.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc. --><path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"></path></svg>
+                                <svg class="w-6 h-6" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.3.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc. --><path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"></path></svg>
                         </button>
                     </div>
                     `);
@@ -488,6 +479,7 @@
                 }
 
             })
+            
             @if (Auth::user()->id == $owner->id)
             ModalView.onShow('deleteTeam', (modal) => {
                 modal.querySelectorAll("form[action][method]").forEach(

@@ -1,0 +1,10 @@
+RewriteEngine On
+
+# WebSocket support
+RewriteCond %{HTTP:Upgrade} websocket [NC]
+RewriteCond %{HTTP:Connection} upgrade [NC]
+RewriteRule .* ws://127.0.0.1:3000%{REQUEST_URI} [P,L]
+
+# Proxy socket.io requests
+ProxyPass /socket.io http://127.0.0.1:3000/socket.io
+ProxyPassReverse /socket.io http://127.0.0.1:3000/socket.io
