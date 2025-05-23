@@ -63,7 +63,15 @@
             <p class="text-lg font-normal"> Setting </p>
 
         </a> 
+<a data-role="menu-item" href="{{ route('chats') }}"
 
+        class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'hover:bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
+
+        <x-fas-comments class="w-6 h-6" />
+
+            <p class="text-lg font-normal"> chat </p>
+
+        </a> 
 
 
     </div>

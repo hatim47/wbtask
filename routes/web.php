@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\CardController;
 use App\Http\Controllers\TeamController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Auth\GoogleController;
 use Illuminate\Support\Facades\Route;
@@ -35,6 +36,7 @@ Route::get("get-comment/{card_id}", [CardController::class, "showComment"])->nam
 
 
 Route::middleware(["auth", "auth.session"])->get("team", [TeamController::class, "showTeams"])->name("home");
+Route::middleware(["auth", "auth.session"])->get("chats", [ChatController::class, "index"])->name("chats");
 Route::middleware(["auth", "auth.session"])->post("team", [TeamController::class, "createTeam"])->name("doCreateTeam");
 Route::middleware(["auth", "auth.session"])->get("team/search", [TeamController::class, "search"])->name("searchTeam");
 Route::middleware(["auth", "auth.session", ])->get("team/{team_id}/invite/accept/{user_id}", [TeamController::class, "acceptInvite"])->name("acceptTeamInvite");
