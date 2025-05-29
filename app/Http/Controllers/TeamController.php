@@ -677,11 +677,11 @@ foreach ($team as $userTeam) {
     public function inviteMemberto(Request $request)
     {
 
-        // dd($request->all());
-        $email = $request->emails;
-    $team_id = $request->id;
-
-    if (empty($emails)) {
+         //dd($request->all());
+        $email = $request->get('inv-email');
+    $team_id = $request->team_id;
+$board_id = $request->board_id ?? "";
+    if (empty($email)) {
         return redirect()->back();
     }
 
@@ -690,10 +690,10 @@ foreach ($team as $userTeam) {
   
 
         $user = User::where("email", $email)->first();
-
+ $team = Team::find($team_id);
         // Send invitation email
         $subject = "Request from TaskVerse";
-        $message = "Click to log in: $link"; // Email body
+        $message = "you are invited to join the team " . $team->name; // Email body
 
         Mail::raw($message, function ($mail) use ($email, $subject) {
             $mail->to($email)
@@ -717,8 +717,7 @@ foreach ($team as $userTeam) {
 
             // If your logic also includes boards:
             if ($request->board_id) {
-                $board_id = $request->board_id;
-
+               
                 // Check if user is already invited to board
                 $alreadyInBoard = TeamInvitation::where('user_id', $user->id)
                                                 ->where('board_id', $board_id)
@@ -729,7 +728,7 @@ foreach ($team as $userTeam) {
                         'user_id'  => $user->id,
                         'board_id' => $board_id,
                         'team_id'  => $team_id,
-                        'status'   => 'Pending',
+                        'status'   => 'pending',
                     ]);
                 }
             }
@@ -739,6 +738,8 @@ foreach ($team as $userTeam) {
             $alreadyInvited = TeamInvitation::where('email', $email)
                                             ->exists();
 
+
+
             if (!$alreadyInvited) {
                 TeamInvitation::create([
                     'email'    => $email, 
@@ -747,8 +748,18 @@ foreach ($team as $userTeam) {
                     'status'   => 'Pending',
                 ]);
             }
+   $subject = "Request from TaskVerse";
+        $message = "Click to log in: $link"; // Email body
+
+        Mail::raw($message, function ($mail) use ($email, $subject) {
+            $mail->to($email)
+                 ->subject($subject)
+                 ->from('no-reply@task.wbsoftech.com', 'TaskVerse');
+        });
+
+
         }
-    return redirect()->back()->with('notif', ['Success', 'Invite sent, please wait.']);
+   return redirect()->back()->with('notif', ['Success', 'Invite sent, please wait.']);
 }
 
     public function deleteTeamSec(Request $request)
