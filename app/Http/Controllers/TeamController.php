@@ -677,7 +677,7 @@ foreach ($team as $userTeam) {
     public function inviteMemberto(Request $request)
     {
 
-        dd($request->all());
+        // dd($request->all());
         $email = $request->emails;
     $team_id = $request->id;
 
