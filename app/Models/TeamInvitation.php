@@ -12,6 +12,7 @@ class TeamInvitation extends Model
     // Specify which fields are mass assignable
     protected $fillable = [
         'team_id',
+        'board_id',
         'email',
         'token',
         'status',
