@@ -17,7 +17,7 @@ use App\Logic\UserLogic;
 use App\Models\Team;
 
 use App\Models\User;
-
+use App\Models\TeamInvitation;
 use App\Models\UserTeam;
 
 use Illuminate\Http\Request;
@@ -675,75 +675,81 @@ foreach ($team as $userTeam) {
 
 
     public function inviteMemberto(Request $request)
-
     {
 
         dd($request->all());
-        $emails = $request->emails;
-        $team_ids = $request->id;   
-        if ($emails == null)
-            return redirect()->back();
-    foreach ($team_ids as $team_id) {
+        $email = $request->emails;
+    $team_id = $request->id;
 
-                foreach ($emails as $email) {
+    if (empty($emails)) {
+        return redirect()->back();
+    }
 
-                    $user = User::where("email", $email)->first();
+    $link = "http://task.wbsoftech.com/";
 
-                    if (!$user){
+  
 
-                        $link = "http://task.wbsoftech.com/";
-                        $subject = "Request from TaskVerse";
-                        $message = "Click to log in: $link"; // Email body
-                    
-                        Mail::raw($message, function ($mail) use ($email, $subject) {
-                            $mail->to($email)
-                                 ->subject($subject)
-                                 ->from('no-reply@task.wbsoftech.com', 'TaskVerse');
-                        });
+        $user = User::where("email", $email)->first();
 
-                        continue; 
-                    }
-                    
-                   
+        // Send invitation email
+        $subject = "Request from TaskVerse";
+        $message = "Click to log in: $link"; // Email body
 
-            
+        Mail::raw($message, function ($mail) use ($email, $subject) {
+            $mail->to($email)
+                 ->subject($subject)
+                 ->from('no-reply@task.wbsoftech.com', 'TaskVerse');
+        });
 
-                    $alreadyInTeam = UserTeam::where('user_id', $user->id)
+        // If user exists, add to team if not already there
+        if ($user) {
+            $alreadyInTeam = UserTeam::where('user_id', $user->id)
+                                     ->where('team_id', $team_id)
+                                     ->exists();
 
-                                             ->where('team_id', $team_id)
-
-                                             ->exists();
-
-                    if ($alreadyInTeam) continue;
-
-                    $subject = "Request from TaskVerse";
-            $message = "Click to log in: $link"; // Email body
-        
-            Mail::raw($message, function ($mail) use ($email, $subject) {
-                $mail->to($email)
-                     ->subject($subject)
-                     ->from('no-reply@task.wbsoftech.com', 'TaskVerse');
-            });
-
-                    UserTeam::create([
-
-                        'user_id' => $user->id,
-
-                        'team_id' => $team_id,
-
-                        'status'  => 'Pending',
-
-                    ]);
-
-                }
-
+            if (!$alreadyInTeam) {
+                UserTeam::create([
+                    'user_id' => $user->id,
+                    'team_id' => $team_id,
+                    'status'  => 'Pending',
+                ]);
             }
 
+            // If your logic also includes boards:
+            if ($request->board_id) {
+                $board_id = $request->board_id;
 
+                // Check if user is already invited to board
+                $alreadyInBoard = TeamInvitation::where('user_id', $user->id)
+                                                ->where('board_id', $board_id)
+                                                ->exists();
 
-        return redirect()->back()->with('notif', ["Success\nInvite sent, please wait."]);
+                if (!$alreadyInBoard) {
+                    TeamInvitation::create([
+                        'user_id'  => $user->id,
+                        'board_id' => $board_id,
+                        'team_id'  => $team_id,
+                        'status'   => 'Pending',
+                    ]);
+                }
+            }
+        }
+        else {
+            // ❗User doesn't exist: store invitation by email only
+            $alreadyInvited = TeamInvitation::where('email', $email)
+                                            ->exists();
 
-    }
+            if (!$alreadyInvited) {
+                TeamInvitation::create([
+                    'email'    => $email, 
+                    'team_id'  => $team_id,
+                    'board_id' => $board_id,
+                    'status'   => 'Pending',
+                ]);
+            }
+        }
+    return redirect()->back()->with('notif', ['Success', 'Invite sent, please wait.']);
+}
 
     public function deleteTeamSec(Request $request)
 
