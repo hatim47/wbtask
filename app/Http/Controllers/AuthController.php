@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\UserTeam;
 use App\Models\Team;
+use App\Models\BoardUser;
+use App\Models\TeamInvitation;
 use App\Logic\TeamLogic;
 use Illuminate\Support\Facades\Auth;
 
@@ -67,11 +69,34 @@ class AuthController extends Controller
             "password" => "bail|required|string|confirmed"
         ]);
 
-        $this->userLogic->insert(
+         $this->userLogic->insert(
             $request->input('name'),
             $request->input('email'),
             $request->input('password'),
         );
+
+        $team =  TeamInvitation::where('email', $request->input('email'))->exists();
+        if ($team) {
+            $teamInvitation = TeamInvitation::where('email', $request->input('email'))->first();
+            $user = user::where('email', $request->input('email'))->first();
+           
+            UserTeam::create([
+                'user_id' => $user->id,
+                'team_id' => $teamInvitation->team_id,
+                'status' => 'member'
+            ]);
+
+   // Add to board if board_id exists
+        if (!empty($teamInvitation->board_id)) {
+            BoardUser::create([
+                'user_id'  => $user->id,
+                'board_id' => $teamInvitation->board_id,
+                'status'   => 'member',
+            ]);
+        }
+
+            
+        }    
 
         return redirect()->route("login")
             ->with("notif", ["Succsess\nRegistration success, please login using your account!"]);

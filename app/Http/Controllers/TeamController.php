@@ -18,6 +18,7 @@ use App\Models\Team;
 
 use App\Models\User;
 use App\Models\TeamInvitation;
+use App\Models\BoardUser;
 use App\Models\UserTeam;
 
 use Illuminate\Http\Request;
@@ -719,15 +720,13 @@ $board_id = $request->board_id ?? "";
             if ($request->board_id) {
                
                 // Check if user is already invited to board
-                $alreadyInBoard = TeamInvitation::where('user_id', $user->id)
+                $alreadyInBoard = BoardUser::where('user_id', $user->id)
                                                 ->where('board_id', $board_id)
                                                 ->exists();
-
                 if (!$alreadyInBoard) {
-                    TeamInvitation::create([
+                    BoardUser::create([
                         'user_id'  => $user->id,
                         'board_id' => $board_id,
-                        'team_id'  => $team_id,
                         'status'   => 'pending',
                     ]);
                 }
