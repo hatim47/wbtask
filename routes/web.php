@@ -60,6 +60,10 @@ Route::middleware(["auth", "auth.session"])->post("delete/lable", [CardControlle
 
 Route::middleware(["auth", "auth.session", "userInTeam"])->post("team/{team_id}/user/delete", [TeamController::class, "deleteMembers"])->name("deleteTeamMember");
 Route::middleware(["auth", "auth.session", "userInTeam"])->get("team/{team_id}/view", [TeamController::class, "showTeam"])->name("viewTeam");
+Route::middleware(["auth", "auth.session"])->get("Home/show", [TeamController::class, "showhome"])->name("viewHome");
+Route::middleware(["auth", "auth.session","userInTeam"])->get("workspace/{team_id}", [TeamController::class, "workspace"])->name("viewWorkspace");
+
+
 Route::middleware(["auth", "auth.session", "userInTeam"])->post("team/{team_id}/update/profilesa", [TeamController::class, "updateData"])->name("doTeamDataUpdate");
 Route::middleware(["auth", "auth.session", "userInTeam"])->post("team/{team_id}/update/profile", [TeamController::class, "updateDataSec"])->name("doTeamDataUpdateSec");
 Route::middleware(["auth", "auth.session", "userInTeam"])->post("team/{team_id}update/picture", [TeamController::class, "updateImage"])->name("doChangeTeamImage");

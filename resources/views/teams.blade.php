@@ -156,82 +156,40 @@
 
                 </div>
 
-
-
                 <form method="POST" id="invite-members-form" action="{{ route('InviteMemberto') }}"
-
                     class="flex justify-center w-full p-4 overflow-hidden overflow-y-auto border-2 border-black h-80 rounded-xl">
-
-                    @csrf
-
-                    <input type="hidden" name="team_id", value="">
-
-          
+                    @csrf                    <input type="hidden" name="team_id", value="">         
 
                     <div class="flex flex-col w-full gap-2" id="invite-container">
-
-
-
                         {{-- <div class="flex gap-2" id="email-tag-1">
-
                             <input type="hidden" value="">
-
                             <p class="flex-grow overflow-hidden truncate">William@email.com</p>
-
                             <x-form.button outline type="button" action="DOM.find('#email-tag-1')?.remove()"
-
                                 class="!border-2 !text-sm w-min !px-4">
-
                                 <x-fas-trash class="w-6 h-6" />
-
                             </x-form.button>
-
                         </div> --}}
-
-
-
-
-
                     </div>
-
                 </form>
-
-
-
                 <x-form.button primary type="submit" id="save-btn" form="invite-members-form">Save</x-form.button>
-
             </div>
-
         </div>
-
     </template>
 
 
 
     <template is-modal="acceptInvite">
-
         <div class="flex flex-col w-full gap-4 p-4">
-
-            <h1 class="text-3xl font-bold">Team Invite</h1>
-
+            <h1 class="text-3xl font-bold">Team Invitess</h1>
             <div class="flex flex-col gap-4">
-
                 <header class="w-full p-4 h-28" id="header-overlay">
-
                     <div
-
                         class="relative flex items-center justify-center w-20 overflow-hidden bg-black border-4 border-white rounded-full aspect-square">
-
                         <img id="team-image" src="" alt=""
-
                             class="absolute top-0 left-0 z-40 object-fill w-full h-full">
-
                         <p class="text-2xl font-bold text-white" id="team-initial"></p>
-
                     </div>
-
                 </header>
-
                 <hr>
 
 

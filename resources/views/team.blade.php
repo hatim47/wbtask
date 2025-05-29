@@ -8,63 +8,41 @@
 @endsection
 
 @section('app-side')
-    <div class="flex flex-col gap-1 px-8 pl-4 mt-2">
-        <a data-role="menu-item" href="{{ route('home') }}"
-        class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
-        <x-fas-cube class="w-6 h-6" />
-        <p class="text-lg font-normal"> Team </p>
-    </a>
+    <div class="flex flex-col gap-1  pl-4 mt-2" >
 
+        {{-- {{dd($teams_info);}} --}}
+
+  <a data-role="menu-item" href="{{ route('viewTeam', ['team_id' => $team->id]) }}"
+       class="flex items-center justify-start w-full gap-3 px-6 py-2  text-gray-600 cursor-pointer  select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-100' : 'hover:bg-neutral-200 ' }}">
+       <p class=" "> Board </p>
+    </a>    
+ <a data-role="menu-item" href="{{ route('viewWorkspace', ['team_id' => $team->id]) }}"
+        class="flex items-center justify-start w-full gap-3 px-6 py-2  text-gray-600 cursor-pointer  select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-100' : 'hover:bg-neutral-200 ' }}">
        
-           
-                <div data-role="menu-item" onclick="ModalView.show('updateTeam')"
-                class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
-                <x-fas-pen class="w-6 h-6" />
-                   <p class="text-lg font-normal">  Edit </p>
-                </div>
-                
-               
-                <div data-role="menu-item" onclick="ModalView.show('inviteMember')"
-                class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
-                <x-fas-user-plus class="w-6 h-6" />
-                   <p class="text-lg font-normal"> Invite</p>
-                </div>
-              
-                <div data-role="menu-item" onclick="ModalView.show('createBoard')"
-                class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
-                <x-fas-table-columns class="w-6 h-6" />
-                   <p class="text-lg font-normal"> Add Board</p>
-                </div>
-              
-                @if (Auth::user()->id == $owner->id)
-             
-                <div data-role="menu-item" onclick="ModalView.show('manageMember')"
-                class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
-                <x-fas-user-xmark class="w-6 h-6" />
-                   <p class="text-lg font-normal"> Remove Members</p>
-                </div>
-
-                <a href="{{ route('boardmember', ['team_id' => $team->id]) }}" data-role="menu-item" 
-                class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
-                <x-fas-users class="w-6 h-6" />
-                   <p class="text-lg font-normal">Members</p>
-            </a>
-                
-                <div data-role="menu-item" onclick="ModalView.show('deleteTeam')"
-                class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
-                <x-fas-trash class="w-6 h-6" />
-                   <p class="text-lg font-normal"> Delete</p>
-                </div>
-            @else
-                <div data-role="menu-item" onclick="ModalView.show('leaveTeam')"
-                class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
-                <x-fas-right-from-bracket class="w-6 h-6" />
-                   <p class="text-lg font-normal">  Leave Team </p>
-                </div>
-            @endif
-    
-
+        <p class=" "> Member   </p>
+    </a> 
     </div>
+
+
+    <div class="flex flex-col gap-1  pl-4 mt-2" >
+
+
+@foreach ($teams_info as $info)
+
+  @foreach ($info['boards'] as $board)
+
+                            <a href="{{ route('board', ['board_id' => $board->id, 'team_id' => $board->team_id]) }}"  class="flex gap-3  px-6 py-2 cursor-pointer select-none transition duration-300  border-gray-200  select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-100' : 'hover:bg-neutral-200 ' }}">
+                                    <div
+                                        class="flex cursor-pointer select-none flex-col transition duration-300 border border-gray-200 shadow-xl rounded-xl h-6 w-6 hover:shadow-2xl bg-grad-{{ $board->pattern }} overflow-hidden">
+                                        </div>
+                                    <h3 class="overflow-hidden  truncate ">{{ $board->name }}</h3>
+
+                            </a>
+                        @endforeach
+
+@endforeach
+
+ </div>
 @endsection
 
 @section('content')
@@ -78,39 +56,8 @@
             </div>
         </template>
 
-        <template is-modal="updateTeam">
-            <div class="flex flex-col w-full gap-4 p-4">
-                <h1 class="text-3xl font-bold">Edit Team</h1>
-                <hr>
-                <form action="{{ route('doTeamDataUpdate', ['team_id' => $team->id]) }}" method="POST" class="flex flex-col gap-4">
-                    @csrf
-                    <input type="hidden" name="team_id" value="{{ $team->id }}">
-                    <x-form.text name="team_name" label="Team's Name" value="{{ $team->name }}" required />
-                    <x-form.textarea name="team_description" label="Team's Description" value="{{ $team->description }}"
-                        required />
-                    <div class="flex flex-col w-full gap-2" x-data="{ selected: '{{ $team->pattern }}' }">
-                        <label class="pl-6">Team's Background</label>
-                        <input type="hidden" id="pattern-field" name="team_pattern" x-bind:value="selected">
-                        <div
-                            class="flex items-center justify-start w-full max-w-2xl gap-2 px-4 py-2 overflow-hidden overflow-x-scroll border-2 border-gray-200 h-36 rounded-xl">
-                            @foreach ($patterns as $pattern)
-                                <div x-on:click="selected = '{{ $pattern }}'"
-                                    x-bind:class="(selected == '{{ $pattern }}') ? 'border-black' : 'border-gray-200'"
-                                    class="{{ $pattern == $team->pattern ? 'order-first' : '' }} h-full flex-shrink-0 border-4 rounded-lg w-36 bg-pattern-{{ $pattern }} hover:border-black">
-                                    <div x-bind:class="(selected == '{{ $pattern }}') ? 'opacity-100' : 'opacity-0'"
-                                        class="flex items-center justify-center w-full h-full">
-                                        <x-fas-circle-check class="w-6 h-6" />
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                    <x-form.button class="mt-4" type="submit" id="update-btn" primary>Submit</x-form.button>
-                </form>
-            </div>
-        </template>
 
-        <template is-modal="createBoard">
+         <template is-modal="createBoard">
             <div class="flex flex-col w-full gap-4 p-4">
                 <h1 class="text-3xl font-bold">Create Board</h1>
                 <hr>
@@ -138,41 +85,10 @@
                     <x-form.button class="mt-4" type="submit" primary>Submit</x-form.button>
                 </form>
             </div>
-        </template>
+        </template> 
 
         
-        <template is-modal="manageMember" class="bg-red-200">
-            <div class="flex flex-col w-full gap-4 p-4">
-                <h1 class="text-3xl font-bold">Manage Members</h1>
-                <hr>
-                <div class="flex flex-col gap-4">
-                    <x-form.text label="Team member" name="member-name" icon="fas-search" />
-
-                    <section
-                        class="flex justify-center w-full p-4 overflow-hidden overflow-y-auto border-2 border-black h-80 rounded-xl">
-                        <div class="flex flex-wrap w-full max-w-[34rem] min-h-full gap-2">
-
-                            @foreach ($members as $member)
-                                <div data-role="member-card" data-email="{{ $member->email }}"
-                                    data-name="{{ $member->name }}"
-                                    class="flex flex-col items-center justify-center w-32 gap-2 p-2 overflow-hidden border-2 border-gray-300 cursor-pointer select-none h-36 rounded-xl">
-                                    <x-avatar name="{{ $member->name }}" asset="{{ $member->image_path }}"
-                                        class="!flex-shrink-0 !flex-grow-0 w-12" />
-                                    <p class="w-full h-8 text-xs font-bold text-center line-clamp-2">{{ $member->name }}
-                                    </p>
-                                    <p class="w-full h-8 text-xs font-normal text-center line-clamp-2">
-                                        {{ $member->email }}
-                                    </p>
-                                </div>
-                            @endforeach
-
-                        </div>
-                    </section>
-
-                    <x-form.button primary type="button" id="save-btn">Delete</x-form.button>
-                </div>
-            </div>
-        </template>
+    
 
         <template is-modal="inviteMember" class="bg-red-200">
             <div class="flex flex-col w-full gap-4 p-4">
@@ -188,20 +104,20 @@
                         </x-form.button>
                     </div>
 
-                    <form method="POST" id="invite-members-form" action="{{ route('doInviteMembers', ['team_id' => $team->id]) }}"
+                    <form method="POST" id="invite-members-form" action=""
                         class="flex justify-center w-full p-4 overflow-hidden overflow-y-auto border-2 border-black h-80 rounded-xl">
                         @csrf
-                        <input type="hidden" name="team_id", value="{{ $team->id }}">
+                        <input type="hidden" name="team_id", value="">
                         <div class="flex flex-col w-full gap-2" id="invite-container">
 
-                            {{-- <div class="flex gap-2" id="email-tag-1">
+                            <div class="flex gap-2" id="email-tag-1">
                                 <input type="hidden" value="">
                                 <p class="flex-grow overflow-hidden truncate">William@email.com</p>
                                 <x-form.button outline type="button" action="DOM.find('#email-tag-1')?.remove()"
-                                    class="!border-2 !text-sm w-min !px-4">
+                                    class="!border-2 ! w-min !px-4">
                                     <x-fas-trash class="w-6 h-6" />
                                 </x-form.button>
-                            </div> --}}
+                            </div> 
 
 
                         </div>
@@ -211,60 +127,54 @@
                 </div>
             </div>
         </template>
-        @if (Auth::user()->id == $owner->id)
+       
         <template is-modal="deleteTeam">
             <form class="flex flex-col items-center justify-center w-full h-full gap-6 p-4" method="POST"
                 action="{{ route('doDeleteTeam', ['team_id' => $team->id]) }}">
                 @csrf
                 <input type="hidden" name="team_id" value="{{ $team->id }}">
-                <p class="mb-6 text-lg text-center"> Are you sure you want to delete this team?</p>
+                <p class="mb-6  text-center"> Are you sure you want to delete this team?</p>
                 <div class="flex gap-6">
                     <x-form.button type="submit">Yes</x-form.button>
                     <x-form.button type="button" action="ModalView.close()" primary>No</x-form.button>
                 </div>
             </form>
-        </template>
-    @else
+        </template> 
+   
         <template is-modal="leaveTeam">
             <form class="flex flex-col items-center justify-center w-full h-full gap-6 p-4" method="POST"
                 action="{{ route('doLeaveTeam', ['team_id' => $team->id]) }}">
                 @csrf
                 <input type="hidden" name="team_id" value="{{ $team->id }}">
-                <p class="mb-6 text-lg text-center"> Are you sure you want to leave this team?</p>
+                <p class="mb-6  text-center"> Are you sure you want to leave this team?</p>
                 <div class="flex gap-6">
                     <x-form.button type="submit">Yes</x-form.button>
                     <x-form.button type="button" action="ModalView.close()" primary>No</x-form.button>
                 </div>
             </form>
-        </template>
-    @endif
+        </template> 
 
     <div class="flex flex-col w-full h-full overflow-auto">
-        {{-- <header class="w-full h-24 flex items-center p-6 bg-pattern-{{ $team->pattern }} border-b border-gray-200">
-            <div class="w-20 h-20">
-                @if (Auth::user()->id == $owner->id)
-                    <x-avatar name="{{ $team->name }}" asset="{{ $team->image_path }}"
-                        class="!w-20 !aspect-square !text-4xl" action="ModalView.show('changeProfile')">
-                        <div
-                            class="flex flex-wrap items-center justify-center w-full h-full transition-all bg-black opacity-0 hover:opacity-70">
-                            <x-fas-camera class="w-1/3 m-auto h-1/3" />
-                        </div>
-                    </x-avatar>
-                @else
-                    <x-avatar name="{{ $team->name }}" asset="{{ $team->image_path }}"
-                        class="!w-20 !aspect-square !text-4xl" />
-                @endif
-            </div>
-        </header> --}}
+ 
 
         <div class="flex flex-grow gap-8 px-6 py-4 overflow-hidden">
             {{-- page left section --}}
             <section class="flex flex-col flex-grow h-full gap-6">
 
                 <section class="flex flex-col gap-4">
-                    <header class="flex items-center gap-2 pl-1">
+                    <header class="flex items-center justify-between gap-2 pl-1">
                         <h2 class="text-2xl font-bold">Boards</h2>
+                         <button class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md flex items-center space-x-2" onclick="ModalView.show('inviteMember')">
+        {{-- User Plus Icon --}}
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zm-6 9a5 5 0 0110 0v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2a5 5 0 015-5z"/>
+        </svg>
+        <span>Invite Workspace members</span>
+    </button>
                     </header>
+
+   
+
 
                     {{-- Search Bar --}}
                     <form class="flex items-center w-full gap-4" id="search-form" action="{{ route('searchBoard', ['team_id' => $team->id]) }}"
@@ -276,20 +186,27 @@
                             value="{{ session('__old_board_name') }}" />
 
                         
-                    </form>
+                    </form> 
 
                     <div class="flex flex-wrap mt-2 gap-x-8 gap-y-6">
 
-                        @if ($boards->isEmpty() )
+                         @if ($boards->isEmpty() )
                             <div onclick="ModalView.show('createBoard')"
-                                class="flex flex-col items-center justify-center gap-2 text-gray-400 transition duration-300 bg-gray-100 shadow-md cursor-pointer select-none w-72 h-52 rounded-xl hover:shadow-2xl">
+                                class="flex flex-col items-center justify-center gap-2 text-gray-600 transition duration-300 bg-gray-100 shadow-md cursor-pointer select-none w-72 h-52 rounded-xl hover:shadow-2xl">
                                 <x-fas-plus class="w-8 h-8" />
                                 <p>Create Board</p>
                             </div>
                         @endif
 
-
+<div onclick="ModalView.show('createBoard')"
+                                class="flex flex-col items-center justify-center gap-2 text-gray-600 transition duration-300 bg-gray-100 shadow-md cursor-pointer select-none w-72 h-32 rounded-xl hover:shadow-2xl">
+                                <x-fas-plus class="w-8 h-8" />
+                                <p>Create Board</p>
+                            </div>
                         @foreach ($boards as $board)
+                           
+                        
+                  
                             <a href="{{ route('board', ['board_id' => $board->id, 'team_id' => $board->team_id]) }}"
                                 class="flex cursor-pointer select-none flex-col transition duration-300 border border-gray-200 shadow-xl rounded-xl h-32 w-72 hover:shadow-2xl bg-grad-{{ $board->pattern }} overflow-hidden">
                                 <div class="flex-grow w-full p-4">
@@ -299,14 +216,14 @@
                                     <h3 class="overflow-hidden font-semibold truncate text-bold">{{ $board->name }}</h3>
                                 </article>
                             </a>
-                        @endforeach
+                        @endforeach 
                     </div>
                 </section>
 
             </section>
 
-            {{-- page right section --}}
-            {{-- <aside class="flex flex-col h-full gap-4 w-72">
+            {{-- page right section 
+             <aside class="flex flex-col h-full gap-4 w-72">
                 <h2 class="ml-4 text-2xl font-bold">Members</h2>                
                 <div
                     class="flex flex-col flex-grow w-full gap-2 p-4 overflow-x-hidden overflow-y-auto border-2 border-gray-200 rounded-xl">
@@ -317,13 +234,13 @@
                         <x-fas-crown class="w-6 h-6 text-yellow-400 !flex-shrink-0 !flex-grow-0" />
                     </div>
 
-                    @foreach ($members as $member)
+                     @foreach ($members as $member)
                         <div class="flex items-center gap-4">
                             <x-avatar name="{{ $member->name }}" asset="{{ $member->image_path }}"
                                 class="!flex-shrink-0 !flex-grow-0 w-12" />
                             <p class="w-40 truncate">{{ $member->name }}</p>
                         </div>
-                    @endforeach
+                    @endforeach 
                 </div>
             </aside> --}}
         </div>
@@ -333,7 +250,12 @@
 
 @pushOnce('page')
     <script>
-       
+          document.querySelectorAll('[data-collapse-toggle]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const target = document.getElementById(btn.dataset.collapseToggle);
+            target.classList.toggle('hidden');
+        });
+    });
             ModalView.onShow('createBoard', (modal) => {
               
                 modal.querySelectorAll("form[action][method]").forEach(
@@ -374,7 +296,7 @@
                         let response = await ServerRequest.post("{{ route('doChangeTeamImage', ['team_id' => $team->id]) }}", {
                             image: pfpBlobData,
                             team_id: `{{ $team->id }}`
-                        });
+                        }); 
                         location.reload();
                     } catch (error) {
                         PageLoader.close();
@@ -423,7 +345,7 @@
                             team_id: `{{ $team->id }}`,
                             user_id: `{{ Auth::user()->id }}`,
                             emails: deleteEmailList,
-                        });
+                        }); 
                         location.reload();
                     } catch (error) {
                         console.log(error);
@@ -469,7 +391,7 @@
                         <p class="flex-grow overflow-hidden truncate">
                             ${email}
                         </p>
-                        <button onclick="DOM.find('#email-tag-${id}')?.remove()" type="button" class="flex items-center justify-center w-full gap-2 px-6 py-1 text-base font-bold border-4 border-black rounded-full bg-white text-black hover:bg-black hover:text-white !border-2 !text-sm w-min !px-4">
+                        <button onclick="DOM.find('#email-tag-${id}')?.remove()" type="button" class="flex items-center justify-center w-full gap-2 px-6 py-1 text-base font-bold border-4 border-black rounded-full bg-white text-gray-600 hover:bg-black hover:text-white !border-2 ! w-min !px-4">
                                 <svg class="w-6 h-6" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.3.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc. --><path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"></path></svg>
                         </button>
                     </div>
@@ -480,7 +402,7 @@
 
             })
             
-            @if (Auth::user()->id == $owner->id)
+            {{-- @if (Auth::user()->id == $owner->id) --}}
             ModalView.onShow('deleteTeam', (modal) => {
                 modal.querySelectorAll("form[action][method]").forEach(
                     form => form.addEventListener("submit", () => PageLoader.show())
@@ -498,7 +420,7 @@
             });
 
 
-        @endif
+        {{-- @endif --}}
 
         @if ($errors->any())
             ToastView.notif("Warning", "{{ $errors->first() }}");

@@ -37,29 +37,56 @@
     </div>
 
     <div class="flex flex-col p-3 border-t bg-white">
-      <div v-if="showRecordingPlayer" class="flex items-center justify-between p-3 mb-2 bg-gray-100 rounded-lg">
-        <div class="flex items-center space-x-3">
-          <button @click="cancelRecording" class="text-red-500 hover:text-red-700">
-            <font-awesome-icon :icon="['fas', 'trash']" class="w-5 h-5" />
-          </button>
-          <span class="text-sm text-gray-600">{{ formatRecordingTime }}</span>
-          <div class="flex-1 h-1 bg-gray-300 rounded-full mx-2">
-            <div class="h-full bg-gray-600 rounded-full" :style="{ width: '0%' }"></div>
+
+         <div v-if="showRecordingPlayer && !isRecording" class="flex flex-col p-3 mb-2 bg-gray-100 rounded-lg">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <button @click="cancelRecording" class="text-red-500 hover:text-red-700">
+              <font-awesome-icon :icon="['fas', 'trash']" class="w-5 h-5" />
+            </button>
+            <span class="text-sm text-gray-600">{{ formatPlaybackTime }} / {{ formatTotalDuration }}</span>
+            <button @click="togglePlayPause" class="text-gray-700 hover:text-gray-900 ml-4">
+              <font-awesome-icon :icon="['fas', isPlaying ? 'pause' : 'play']" class="w-5 h-5" />
+            </button>
           </div>
-        </div>
-        <div class="flex items-center space-x-2">
-          <button @click="togglePlayPause" class="text-gray-700 hover:text-gray-900">
-            <font-awesome-icon :icon="['fas', isPlaying ? 'pause' : 'play']" class="w-5 h-5" />
-          </button>
           <button @click="sendRecording" class="text-blue-500 hover:text-blue-700">
             <font-awesome-icon :icon="['fas', 'paper-plane']" class="w-5 h-5" />
           </button>
         </div>
-        <audio ref="audioPlayer" :src="audioUrl" class="hidden" @ended="isPlaying = false"></audio>
+
+        <div class="w-full h-2 bg-gray-300 rounded-full mt-2 relative cursor-pointer" @click="seekAudio">
+  <div class="h-full bg-gray-600 rounded-full" :style="{ width: playbackProgress + '%' }"></div>
+  <div
+    class="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-gray-800 rounded-full shadow"
+    :style="{ left: `calc(${playbackProgress}% - 8px)` }"
+    v-if="audioUrl"
+  ></div>
+</div>
+
+      <audio
+  ref="audioPlayer"
+  :src="audioUrl"
+  class="hidden"
+  @ended="isPlaying = false"
+  @timeupdate="updatePlaybackTime"
+  @loadedmetadata="setAudioDuration"
+  @error="handleAudioError"
+></audio>
       </div>
 
+      <div v-if="isRecording" class="flex items-center justify-between p-3 mb-2 bg-red-100 rounded-lg">
+        <div class="flex items-center space-x-3">
+          <button @click="cancelRecording" class="text-red-600 hover:text-red-800">
+            <font-awesome-icon :icon="['fas', 'trash']" class="w-5 h-5" />
+          </button>
+          <div class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div> <span class="text-sm text-red-700 font-semibold">Recording... {{ formatRecordingTime }}</span>
+        </div>
+        <button @click="stopRecording" class="ml-2 text-white bg-red-500 hover:bg-red-600 px-4 py-2 rounded-full">
+          <font-awesome-icon :icon="['fas', 'stop']" class="w-4 h-4"/> Stop
+        </button>
+      </div>
 
-      <div class="flex items-center">
+      <div v-else-if="!showRecordingPlayer" class="flex items-center">
         <button @click="triggerFile" class="text-gray-500 hover:text-gray-700 mr-3">
           📎
         </button>
@@ -77,13 +104,12 @@
             type="text"
             placeholder="Type a message"
             class="flex-1 bg-transparent text-sm outline-none"
-            :disabled="isRecording || showRecordingPlayer"
           />
-          <button @click="sendMessage" class="ml-2 text-gray-500 hover:text-gray-700" :disabled="isRecording || showRecordingPlayer">
+          <button @click="sendMessage" class="ml-2 text-gray-500 hover:text-gray-700">
             📨
           </button>
-          <button @click="toggleRecording" class="ml-2 text-gray-500 hover:text-gray-700">
-            <font-awesome-icon :icon="['fas', isRecording ? 'stop' : 'microphone']" class="w-4 h-4"/>
+          <button @click="startRecording" class="ml-2 text-gray-500 hover:text-gray-700">
+            <font-awesome-icon :icon="['fas', 'microphone']" class="w-4 h-4"/>
           </button>
         </div>
       </div>
@@ -92,6 +118,8 @@
 </template>
 
 <script>
+// (Your existing script content remains mostly the same)
+
 export default {
   props: ['selectedUser'],
   data() {
@@ -117,15 +145,17 @@ export default {
         { id: 17, text: "I'll be there in 2 mins ⏰", fromMe: false },
         { id: 18, text: "woohoooo 🔥", fromMe: false }
       ],
-      isRecording: false,
+     isRecording: false,
       audioUrl: null,
       showRecordingPlayer: false,
       mediaRecorder: null,
       audioChunks: [],
       recordingStartTime: null,
       recordingTimer: null,
-      recordingDuration: 0,
-      isPlaying: false,
+      recordingDuration: 0, // This is for the recording time display
+      isPlaying: false, // State for playback
+      playbackCurrentTime: 0, // Current position of playback
+      audioDuration: 0,
     };
   },
   computed: {
@@ -149,11 +179,31 @@ export default {
       });
       return groups;
     },
-    formatRecordingTime() {
+      formatRecordingTime() {
       const minutes = Math.floor(this.recordingDuration / 60);
       const seconds = this.recordingDuration % 60;
       return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    }
+    },
+   formatPlaybackTime() {
+      const minutes = Math.floor(this.playbackCurrentTime / 60);
+      const seconds = Math.floor(this.playbackCurrentTime % 60);
+      return `<span class="math-inline">\{minutes\.toString\(\)\.padStart\(2, '0'\)\}\:</span>{seconds.toString().padStart(2, '0')}`;
+    },
+    formatTotalDuration() {
+      if (isNaN(this.audioDuration) || this.audioDuration === 0) {
+        return '00:00';
+      }
+      const minutes = Math.floor(this.audioDuration / 60);
+      const seconds = Math.floor(this.audioDuration % 60);
+      return `<span class="math-inline">\{minutes\.toString\(\)\.padStart\(2, '0'\)\}\:</span>{seconds.toString().padStart(2, '0')}`;
+    },
+    playbackProgress() {
+      if (this.audioDuration > 0 && !isNaN(this.audioDuration)) {
+        return (this.playbackCurrentTime / this.audioDuration) * 100;
+      }
+      return 0;
+    },
+  
   },
   methods: {
     triggerFile() {
@@ -163,8 +213,6 @@ export default {
       const file = event.target.files[0];
       if (file) {
         console.log("File selected:", file.name);
-        // You would typically upload this file to a server
-        // For demonstration, let's add a message indicating a file was sent
         this.messages.push({
           id: Date.now(),
           text: `File attached: ${file.name}`,
@@ -181,22 +229,26 @@ export default {
       });
       this.newMessage = '';
     },
-    async toggleRecording() {
-      if (this.isRecording) {
-        this.stopRecording();
-      } else {
-        await this.startRecording();
-      }
-    },
-    async startRecording() {
+    // We no longer need toggleRecording as start/stop are separate buttons now
+    // async toggleRecording() {
+    //   if (this.isRecording) {
+    //     this.stopRecording();
+    //   } else {
+    //     await this.startRecording();
+    //   }
+    // },
+     async startRecording() {
       try {
+        this.cancelRecording(); // Clear any previous recording/player
+
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         this.mediaRecorder = new MediaRecorder(stream);
         this.audioChunks = [];
         this.recordingDuration = 0;
         this.isRecording = true;
-        this.showRecordingPlayer = false; // Hide player when starting new recording
-        this.audioUrl = null; // Clear previous audio
+        this.isPlaying = false; // Ensure playback is off
+        this.playbackCurrentTime = 0; // Reset playback time
+        this.audioDuration = 0; // Reset audio duration
 
         this.mediaRecorder.ondataavailable = this.onRecordingDataAvailable;
         this.mediaRecorder.onstop = this.onRecordingStop;
@@ -217,7 +269,7 @@ export default {
       if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
         this.mediaRecorder.stop();
         clearInterval(this.recordingTimer);
-        this.isRecording = false;
+        this.isRecording = false; // Hide recording interface
         console.log('Voice recording stopped.');
       }
     },
@@ -227,9 +279,8 @@ export default {
     onRecordingStop() {
       const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
       this.audioUrl = URL.createObjectURL(audioBlob);
-      this.showRecordingPlayer = true;
+      this.showRecordingPlayer = true; // Show playback player
       console.log('Audio URL:', this.audioUrl);
-      // Stop the stream tracks to release microphone
       if (this.mediaRecorder && this.mediaRecorder.stream) {
         this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
       }
@@ -244,30 +295,67 @@ export default {
         }
         this.isPlaying = !this.isPlaying;
       }
+    },    
+    updatePlaybackTime() {
+      const audioPlayer = this.$refs.audioPlayer;
+      if (audioPlayer) {
+        this.playbackCurrentTime = audioPlayer.currentTime;
+      }
+    },
+    setAudioDuration() {
+      const audioPlayer = this.$refs.audioPlayer;
+      if (audioPlayer && isFinite(audioPlayer.duration)) {
+        this.audioDuration = audioPlayer.duration;
+      } else {
+         this.audioDuration = 0;
+      }
+    },
+    seekAudio(event) {
+      const progressBar = event.currentTarget;
+      const clickX = event.clientX - progressBar.getBoundingClientRect().left;
+      const progressBarWidth = progressBar.offsetWidth;
+      const seekTime = (clickX / progressBarWidth) * this.audioDuration;
+
+      const audioPlayer = this.$refs.audioPlayer;
+      if (audioPlayer && !isNaN(seekTime) && isFinite(seekTime)) {
+        audioPlayer.currentTime = seekTime;
+        if (!this.isPlaying) {
+          audioPlayer.play().catch(error => {
+            console.error('Error seeking and playing audio:', error);
+            alert('Could not seek and play audio.');
+          });
+          this.isPlaying = true;
+        }
+      }
     },
     cancelRecording() {
       this.showRecordingPlayer = false;
+      this.isRecording = false;
       this.audioUrl = null;
       this.recordingDuration = 0;
+      this.playbackCurrentTime = 0; // Reset playback state
+      this.audioDuration = 0; // Reset playback state
       this.isPlaying = false;
       if (this.$refs.audioPlayer) {
         this.$refs.audioPlayer.pause();
         this.$refs.audioPlayer.currentTime = 0;
       }
+      if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
+        this.mediaRecorder.stop();
+        this.mediaRecorder = null;
+      }
+      clearInterval(this.recordingTimer);
+      this.audioChunks = [];
       console.log('Recording cancelled.');
     },
     sendRecording() {
       if (this.audioUrl) {
-        // Here you would typically send the audioBlob to your backend
-        // For demonstration, we'll add a message indicating an audio was sent.
         this.messages.push({
           id: Date.now(),
-          text: `[Audio Message - ${this.formatRecordingTime}]`,
+          text: `[Audio Message - ${this.formatTotalDuration}]`, // Use total duration for sent message
           fromMe: true,
-          // You could also store the audioUrl or a reference to it
-          // audioUrl: this.audioUrl
         });
-        this.cancelRecording(); // Clear the recording player after sending
+        this.cancelRecording();
         console.log('Recording sent!');
       } else {
         alert('No recording to send!');

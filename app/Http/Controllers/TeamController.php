@@ -240,16 +240,23 @@ class TeamController extends Controller
     }
 
 
+  public function workspace($team_id)
+{
 
-
-
-    public function showTeam($team_id)
-
-    {
-
-        $team_id = intval($team_id);
-
+  $team_id = intval($team_id);
         $selected_team = Team::find($team_id);
+        $team_owner = $this->teamLogic->getTeamOwner($selected_team->id);
+        $team_members = $this->teamLogic->getTeamMember($selected_team->id);
+        $team_boards = $this->teamLogic->getBoards($selected_team->id);
+    
+       $team = UserTeam::where('user_id', Auth::user()->id)->whereNotIn("status", ["pending"])->get();
+            // dd($team);
+        // $team_id = intval($team_id);
+        $teams_info = [];
+foreach ($team as $userTeam) {
+        $selected_team = Team::find($userTeam->team_id);
+
+        if ($selected_team) {
 
         $team_owner = $this->teamLogic->getTeamOwner($selected_team->id);
 
@@ -257,22 +264,93 @@ class TeamController extends Controller
 
         $team_boards = $this->teamLogic->getBoards($selected_team->id);
 
+  $teams_info[] = [
+            'team' => $selected_team,
+            'owner' => $team_owner,
+            'members' => $team_members,
+            'boards' => $team_boards,
+        ];
+}
+}
 
-
-        return view("team")
-
-            ->with("team", $selected_team)
-
-            ->with("owner", $team_owner)
-
-            ->with("members", $team_members)
-
-            ->with("patterns", TeamLogic::PATTERN)
-
+ return view("workspace") ->with("team", $selected_team)
+            ->with("owner", $team_owner) 
             ->with("backgrounds", BoardLogic::PATTERN)
-
+            ->with("members", $team_members)
+            ->with("teams_info", $teams_info)
             ->with("boards", $team_boards);
+          
 
+}
+
+  public function showhome()
+    {
+    $team = UserTeam::where('user_id', Auth::user()->id)->whereNotIn("status", ["pending"])->get();
+        // dd($team);
+        // $team_id = intval($team_id);
+        $teams_info = [];
+foreach ($team as $userTeam){
+        $selected_team = Team::find($userTeam->team_id);
+        if ($selected_team) {
+        $team_owner = $this->teamLogic->getTeamOwner($selected_team->id);
+        $team_members = $this->teamLogic->getTeamMember($selected_team->id);
+        $team_boards = $this->teamLogic->getBoards($selected_team->id);
+  $teams_info[] = [
+            'team' => $selected_team,
+            'owner' => $team_owner,
+            'members' => $team_members,
+            'boards' => $team_boards,
+        ];
+}
+}
+        return view("allteam")
+            ->with("teams_info", $teams_info)
+            ->with("backgrounds", BoardLogic::PATTERN);
+
+    }
+
+    public function showTeam($team_id)
+    {
+
+        $team_id = intval($team_id);
+        $selected_team = Team::find($team_id);
+        $team_owner = $this->teamLogic->getTeamOwner($selected_team->id);
+        $team_members = $this->teamLogic->getTeamMember($selected_team->id);
+        $team_boards = $this->teamLogic->getBoards($selected_team->id);
+
+
+
+ $team = UserTeam::where('user_id', Auth::user()->id)->whereNotIn("status", ["pending"])->get();
+            // dd($team);
+        // $team_id = intval($team_id);
+        $teams_info = [];
+foreach ($team as $userTeam) {
+        $selected_team = Team::find($userTeam->team_id);
+
+        if ($selected_team) {
+
+        $team_owner = $this->teamLogic->getTeamOwner($selected_team->id);
+
+        $team_members = $this->teamLogic->getTeamMember($selected_team->id);
+
+        $team_boards = $this->teamLogic->getBoards($selected_team->id);
+
+  $teams_info[] = [
+            'team' => $selected_team,
+            'owner' => $team_owner,
+            'members' => $team_members,
+            'boards' => $team_boards,
+        ];
+}
+}
+
+        
+        return view("team")
+            ->with("team", $selected_team)
+            ->with("owner", $team_owner) 
+            ->with("teams_info", $teams_info)
+            ->with("backgrounds", BoardLogic::PATTERN)
+            ->with("boards", $team_boards);
     }
 
 
@@ -286,7 +364,6 @@ class TeamController extends Controller
     }
 
     public function search(Request $request)
-
     {
 
         $validator = Validator::make($request->all(), ["team_name" => "required"]);
@@ -306,8 +383,6 @@ class TeamController extends Controller
         $teams = $this->teamLogic->getUserTeams($user->id, ["Member", "Owner"], $request->team_name);
 
         $invites = $this->teamLogic->getUserTeams($user->id, ["Pending"], $request->team_name);
-
-
 
         return view("teams")
 
@@ -603,23 +678,12 @@ class TeamController extends Controller
 
     {
 
+        dd($request->all());
         $emails = $request->emails;
-
-        $team_ids = $request->id;
-
-      
-
-
-
+        $team_ids = $request->id;   
         if ($emails == null)
-
             return redirect()->back();
-
-
-
-
-
-            foreach ($team_ids as $team_id) {
+    foreach ($team_ids as $team_id) {
 
                 foreach ($emails as $email) {
 

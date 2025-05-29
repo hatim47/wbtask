@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use App\Logic\UserLogic;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\UserTeam;
+use App\Models\Team;
+use App\Logic\TeamLogic;
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    public function __construct(protected UserLogic $userLogic)
+    public function __construct(protected UserLogic $userLogic , protected TeamLogic $teamLogic)
     {
     }
 
@@ -41,7 +44,7 @@ class AuthController extends Controller
                 ->withErrors("Wrong email or password, please try again");
         }
 
-        $isActive = Auth::user()->is_active;
+         $isActive = Auth::user()->is_active;
 
         if (!$isActive) {
             Auth::logout();
@@ -51,7 +54,9 @@ class AuthController extends Controller
                 ->withErrors("Account is inactive");
         }
 
-        return redirect()->route('home');
+     
+       // dd($team);
+        return redirect()->route('viewHome');
     }
 
     public function doRegister(Request $request)
