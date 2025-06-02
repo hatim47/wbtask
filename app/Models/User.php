@@ -71,4 +71,10 @@ public function cardUsers()
     {
         return $this->hasMany(UserTeam::class);
     }
+    public function boards()
+{
+    return $this->belongsToMany(Board::class, 'board_user')
+                ->withPivot('status')
+                ->withTimestamps();
+}
 }

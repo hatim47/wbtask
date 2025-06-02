@@ -9,6 +9,7 @@ use App\Models\Board;
 use App\Models\Card;
 use App\Models\Column;
 use App\Models\Team;
+use App\Models\BoardUser;
 use App\Models\Upload;
 use Illuminate\Http\Request;
 use App\Events\BoardUpdated;
@@ -169,10 +170,30 @@ class BoardController extends Controller
         return response()->json($updatedCol);
     }
 
+    public function removeMember(Request $request, $team_id, $board_id)
+    {
+        $request->validate([
+            "user_id" => "required",
+        ]);
+        $user_id = intval($request->user_id);
+        $board_id = intval($board_id);
+        $board = BoardUser::where("board_id", $board_id)->where("user_id", $user_id)->delete();
+        // Step 2: Check if the board has any users left
+$remainingUsers = BoardUser::where('board_id', $board_id)->count();
+
+if ($remainingUsers == 0) {
+    // No users left → delete the board
+    Board::where('id', $board_id)->delete();
+}
+        return redirect()->back()->with("notif", ["Success\nMember removed successfully"]);
+    }
+
+
+
     public function deleteBoard($team_id, $board_id)
     {
         Board::where("id", intval($board_id))->delete();
-        return redirect()->route("viewTeam", ["team_id" => intval($team_id)])->with("notif", ["Deleted\n Board deleted successfulyy"]);
+        return redirect()->back()->with("notif", ["Deleted\n Board deleted successfulyy"]);
     }
     public function updateCol(Request $request, $team_id, $board_id)
     {

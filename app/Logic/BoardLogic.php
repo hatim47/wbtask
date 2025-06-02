@@ -10,6 +10,7 @@ use App\Models\CardComment;
 use App\Models\Team;
 use App\Models\Lable;
 use App\Models\User;
+use App\Models\BoardUser;
 use App\Models\Upload;
 use App\Models\UserTeam;
 use Illuminate\Support\Facades\Auth;
@@ -60,6 +61,11 @@ class BoardLogic
             "team_id" => $team->id,
             "name" => $board_name,
             "pattern" => $board_pattern
+        ]);
+        BoardUser::create([
+            "user_id" => Auth::user()->id,
+            "board_id" => $createdBoard->id,
+            "status" => "Owner"
         ]);
 
         return $createdBoard;

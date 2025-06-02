@@ -80,15 +80,54 @@ class TeamLogic
      *
      * @return Collection<int, User> list of team member
      */
-    function getTeamMember(int $team_id)
+    function getTeamMemberr(int $team_id)
+    {
+        
+        $team_members = Team::find($team_id)->users()
+              ->wherePivotIn('status', ['Member', 'Owner'])
+            ->get();
+            //   dd($team_members);
+
+           
+         
+
+         
+    $membersWithBoards = $team_members->map(function ($user) use ($team_id) {
+        return [
+            'user_id' => $user->id,
+            'name'    => $user->name,
+            'email'   => $user->email,
+            'status'  => $user->pivot->status ?? null,
+            'image'   => $user->image_path ?? null,
+           'created_at' => $user->created_at ? $user->created_at->format('d M y') : null,          
+            'boards' => $user->boards()
+            ->where('team_id', $team_id)  // this is key!
+            ->with('team')
+            ->get()
+            ->map(function ($board) {
+                return [
+                    'board_id'   => $board->id,
+                    'board_name' => $board->name,
+                    'status'     => $board->pivot->status ?? null,
+                    'team_id'    => $board->team_id,
+                    'pattern'    => $board->pattern,
+                    'image_path' => $board->image_path ?? null,
+                ];
+            }),
+        ];
+    });
+    
+        return $membersWithBoards;
+    }
+function getTeamMember(int $team_id)
     {
         $team_members = Team::find($team_id)->users()
             ->wherePivot("status", "Member")
             ->get();
 
+
         return $team_members;
     }
-
     /**
      * get all registered teams of a given user
      *
@@ -103,6 +142,7 @@ class TeamLogic
             ->where("name", "LIKE", "%" . $team_name . "%")
             ->get();
 
+            // dd($teams);
         return $teams;
     }
 
@@ -168,16 +208,37 @@ class TeamLogic
      * @param int $team_id team id
      * @param array $emails member emaile to be removed from team
      */
-    public function deleteMembers(int $team_id, array $emails)
+    public function deleteMembers(int $team_id, $emails)
     {
-        $deletedUser = User::whereIn("email", $emails)->get();
+       $deletedUser = User::where("email", $emails)->first();
 
-        foreach ($deletedUser as $user) {
-            UserTeam::where("team_id", $team_id)
-                ->where("user_id", $user->id)
-                ->where("status", "Member")
-                ->delete();
-        }
+if ($deletedUser) {
+    UserTeam::where("team_id", $team_id)
+        ->where("user_id", $deletedUser->id)
+        ->where("status", "Member")
+        ->delete();
+
+    // Check if user belongs to any other teams
+    $hasTeams = UserTeam::where("user_id", $deletedUser->id)->exists();
+
+    if (!$hasTeams) {
+        // Create a default team for the user
+        $firstName = explode(' ', trim($deletedUser->name))[0] ?? 'Default';
+
+        $defaultTeam = Team::create([
+            'name' => $firstName ,
+            // other default fields if required
+        ]);
+
+        // Add user to this new team as Owner
+        UserTeam::create([
+            'team_id' => $defaultTeam->id,
+            'user_id' => $deletedUser->id,
+            'status' => 'Owner',
+        ]);
+    }
+}
+       
 
         return;
     }

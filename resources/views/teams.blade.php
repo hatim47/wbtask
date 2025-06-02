@@ -19,27 +19,15 @@
 @section('app-side')
 
     <div class="flex flex-col gap-1 px-8 pl-4 mt-2">
-
-
-
             <div data-role="menu-item" onclick="ModalView.show('createTeam')"
-
             class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'hover:bg-neutral-500' : 'hover:bg-neutral-500' }}">
-
                 <x-fas-cube class="w-6 h-6" />
-
                 <p class="text-lg font-normal">  Add Team </p>
-
             </div>
-
             <a href="{{ route('allmember') }}" data-role="menu-item" 
-
                 class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'hover:bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
-
                 <x-fas-users class="w-6 h-6" />
-
                    <p class="text-lg font-normal">Members</p>
-
             </a>        
 
             <div data-role="menu-item" onclick="ModalView.show('inviteMember')"
@@ -346,9 +334,7 @@
 
                 {{-- @csrf --}}
 
-            <from method="POST" id="update-team-form"  class="flex flex-col gap-4">
-
-               
+            <from method="POST" id="update-team-form"  class="flex flex-col gap-4">              
 
                 <input type="hidden" name="team_id"  id="input-text-team_id">
 

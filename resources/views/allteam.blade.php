@@ -44,9 +44,7 @@
  
     </div>
 <div class="flex flex-col gap-1  pl-4 mt-2" >
-@foreach ($teams_info as $info)
-
-  @foreach ($info['boards'] as $board)
+  @foreach ($assign_board as $board)
 
                             <a href="{{ route('board', ['board_id' => $board->id, 'team_id' => $board->team_id]) }}"  class="flex gap-3  px-6 py-2 cursor-pointer select-none transition duration-300  border-gray-200  select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-100' : 'hover:bg-neutral-200 ' }}">
                                     <div
@@ -57,7 +55,7 @@
                             </a>
                         @endforeach
 
-@endforeach
+
 </div>
 @endsection
 
@@ -161,14 +159,7 @@
                 <section class="flex flex-col gap-4">
                     <header class="flex items-center justify-between gap-2 pl-1">
                         <h2 class="text-2xl font-bold">Boards</h2>
-                         <button class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md flex items-center space-x-2"
-                          onclick="ModalView.show('inviteMember')">
-        {{-- User Plus Icon --}}
-        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zm-6 9a5 5 0 0110 0v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2a5 5 0 015-5z"/>
-        </svg>
-        <span>Invite Workspace members</span>
-    </button>
+              
                     </header>
 
    

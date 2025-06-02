@@ -244,41 +244,46 @@ class TeamController extends Controller
   public function workspace($team_id)
 {
 
+    
   $team_id = intval($team_id);
+  $user = User::find(Auth::user()->id);
         $selected_team = Team::find($team_id);
         $team_owner = $this->teamLogic->getTeamOwner($selected_team->id);
-        $team_members = $this->teamLogic->getTeamMember($selected_team->id);
+        $team_members = $this->teamLogic->getTeamMemberr($selected_team->id);
         $team_boards = $this->teamLogic->getBoards($selected_team->id);
-    
+
+        $invites = $this->teamLogic->getUserTeams($user->id, ["Pending"]);
+           //dd($invites);
+
+    $assign_board = $user->boards()
+    ->wherePivotIn('status', ['member', 'owner'])
+    ->get();
        $team = UserTeam::where('user_id', Auth::user()->id)->whereNotIn("status", ["pending"])->get();
             // dd($team);
         // $team_id = intval($team_id);
         $teams_info = [];
 foreach ($team as $userTeam) {
-        $selected_team = Team::find($userTeam->team_id);
+        $selected_teamm = Team::find($userTeam->team_id);
 
-        if ($selected_team) {
-
-        $team_owner = $this->teamLogic->getTeamOwner($selected_team->id);
-
-        $team_members = $this->teamLogic->getTeamMember($selected_team->id);
-
-        $team_boards = $this->teamLogic->getBoards($selected_team->id);
-
+        if ($selected_teamm) {
+        $team_ownerr = $this->teamLogic->getTeamOwner($selected_teamm->id);
+        $team_memberss = $this->teamLogic->getTeamMember($selected_teamm->id);
+        $team_boardss = $this->teamLogic->getBoards($selected_teamm->id);
   $teams_info[] = [
-            'team' => $selected_team,
-            'owner' => $team_owner,
-            'members' => $team_members,
-            'boards' => $team_boards,
+            'team' => $selected_teamm,
+            'owner' => $team_ownerr,
+            'members' => $team_memberss,
+            'boards' => $team_boardss,
         ];
 }
 }
-
  return view("workspace") ->with("team", $selected_team)
             ->with("owner", $team_owner) 
             ->with("backgrounds", BoardLogic::PATTERN)
             ->with("members", $team_members)
             ->with("teams_info", $teams_info)
+            ->with("invites", $invites)
+            ->with("assign_board", $assign_board)
             ->with("boards", $team_boards);
           
 
@@ -304,9 +309,14 @@ foreach ($team as $userTeam){
         ];
 }
 }
+ $user = User::find(Auth::user()->id);
+    $assign_board = $user->boards()
+    ->wherePivotIn('status', ['member', 'owner'])
+    ->get();
         return view("allteam")
             ->with("teams_info", $teams_info)
-            ->with("backgrounds", BoardLogic::PATTERN);
+            ->with("backgrounds", BoardLogic::PATTERN)
+            ->with("assign_board", $assign_board);
 
     }
 
@@ -315,41 +325,24 @@ foreach ($team as $userTeam){
 
         $team_id = intval($team_id);
         $selected_team = Team::find($team_id);
+       
         $team_owner = $this->teamLogic->getTeamOwner($selected_team->id);
         $team_members = $this->teamLogic->getTeamMember($selected_team->id);
         $team_boards = $this->teamLogic->getBoards($selected_team->id);
+        $user = User::find(Auth::user()->id);
+    $assign_board = $user->boards()
+    ->wherePivotIn('status', ['member', 'owner'])
+    ->get();
+         //dd($assign_board);
 
 
 
- $team = UserTeam::where('user_id', Auth::user()->id)->whereNotIn("status", ["pending"])->get();
-            // dd($team);
-        // $team_id = intval($team_id);
-        $teams_info = [];
-foreach ($team as $userTeam) {
-        $selected_team = Team::find($userTeam->team_id);
-
-        if ($selected_team) {
-
-        $team_owner = $this->teamLogic->getTeamOwner($selected_team->id);
-
-        $team_members = $this->teamLogic->getTeamMember($selected_team->id);
-
-        $team_boards = $this->teamLogic->getBoards($selected_team->id);
-
-  $teams_info[] = [
-            'team' => $selected_team,
-            'owner' => $team_owner,
-            'members' => $team_members,
-            'boards' => $team_boards,
-        ];
-}
-}
 
         
         return view("team")
             ->with("team", $selected_team)
             ->with("owner", $team_owner) 
-            ->with("teams_info", $teams_info)
+            ->with("assign_board", $assign_board)
             ->with("backgrounds", BoardLogic::PATTERN)
             ->with("boards", $team_boards);
     }
@@ -599,7 +592,7 @@ foreach ($team as $userTeam) {
 
         $this->teamLogic->deleteMembers($team_id, $request->emails);
 
-        return response()->json(["message" => "delete success"]);
+        return redirect()->back()->with('notif', ["Success\nMember removed from the team."]);
 
     }
 

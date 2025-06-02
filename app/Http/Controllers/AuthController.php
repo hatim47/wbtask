@@ -96,7 +96,29 @@ class AuthController extends Controller
         }
 
             
-        }    
+        }  
+        else{
+
+
+             $hasTeams = UserTeam::where("user_id", $user->id)->exists();
+
+    if (!$hasTeams) {
+        // Create a default team for the user
+        
+        $defaultTeam = Team::create([
+            'team_name' => $request->input('name'),
+            // other default fields if required
+        ]);
+
+        // Add user to this new team as Owner
+        UserTeam::create([
+            'team_id' => $defaultTeam->id,
+            'user_id' => $user->id,
+            'status' => 'Owner',
+        ]);
+    }
+        }
+
 
         return redirect()->route("login")
             ->with("notif", ["Succsess\nRegistration success, please login using your account!"]);

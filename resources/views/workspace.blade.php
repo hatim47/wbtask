@@ -21,7 +21,10 @@
     <div class="flex flex-col gap-1 px-8 pl-4 mt-2">
 
 
-
+ <a data-role="menu-item" href="{{ route('viewHome') }}"
+       class="flex items-center justify-start w-full gap-3 px-6 py-2  text-gray-600 cursor-pointer  select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-100' : 'hover:bg-neutral-200 ' }}">
+       <p class=" "> Home </p>
+    </a> 
             <a data-role="menu-item" href="{{ route('viewTeam', ['team_id' => $team->id]) }}"
        class="flex items-center justify-start w-full gap-3 px-6 py-2  text-gray-600 cursor-pointer  select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-100' : 'hover:bg-neutral-200 ' }}">
        <p class=" "> Board </p>
@@ -38,9 +41,9 @@
 <div class="flex flex-col gap-1  pl-4 mt-2" >
 
 
-@foreach ($teams_info as $info)
 
-  @foreach ($info['boards'] as $board)
+
+  @foreach ($assign_board   as $board)
 
                             <a href="{{ route('board', ['board_id' => $board->id, 'team_id' => $board->team_id]) }}"  class="flex gap-3  px-6 py-2 cursor-pointer select-none transition duration-300  border-gray-200  select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-100' : 'hover:bg-neutral-200 ' }}">
                                     <div
@@ -51,7 +54,7 @@
                             </a>
                         @endforeach
 
-@endforeach
+
  </div>
 
 @endsection
@@ -151,7 +154,7 @@
         class="px-4 py-2 text-left rounded" 
         :class="tab === 'requests' ? 'bg-blue-100 text-blue-800' : 'text-gray-600 hover:bg-gray-100'" 
         @click="tab = 'requests'">
-        Join requests (0)
+        Join requests ({{ count($invites) }})
       </button>
     </nav>
   </div>
@@ -165,49 +168,191 @@
     </div>
 
     <!-- Members Tab Content -->
-    <div x-show="tab === 'members'" x-transition>
-      @foreach ($members as $member)
-        <div class="flex items-center justify-between border rounded px-4 py-3">
-          <div class="flex items-center gap-3">
-            <div class="bg-gray-300 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold text-white">
-              {{ strtoupper(substr($member['name'], 0, 1)) }}
-            </div>
-            <div>
-              <div class="font-medium">{{ $member->name }}</div>
-              <div class="text-sm text-gray-500">{{ $member->username }} • Last active {{ $member->lastActive }}</div>
-            </div>
-          </div>
-          <div class="flex items-center gap-2">
-            <button class="text-sm text-gray-600 border px-2 py-1 rounded hover:bg-gray-100">View boards</button>
-            <span class="bg-gray-200 text-xs px-2 py-1 rounded">{{ $member->pivot->status }}</span>
-            <button class="text-sm text-red-600 px-2 py-1 hover:underline">Remove</button>
-          </div>
+  <div x-show="tab === 'members'" x-transition>
+  @foreach ($members as $member)
+    <div class="flex items-center justify-between border rounded px-4 py-3">
+      <div class="flex items-center gap-3">
+        <div class="bg-gray-300 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold text-white">
+          {{ strtoupper(substr($member['name'], 0, 1)) }}
         </div>
-      @endforeach
+        <div>
+          <div class="font-medium">{{ $member['name'] }}</div>
+          <div class="text-sm text-gray-500">{{ $member['name'] }} • Last active {{ $member['created_at'] }}</div>
+        </div>
+      </div>
+      <div x-data="{ showBoards: false }" class="flex flex-col gap-2 relative">
+        <div class="flex items-center gap-2">
+          <button 
+            @click="showBoards = !showBoards"
+            class="text-sm text-gray-600 border px-2 py-1 rounded hover:bg-gray-100"
+            type="button"
+          >
+            View boards
+          </button>
+          <span class="bg-gray-200 text-xs px-2 py-1 rounded">{{ $member['status'] }}</span>
+
+          @if ($owner->id == Auth::id())
+           @if ($member['user_id'] != Auth::id())
+            <form x-data="{ open: false }"
+                  action="{{ route('deleteTeamMember', [ $board['team_id']]) }}" 
+                  method="POST" 
+                  @submit.prevent="open = true"
+                  class="inline"
+            >
+              @csrf         
+              <input type="hidden" name="emails" value="{{ $member['email'] }}">
+              <button type="submit" class="bg-red-500 text-white px-3 py-2 rounded-md mx-3 text-xs hover:font-bold">Remove</button>
+
+              <div x-show="open" x-cloak class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                <div class="bg-white p-6 rounded shadow-xl text-center space-y-4">
+                  <h2 class="text-lg font-semibold">Confirm Removal</h2>
+                  <p>Are you sure you want to remove this member?</p>
+                  <div class="flex justify-center space-x-4">
+                    <button @click="open = false" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
+                    <button @click="$el.closest('form').submit()" class="px-4 py-2 bg-red-500 text-white rounded">Yes, Remove</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+            @endif
+
+          @else
+            @if($member['user_id'] === Auth::id())
+              <form x-data="{ open: false }" x-ref="form" method="POST" action="{{ route('deleteTeamMember', [ $board['team_id']]) }}" class="inline">
+                @csrf
+                <input type="hidden" name="emails" value="{{ $member['email'] }}">
+
+                <button 
+                  type="button" 
+                  @click="open = true" 
+                  class="bg-red-400 text-white px-3 py-2 rounded-md mx-3 text-xs hover:font-bold"
+                  x-transition
+                >
+                  Leave
+                </button>
+
+                <div 
+                  x-show="open" 
+                  x-cloak 
+                  class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+                  @keydown.escape.window="open = false"
+                >
+                  <div class="bg-white p-6 rounded shadow-xl text-center space-y-4 w-80">
+                    <h2 class="text-lg font-semibold">Confirm Removal</h2>
+                    <p>Are you sure you want to remove this member?</p>
+                    <div class="flex justify-center space-x-4 mt-4">
+                      <button type="button" @click="open = false" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
+                      <button type="button" @click="open = false; $nextTick(() => $refs.form.submit())" class="px-4 py-2 bg-red-500 text-white rounded">Yes, Leave</button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            @else
+              <div class="px-6 mx-3"></div>
+            @endif
+          @endif
+        </div>
+
+        <!-- Board list tooltip -->
+        <div x-show="showBoards"
+             @click.away="showBoards = false"
+             x-transition
+             class="absolute z-10 mt-2 w-64 bg-white border border-gray-300 rounded flex flex-col shadow-lg p-3 space-y-1"
+        >
+          @if(count($member['boards']) > 0)
+            @foreach($member['boards'] as $board)
+              <div class="flex items-center justify-between p-1 rounded text-sm">
+                <div class="flex items-center gap-2">
+                  <span class="inline-block w-4 h-4 rounded-full bg-grad-{{ $board['pattern'] }}"></span>
+                  <span class="font-medium text-gray-800">{{ $board['board_name'] }}</span>
+                  <span class="text-xs text-gray-500">({{ $board['status'] }})</span>
+                </div>
+
+                <form 
+                  x-data="{ open: false }"
+                  x-ref="form"
+                  method="POST"
+                  @submit.prevent="open = true"
+                  @click.stop
+                  @keydown.escape.window="open = false"
+                  @click.away="open = false"
+                  class="inline"
+                  @if($member['user_id'] === Auth::id() && $board['status'] == 'Owner')
+                    action="{{ route('deleteBoard', [$board['team_id'] ,$board['board_id']]) }}" 
+                  @elseif($member['user_id'] === Auth::id() && $board['status'] == 'Member')
+                    action="{{ route('removeMember', [ $board['team_id'] ,$board['board_id']]) }}"
+                    {{ $board['team_id'] }}
+                  @endif
+                >
+                  @csrf
+                  <input type="hidden" name="user_id" value="{{ $member['user_id'] }}">
+                  
+                  @if($member['user_id'] === Auth::id() && $board['status'] == 'Owner')
+                    <button type="button" @click="open = true" class="text-red-600 px-3 py-2 text-xs hover:bg-red-500 hover:text-white hover:rounded">Deletee</button>
+                  @elseif($member['user_id'] === Auth::id() && $board['status'] == 'Member')
+                    <button type="button" @click="open = true" class="text-red-600 px-3 py-2 text-xs hover:bg-red-500 hover:text-white hover:rounded">leave</button>
+                  @endif
+
+                  <div 
+                    x-show="open" 
+                    x-cloak 
+                    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+                  >
+                    <div class="bg-white p-6 rounded shadow-xl text-center space-y-4 w-80">
+                      <h2 class="text-lg font-semibold">Confirm Removal</h2>
+                      <p>Are you sure you want to remove this member From this Board ?</p>
+                      <div class="flex justify-center space-x-4 mt-4">
+                        <button type="button" @click="open = false" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
+                        <button type="button" @click="open = false; $nextTick(() => $refs.form.submit())" class="px-4 py-2 bg-red-500 text-white rounded">Yes, Leave</button>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            @endforeach
+          @else
+            <div class="text-sm text-gray-500 p-2">No boards assigned to this user.</div>
+          @endif
+        </div>
+      </div>
     </div>
+  @endforeach
+</div>
+
 
     <!-- Join Requests Tab Content -->
     <div x-show="tab === 'requests'" x-transition>
-        @foreach ([
-        ['name' => 'Alice Cooper', 'email' => 'alice@example.com'],
-        ['name' => 'John Doe', 'email' => 'john@example.com']
-      ] as $request)
+       @foreach ($invites as $team)
             <div class="flex items-center justify-between border rounded px-4 py-3">
           <div class="flex items-center gap-3">
             <div class="bg-gray-400 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold text-white">
-              {{ strtoupper(substr($request['name'], 0, 1)) }}
+              {{ strtoupper(substr($team->name, 0, 1)) }}
             </div>
             <div>
-              <div class="font-medium">{{ $request['name'] }}</div>
-              <div class="text-sm text-gray-500">{{ $request['email'] }}</div>
+              <div class="font-medium">{{ $team->name }}</div>
+              <div class="text-sm text-gray-500">{{ $team->name }}</div>
             </div>
           </div>
           <div class="flex items-center gap-2">
-            <button class="text-sm text-green-600 border px-2 py-1 rounded hover:bg-green-100">Approve</button>
+            <button class="text-sm text-green-600 border px-2 py-1 rounded hover:bg-green-100" onclick="ModalView.show('acceptInvite', { team_id: '{{ $team->id }}'  })">Approve</button>
             <button class="text-sm text-red-600 border px-2 py-1 rounded hover:bg-red-100">Decline</button>
           </div>
         </div>
       @endforeach
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     </div>
   </div>
 </div>

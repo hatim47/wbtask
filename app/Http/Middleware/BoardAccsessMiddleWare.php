@@ -19,12 +19,12 @@ class BoardAccsessMiddleWare
         $team_id = intval($request->route('team_id'));
         $board_id = intval($request->route('board_id'));
         if(!$this->teamLogic->userHasAccsess($user_id, $team_id)){
-            return redirect()->route("home")->with("notif", ["Problem\nThe team is not found or you have been kicked out, please contact the owner."]);
+            return redirect()->route("viewHome")->with("notif", ["Problem\nThe team is not found or you have been kicked out, please contact the owner."]);
         }
 
         $board = Board::find($board_id);
         if ($board == null) {
-            return redirect()->route("viewTeam", ["team_id" => $team_id])->with("notif", ["Problem\nBoard not found or deleted, please contact owner."]);
+            return redirect()->route("viewWorkspace", ["team_id" => $team_id])->with("notif", ["Problem\nBoard not found or deleted, please contact owner."]);
         }
 
         return $next($request);

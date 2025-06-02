@@ -21,6 +21,10 @@ class Board extends Model
         'image_path',
     ];
 
+
+
+
+
     public function team()
     {
         return $this->belongsTo(Team::class);
@@ -29,4 +33,8 @@ class Board extends Model
     public function columns() {
         return $this->hasMany(Column::class);
     }
+    public function boardUsers()
+{
+    return $this->hasMany(BoardUser::class);
+}
 }
