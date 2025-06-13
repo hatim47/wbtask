@@ -6,6 +6,7 @@ use App\Models\Board;
 use App\Models\Team;
 use App\Models\User;
 use App\Models\UserTeam;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Collection;
 
 class TeamLogic
@@ -217,6 +218,9 @@ if ($deletedUser) {
         ->where("user_id", $deletedUser->id)
         ->where("status", "Member")
         ->delete();
+
+ 
+$assign_board = $deletedUser->boards()->where("team_id", $team_id)->delete();
 
     // Check if user belongs to any other teams
     $hasTeams = UserTeam::where("user_id", $deletedUser->id)->exists();

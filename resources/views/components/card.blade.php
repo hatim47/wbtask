@@ -2,13 +2,33 @@
 
 <template id="card" class="!bg-gray-500">
     <div data-role="card" draggable="true"
-        class="w-full px-4 py-2 overflow-hidden text-sm bg-white border border-gray-800 cursor-pointer select-none line-clamp-3 rounded-lg">
+        class="w-full px-4 py-2 overflow-hidden text-sm bg-white border-2 border-white shadow-[0px_1px_1px_#091e4240,0px_0px_1px_#091e424f] line-clamp-3 rounded-lg hover:border-sky-600 "> 
     
-    </div> fsdfd
-</template>
+        
+           </div> 
+  
+  
+  </template>
 
+ 
+
+
+@pushOnce('head')
+<style>
+
+</style>
+@endPushOnce
 @pushOnce('component')
-    <Script>
+
+
+<script >
+  // ✅ Vue component definition
+
+
+  // ✅ Your click event logic
+
+
+
         const cardTemplate = document.querySelector("template#card");
         class Card {
             constructor(id, name, board) {
@@ -26,27 +46,10 @@
                     this.ref.classList.add("is-dragging");
                     this.ref.classList.toggle("!bg-gray-500");
                 });
-                   this.ref.addEventListener("click", () => {
-                    const board_id = this.board.ref.dataset.id;
-                    const card_id = this.ref.dataset.id;
-                   
-                  
-                    
-                   
-                    // 
-                        ServerRequest.post(`{{ url('/card/update-notify') }}`,
-                        
-                        {
-                            card_id: card_id,
-                            board_id: board_id,                         
-                        
-                        })
-.then((response) => {
-    window.location.href = `{{ url('team/'.$teamid.'/board/${board_id}/card/${card_id}/view') }}`; 
-    
-});
-               
-});
+
+  
+
+             
                 // });
 
                 this.ref.addEventListener("dragend", () => {
@@ -78,8 +81,27 @@ console.log("🔼 top_id:", top_id);
                             console.log(response.data);
                         });
                 })
-            }
 
+let isPopupOpen = false;
+ this.ref.addEventListener("click", () => {
+ 
+if (isPopupOpen) return; // Prevent opening if one is already open
+  
+  const board_id = this.board.ref.dataset.id;
+  const card_id = this.ref.dataset.id;
+
+  isPopupOpen = true;
+  
+  ServerRequest.get(`{{ url('team/'.$teamid.'/board/${board_id}/card/${card_id}/view') }}`).then((response) => {
+    window.showPopup({
+      data: response.data,
+      close: () => {
+        isPopupOpen = false;
+      }
+    });
+  });
+});
+   }
             setId(id) {
                 this.ref.dataset.id = id;
                 this.ref.setAttribute('draggable', true);
@@ -89,7 +111,7 @@ console.log("🔼 top_id:", top_id);
                 column.ref.querySelector("section > div#card-container").append(this.ref);
                 this.board = column.board;
             }
+     }
 
-        }
     </Script>
 @endPushOnce

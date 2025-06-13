@@ -11,7 +11,7 @@
     $initials = '';
     $name_array = explode(' ', $full_name);
     foreach ($name_array as $name) {
-        $initials .= substr($name, 0, 1);
+        $initials .= substr($name, 0, 2);
     }
 
     if (strlen($initials) >= 2) {
@@ -20,7 +20,7 @@
 @endphp
 
 <div data-role="avatar"
-    {{ $attributes->merge(['class' => 'relative aspect-square flex flex-wrap items-center justify-center gap-2 overflow-hidden text-lg font-semibold text-center  rounded-full cursor-default select-none ']) }}>
+    {{ $attributes->merge(['class' => 'relative aspect-square flex flex-wrap items-center justify-center gap-2 overflow-hidden text-xs font-semibold text-center  rounded-full cursor-default select-none ']) }}>
     @if (isset($action) || isset($href))
         @if (isset($action))
             <div onclick="{{ $action }}" class="absolute top-0 left-0 z-10 w-full h-full">

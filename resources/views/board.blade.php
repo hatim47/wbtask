@@ -1,68 +1,153 @@
+{{-- @php dump('VIEW: ' . __FILE__, $board->id ?? 'not set') @endphp --}}
 @extends('layout.pages')
 
 @section('app-header')
+<div class="flex items-center justify-between  w-full px-6">
     <div class="flex items-center text-white gap-2">
         <h1 class="text-xl font-bold">Board: </h1>
-        <p class="text-xl" id="board-title">{{ $board->name }}</p>
+        {{-- {{dd($board)}} --}}
+<div x-data="{
+         title: @js($board->name ?? ''),
+        original: @js($board->name ?? ''),
+        editing: false,
+        csrfToken: @js(csrf_token()),
+        saveUrl: @js(isset($board) ? route('updateBoard', [$board->team_id, $board->id]) : ''),
+        
+        init() {
+           if (!this.saveUrl) {
+                console.error('Missing board data!');
+                this.title = 'Error: Board not loaded';
+            }
+             console.log('Board ID:', {{ $board->id ?? 'null' }});
+        },
+        enableEdit() {
+            this.editing = true;
+            setTimeout(() => this.$refs.input.focus(), 50);
+        },
+        cancel() {
+            this.title = this.original;
+            this.editing = false;
+        },
+        save() {
+            if (this.title === this.original) return this.cancel();
+            
+            fetch(this.saveUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': this.csrfToken
+                },
+                body: JSON.stringify({board_name: this.title})
+            })
+            .then(res => res.ok ? this.original = this.title : Promise.reject())
+            .catch(() => this.title = this.original)
+            .finally(() => this.editing = false);
+        }
+    }"
+    class="text-xl font-semibold cursor-pointer">
+    
+    <span x-show="!editing" @click="enableEdit" x-text="title"
+          class="hover:border-gray-100 hover:border px-2 py-1 rounded transition"></span>
+          
+    <input x-show="editing" x-model="title" x-ref="input"
+           @blur="save" @keydown.enter="save" @keydown.escape="cancel"
+           class="border-b border-blue-500 outline-none w-full px-2 text-black py-1 bg-gray-50">
+</div>
+
+     
     </div>
+       <div class="flex items-center ">
+  <!-- Circle 1 (HN) -->
+ 
+  @foreach ($members as $index => $member)
+    <div class="relative flex items-center gap-4 {{ $index > 0 ? '-ml-2' : '' }}">
+        <x-avatar name="{{ $member->name }}" asset="{{ $member->image_path }}"
+            class="!flex-shrink-0 !flex-grow-0 w-8 z-10" />
+
+        @if ($member->pivot->status === 'Owner')
+            <!-- Small crown icon positioned on top-right -->
+            <div class="absolute -top-1 -right-1 z-10 bg-white rounded-full p-0.5 shadow">
+                <svg class="w-3 h-3  text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 3l2.39 4.84 5.35.78-3.87 3.77.91 5.31L10 15.89l-4.78 2.81.91-5.31L2.26 8.62l5.35-.78L10 3z" />
+                </svg>
+            </div>
+        @endif
+    </div>
+@endforeach
+ 
+
+  <!-- Circle 2 (H) -->
+  
+@if ($owner->contains('user_id', Auth::user()->id))
+  <!-- Share Button -->
+  <button onclick="ModalView.show('sharebtn')" class="flex items-center space-x-1 px-3 mx-3 py-1 bg-gray-200 rounded border text-sm font-medium text-gray-700 hover:bg-white">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M4 12v.01M12 20h.01M20 12v.01M12 4h.01M12 12l8-8M12 12L4 4m0 16l8-8m0 0l8 8" />
+    </svg>
+    <span>Share</span>
+  </button>
+@endif
+  <!-- Ellipsis Icon -->
+  <button class="ml-1 p-1">
+    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+      <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zm6 0a2 2 0 11-4 0 2 2 0 014 0zm6 0a2 2 0 11-4 0 2 2 0 014 0z" />
+    </svg>
+  </button>
+</div>
+</div>
 @endsection
 
 <!-- mindrelaxation7860@gmail.com -->
 @section('app-side')
 <div id="menu" class="flex flex-col items-center justify-start w-full">
-
-    <a data-role="menu-item" href="{{ route('setting') }}"
-        class="flex items-start justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'setting' ? 'bg-neutral-500' : 'hover:bg-neutral-500' }}">
-        <x-fas-gear class="w-6 h-6" />
-        <p class="text-lg font-normal"> Setting </p>
-    </a>
-
-    <a data-role="menu-item" href="{{ route('home') }}"
-        class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
-        <x-fas-cube class="w-6 h-6" />
-        <p class="text-lg font-normal"> Team </p>
-    </a>
-    <a data-role="menu-item" href="{{ route('viewTeam', ['team_id' => $team->id]) }}"
-    class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-500' : 'hover:bg-neutral-500 ' }}">
-    <x-fas-backward class="w-6 h-6" />
-    <p class="text-lg font-normal">Back To Board </p>
-</a>
-       
-
-        @if (Auth::user()->id == $owner->id)
-        <div data-role="menu-item"  onclick="ModalView.show('updateBoard')"
-            class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer my-2 rounded-xl select-none hover:bg-neutral-500">
-            <x-fas-pen class="w-6 h-6" />
-            <p class="text-lg font-normal"> Edit </p>
-        </div>
-
-        <div data-role="menu-item"  onclick="ModalView.show('deleteBoard')"
+        {{-- {{dd($teams_info);}} --}}
+ <a data-role="menu-item" href="{{ route('viewHome') }}"
+       class="flex items-center justify-start w-full gap-3 px-6 py-2  text-white cursor-pointer  select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-100' : 'hover:bg-neutral-200 ' }}">
+       <p class=" "> Home </p>
+    </a> 
+  <a data-role="menu-item" href="{{ route('viewTeam', ['team_id' => $team->id]) }}"
+       class="flex items-center justify-start w-full gap-3 px-6 py-2  text-white cursor-pointer  select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-100' : 'hover:bg-neutral-200 ' }}">
+       <p class=" "> Board </p>
+    </a>    
+ <a data-role="menu-item" href="{{ route('viewWorkspace', ['team_id' => $team->id]) }}"
+        class="flex items-center justify-start w-full gap-3 px-6 py-2  text-white cursor-pointer  select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-100' : 'hover:bg-neutral-200 ' }}">
+        <p class=" "> Member   </p>
+    </a> 
+   
+        {{-- <div data-role="menu-item"  onclick="ModalView.show('deleteBoard')"
         class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none hover:bg-neutral-500">
         <x-fas-trash class="w-6 h-6" />
         <p class="text-lg font-normal"> Delete </p>
-    </div>
-    <a data-role="menu-item" href="{{route('setting')}}"
-    class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none hover:bg-neutral-500">
-    <x-fas-gear class="w-6 h-6" />
+    </div> --}}
    
-    <p class="text-lg font-normal"> Setting </p>
-</a> 
-{{-- <a data-role="menu-item" href="{{route('setting')}}"
-class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none hover:bg-neutral-500">
 
-<x-fas-arrow-right-from-bracket class="w-6 h-6 transform rotate-180" />
-<p class="text-lg font-normal"> leave board </p>
-</a> --}}
-                
-           
-        @endif
+          
+     
     </div>
+
+    <div class="flex flex-col gap-1  pl-4 mt-2" >
+  @foreach ($assign_board as $boards)
+
+                            <a href="{{ route('board', ['board_id' => $boards->id, 'team_id' => $boards->team_id]) }}"  class="flex gap-3  px-6 py-2 cursor-pointer select-none transition duration-300  border-gray-200  select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-100' : 'hover:bg-neutral-200 ' }}">
+                                    <div
+                                        class="flex cursor-pointer select-none flex-col transition duration-300 border border-gray-200 shadow-xl rounded-xl h-6 w-6 hover:shadow-2xl bg-grad-{{ $boards->pattern }} overflow-hidden">
+                                        </div>
+                                    <h3 class="overflow-hidden text-white truncate ">{{ $boards->name }}</h3>
+
+                            </a>
+                        @endforeach
+ </div>   
+
+
 @endsection
 
 
+
 @section('content')
+
     <x-card teamid="{{ $board->team_id }}"/>
-    <x-column teamid="{{ $board->team_id }}" :isowner="Auth::user()->id == $owner->id"/>
+    <x-column teamid="{{ $board->team_id }}" :isowner="$owner->contains('user_id', Auth::user()->id)"/>
+  
     <div id="board-background"
         class="w-full h-full min-h-full overflow-hidden overflow-x-scroll bg-grad-{{ $board->pattern }}">
         <section class="flex h-full min-w-full gap-4 p-4">
@@ -79,9 +164,97 @@ class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white 
         </section>
     </div>
 
+
+
+
+
+
+<template is-modal="sharebtn">
+<div class="  bg-black bg-opacity-50 flex items-center justify-center ">
+    <div class="bg-white   w-full  ">
+        <h2 class="text-lg font-semibold mb-4">Share board</h2>
+
+        <!-- Invite Form -->
+       <div 
+    x-data="inviteForm()" 
+    class="flex items-center gap-2 mb-4"
+>
+    <input type="email" x-model="email" placeholder="Email address or name"
+           class="flex-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring focus:border-blue-500">
+
+    <select x-model="role" class="border rounded-lg px-2 py-1 text-sm">
+        <option value="Member">Member</option>
+        <option value="Owner">Owner</option>
+    </select>
+
+    <button 
+       @click.prevent="submitInvite" 
+        class="bg-blue-600 hover:bg-blue-700 text-white rounded px-4 py-2 text-sm"
+    >
+        Share
+    </button>
+
+     <div x-show="message" x-text="message"
+         :class="statusClass"
+         x-transition
+       class="text-sm px-4 fixed z-50 line-clamp-2 text-wrap w-[500px] py-2 rounded mt-2"
+         x-cloak> Unexpected server response</div>
+</div>
+
+        <!-- Public Link Section -->
+        {{-- <div class="bg-gray-100 p-3 rounded-lg flex justify-between items-center text-sm mb-4">
+            <div>
+                Anyone with the link can join as a member<br>
+                <a href="#" class="text-blue-600 underline text-xs">Copy link</a> ·
+                <a href="#" class="text-blue-600 underline text-xs">Delete link</a>
+            </div>
+            <button class="text-sm border rounded px-2 py-1">Change permissions</button>
+        </div> --}}
+
+        <!-- Tabs -->
+        <div class="flex border-b mb-2 text-sm">
+            <button class="px-3 py-2 font-medium border-b-2 border-blue-500 text-blue-600">Board members <span class="ml-1 text-xs bg-gray-200 rounded-full px-2">2</span></button>
+            <button class="px-3 py-2 text-gray-500">Join requests</button>
+        </div>
+
+        <!-- Member List -->
+        <div class="space-y-3 max-h-60 overflow-y-auto">
+            @foreach ($members as $member)
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <x-avatar :name="$member->name" :asset="$member->image_path" class="w-10 h-10" />
+                        <div>
+                            <div class="font-medium">{{ $member->name }} 
+                                @if ($member->id === auth()->id()) <span class="text-sm text-gray-500">(you)</span> @endif
+                            </div>
+                            <div class="text-sm text-gray-500">{{ '@' . $member->username }} • Workspace admin</div>
+                        </div>
+                    </div>
+                    <select class="border rounded px-2 py-1 text-sm">
+                        <option {{ $member->pivot->status === 'Owner' ? 'selected' : '' }}>Owner</option>
+                        <option {{ $member->pivot->status === 'Member' ? 'selected' : '' }}>Member</option>
+                    </select>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</div>
+
+ </template>
+
+
+
+
+
+
+
+
+
+
+
     {{-- modal declaration --}}
-    @if (Auth::user()->id == $owner->id)
-        <template is-modal="updateBoard">
+    @if ($owner->contains('user_id', Auth::user()->id))
+        {{-- <template is-modal="updateBoard">
             <div class="flex flex-col w-full gap-4 p-4">
                 <h1 class="text-3xl font-bold">Edit Board</h1>
                 <hr>
@@ -91,40 +264,23 @@ class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white 
                     <input type="hidden" name="board_id" value="{{ $board->id }}">
                     <x-form.text name="board_name" label="Board's Name" value="{{ $board->name }}" required />
 
-                    <div class="flex flex-col w-full gap-2" x-data="{ selected: '{{ $board->pattern }}' }">
-                        <label class="pl-6">Board's Color</label>
-                        <input type="hidden" id="pattern-field" name="board_pattern" x-bind:value="selected">
-                        <div
-                            class="flex items-center justify-start w-full max-w-2xl gap-2 px-4 py-2 overflow-hidden overflow-x-scroll border-2 border-gray-200 h-36 rounded-xl">
-                            @foreach ($patterns as $pattern)
-                                <div x-on:click="selected = '{{ $pattern }}'"
-                                    x-bind:class="(selected == '{{ $pattern }}') ? 'border-black' : 'border-gray-200'"
-                                    class="{{ $pattern == $board->pattern ? 'order-first' : '' }} h-full flex-shrink-0 border-4 rounded-lg w-36 bg-grad-{{ $pattern }} hover:border-black">
-                                    <div x-bind:class="(selected == '{{ $pattern }}') ? 'opacity-100' : 'opacity-0'"
-                                        class="flex items-center justify-center w-full h-full">
-                                        <x-fas-circle-check class="w-6 h-6" />
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
                     <x-form.button class="mt-4" type="submit" primary>Save</x-form.button>
                 </form>
             </div>
-        </template>
+        </template> --}}
 
-        <template is-modal="deleteBoard">
+        {{-- <template is-modal="deleteBoard">
             <form class="flex flex-col items-center justify-center w-full h-full gap-6 p-4" method="POST"
                 action="{{ route('deleteBoard', ['board_id' => $board->id, 'team_id' => $board->team_id]) }}">
                 @csrf
                 <input type="hidden" name="board_id" value="{{ $board->id }}">
-                <p class="mb-6 text-lg text-center"> Are you sure you want to delete this board?</p>
+                <p class="mb-6 text-lg text-center">Are you sure you want to delete this board?</p>
                 <div class="flex gap-6">
                     <x-form.button type="submit">Yes</x-form.button>
                     <x-form.button type="button" action="ModalView.close()" primary>No</x-form.button>
                 </div>
             </form>
-        </template>
+        </template> --}}
     @endif
     <template is-modal="addCol">
         <div class="flex flex-col w-full gap-4 p-4">
@@ -134,6 +290,7 @@ class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white 
             </form>
         </div>
     </template>
+   
 @endsection
 
 
@@ -215,14 +372,14 @@ class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white 
 
 
 
-    // const socket = io("http://localhost:3000"); // Use correct port
-    const socket = io("http://task.wbsoftech.com/", {
+     const socket = io("http://localhost:3000"); // Use correct port
+    {{-- const socket = io("http://task.wbsoftech.com/", {
         path: "/socket.io",
         transports: ["websocket", "polling"]
-});
+}); --}}
     console.log(io,"ggfg");
     socket.on("connect", () => {
-        console.log("✅ Connected to Socket.io server");
+        {{-- console.log("✅ Connected to Socket.io server"); --}}
     });
     socket.on("board-refresh", () => {
         console.log("🔄 Board refreshed");
@@ -328,18 +485,14 @@ class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white 
         }
 
         const board = new Board(@json($board));
-        @if (Auth::user()->id == $owner->id)
+        @if ($owner->contains('user_id', Auth::user()->id))
             ModalView.onShow('deleteBoard', (modal) => {
                 modal.querySelectorAll("form[action][method]").forEach(
                     form => form.addEventListener("submit", () => PageLoader.show())
                 );
             });
 
-            ModalView.onShow('updateBoard', (modal) => {
-                modal.querySelectorAll("form[action][method]").forEach(
-                    form => form.addEventListener("submit", () => PageLoader.show())
-                );
-            });
+           
         @endif
 
         ModalView.onShow("addCol", (modal) => {
@@ -373,5 +526,125 @@ class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white 
         @if ($errors->any())
             ToastView.notif("Warning", "{{ $errors->first() }}");
         @endif
+
+
+function inviteForm() {
+    return {
+        email: '',
+        role: 'Member',
+        message: '',
+        statusClass: '',
+
+        async submitInvite() {
+            this.message = '';
+            try {
+                const response = await fetch('{{ route("invite.user", ["team_id" => $team->id, "board_id" => $board->id]) }}', {
+                    method: 'POST',
+                    headers: {
+                         'Content-Type': 'application/json',
+  'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    },
+                    body: JSON.stringify({
+                        invitemail: this.email,
+                        role: this.role
+                    })
+                });
+
+                 const text = await response.text();
+                let data;
+
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    throw new Error("Unexpected server response.");
+                }
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Something went wrong');
+                }
+
+                this.message = data.message || 'User invited successfully!';
+                this.statusClass = 'bg-white text-green-800 border border-green-300';
+
+                // Optionally emit socket event:
+                socket.emit("board-action");
+
+            } catch (error) {
+                this.message = error.message + 'Error occurredError occurredError occurredError occurredError occurred' || 'Error occurred.';
+                this.statusClass = 'bg-white text-red-800 border border-red-300';
+            }
+
+            // Auto hide after 4 seconds
+            setTimeout(() => {
+                this.message = '';
+                this.statusClass = '';
+            }, 4000);
+        }
+    };
+}
+function initializeBoardTitleEditor() {
+    const componentDefinition = {
+        title: '',
+        original: '',
+        editing: false,
+        csrfToken: '',
+        saveUrl: '',
+
+        init(params) {
+            this.title = params.title;
+            this.original = params.title;
+            this.csrfToken = params.csrfToken;
+            this.saveUrl = params.saveUrl;
+            this.$watch('title', () => {});
+        },
+
+        enableEdit() {
+            this.editing = true;
+            setTimeout(() => this.$refs.input.focus(), 50);
+        },
+
+        cancel() {
+            this.title = this.original;
+            this.editing = false;
+        },
+
+        save() {
+            if (this.title === this.original || !this.title.trim()) {
+                return this.cancel();
+            }
+
+            const headers = new Headers();
+            headers.append('Content-Type', 'application/json');
+            headers.append('X-CSRF-TOKEN', this.csrfToken);
+
+            fetch(this.saveUrl, {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify({ board_name: this.title }),
+                credentials: 'same-origin'
+            })
+            .then(response => response.ok ? this.original = this.title : Promise.reject())
+            .catch(() => this.title = this.original)
+            .finally(() => this.editing = false);
+        }
+    };
+
+    // Check if Alpine is available
+    if (typeof Alpine !== 'undefined') {
+        // Check if component already exists
+        if (!Alpine.data('boardTitleEditor')) {
+            Alpine.data('boardTitleEditor', () => componentDefinition);
+        }
+    } else {
+        // Fallback for when Alpine loads later
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('boardTitleEditor', () => componentDefinition);
+        });
+    }
+}
+
+// Initialize the component
+initializeBoardTitleEditor();
     </script>
 @endPushOnce

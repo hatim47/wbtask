@@ -10,11 +10,12 @@ use App\Models\Team;
 use App\Models\BoardUser;
 use App\Models\TeamInvitation;
 use App\Logic\TeamLogic;
+use App\Listeners\CleanUpBoardsWithoutUsers;
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    public function __construct(protected UserLogic $userLogic , protected TeamLogic $teamLogic)
+    public function __construct(protected UserLogic $userLogic , protected TeamLogic $teamLogic,   protected CleanUpBoardsWithoutUsers $cleanupService )
     {
     }
 
@@ -56,7 +57,7 @@ class AuthController extends Controller
                 ->withErrors("Account is inactive");
         }
 
-     
+     $this->cleanupService->clean();
        // dd($team);
         return redirect()->route('viewHome');
     }
@@ -74,16 +75,16 @@ class AuthController extends Controller
             $request->input('email'),
             $request->input('password'),
         );
-
+  $user = User::where('email', $request->input('email'))->first();
         $team =  TeamInvitation::where('email', $request->input('email'))->exists();
         if ($team) {
             $teamInvitation = TeamInvitation::where('email', $request->input('email'))->first();
-            $user = user::where('email', $request->input('email'))->first();
+          
            
             UserTeam::create([
                 'user_id' => $user->id,
                 'team_id' => $teamInvitation->team_id,
-                'status' => 'member'
+                'status' => $teamInvitation->team_role ?? 'Member'
             ]);
 
    // Add to board if board_id exists
@@ -91,7 +92,7 @@ class AuthController extends Controller
             BoardUser::create([
                 'user_id'  => $user->id,
                 'board_id' => $teamInvitation->board_id,
-                'status'   => 'member',
+               'status' => $teamInvitation->board_role ?? 'Member',
             ]);
         }
 
@@ -106,7 +107,7 @@ class AuthController extends Controller
         // Create a default team for the user
         
         $defaultTeam = Team::create([
-            'team_name' => $request->input('name'),
+            'name' => $request->input('name'),
             // other default fields if required
         ]);
 

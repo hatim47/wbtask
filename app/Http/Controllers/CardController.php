@@ -28,28 +28,99 @@ class CardController extends Controller
         $board = Board::find($board_id);
         $team = Team::find($team_id);
         $upload = Upload::where("card_id", $card->id)->get()->all();
-        $owner = $this->teamLogic->getTeamOwner($team_id);
+        
         $team_members = $this->cardLogic->getTeamMember($team_id ,$card_id);
-        $workers = $this->cardLogic->getWorkers($card_id);
+        $workers = $this->cardLogic->getWorkers($board_id);
         $hist = $this->cardLogic->getHistories($card_id);
         $chatUser = CardUser::with('user')->where("card_id", $card->id)->get()->all();
         $chatOwner = CardUser::with('user')->where("card_id", $card->id)->where("status","Owner")->get()->first();
         $lables = Lable::where("card_id", $card->id)->get()->all();
         // dd($card, $upload, $board, $team, $workers, $hist, $owner);
                     //dd($workers);
-        return view("card")
-            ->with("card", $card)
-            ->with("upload", $upload)
-            ->with("chatUser", $chatUser)
-            ->with("board", $board)
-            ->with("lables", $lables)
-            ->with("team", $team)
-            ->with("members", $team_members)
-            ->with("workers", $workers)
-            ->with("histories", $hist)
-            ->with("chatOwner", $chatOwner)
-            ->with("owner", $owner);
+        // return view("card")
+        //     ->with("card", $card)
+        //     ->with("upload", $upload)
+        //     ->with("chatUser", $chatUser)
+        //     ->with("board", $board)
+        //     ->with("lables", $lables)
+        //     ->with("team", $team)
+        //     ->with("members", $team_members)
+        //     ->with("workers", $workers)
+        //     ->with("histories", $hist)
+        //     ->with("chatOwner", $chatOwner)
+        //     ->with("owner", $owner);
+// dd([
+//     'card' => $card->only(['id', 'title']),  // or whatever fields you want
+//     'upload' => $upload,
+//     'chatUser' => $chatUser,
+//     'board' => $board->only(['id', 'name']),
+//     'lables' => $lables,
+//     'team' => $team->only(['id', 'name']),
+//     'members' => $team_members->pluck('name'),  // just names of members
+//     'workers' => $workers->pluck('name'),
+//     'histories' => $hist->pluck('action'),      // example field
+//     'chatOwner' => $chatOwner,
+//     'owner' => $owner->only(['id', 'name']),
+// ]);
+return response()->json([
+    'card' => $card,
+    'upload' => $upload,
+    'chatUser' => $chatUser,
+    'board' => $board,
+    'lables' => $lables,
+    'team' => $team,
+    'members' => $team_members,
+    'workers' => $workers,
+    'histories' => $hist,
+    'chatOwner' => $chatOwner,
+   
+]);
+
     }
+
+
+
+
+               public function updateNotify(Request $request)
+    {
+        // Validate the incoming request data
+        $validated = $request->validate([
+            'card_id' => 'required|integer',
+            'board_id' => 'required|integer',
+        ]);
+
+        // Fetch the card details based on the provided IDs
+        // Replace the following line with your actual data retrieval logic
+        $card = Card::where('id', $validated['card_id'])
+                    ->where('board_id', $validated['board_id'])
+                    ->first();
+
+        if (!$card) {
+            return response()->json(['error' => 'Card not found.'], 404);
+        }
+
+        // Return the card details as a JSON response
+        return response()->json([
+            'title' => $card->title,
+            'description' => $card->description,
+        ]);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     public function viewmember($card_id ,$team_id,$board_id) {
@@ -79,21 +150,20 @@ class CardController extends Controller
         // $team_id = intval($request->team_id);
         // $this->teamLogic->deleteMembers($team_id, $request->emails);
           //dd($request);
-         $emails = $request->emails;
-          foreach ($emails as $email) {
-            CardUser::create([                
-                'user_id' => $email,
-                'card_id' => $request->card_id,
-                'status' => 'Member'
+                 $id_card =  $request->card_id;
+                 $status = $request->status;
+                  $user_id =  $request->user_id;
+
+            CardUser::create([  
+                'user_id' => $user_id,
+                'card_id' => $id_card,
+                'status' => $status
             ]);    
-        }
+        
      return response()->json(["message" => "Add success"]);
     }
 
     public function store(Request $request) {
-
-           
-
         $attachments = [];
         foreach ($request->file('attachments') as $file) {
             $path = $file->store('uploads', 'public');
@@ -134,15 +204,18 @@ class CardController extends Controller
         return redirect()->back()->with("notif", ["Success\nAdded yourself to the card"]);
     }
 
-    public function leaveCard(Request $request, $team_id, $board_id, $card_id)
+    public function leaveCard(Request $request,  $board_id, $card_id)
     {
-        $id = $request->id;
+        $id = $request->user_id;
         $card_id = intval($card_id);
         $this->cardLogic->removeUser($card_id, $id);
         $this->cardLogic->cardAddEvent($card_id, $id, "Left card.");
-        return redirect()
-            ->route("board", ["team_id" => $team_id, "board_id" => $board_id])
-            ->with("notif", ["Success\nQuit Card"]);
+     return response()->json([
+            'success' => true,
+            'message' => 'User removed successfully'
+        ]);
+        
+          
     }
 
     public function deleteCard(Request $request, $team_id, $board_id, $card_id)

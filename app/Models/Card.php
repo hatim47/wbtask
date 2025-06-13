@@ -53,4 +53,29 @@ class Card extends Model
     {
         return $this->belongsToMany(User::class, "card_user", "card_id", "user_id");
     }
+    public function comments()
+{
+    return $this->hasMany(CardComment::class);
+}
+
+public function histories()
+{
+    return $this->hasMany(CardHistory::class);
+}
+
+public function notices()
+{
+    return $this->hasMany(Notice::class);
+}
+
+public function uploads()
+{
+    return $this->hasMany(Upload::class);
+}
+
+public function labels()
+{
+    return $this->hasMany(Lable::class);
+}
+
 }

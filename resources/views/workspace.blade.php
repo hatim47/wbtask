@@ -190,11 +190,11 @@
             View boards
           </button>
           <span class="bg-gray-200 text-xs px-2 py-1 rounded">{{ $member['status'] }}</span>
-
+      
           @if ($owner->id == Auth::id())
            @if ($member['user_id'] != Auth::id())
             <form x-data="{ open: false }"
-                  action="{{ route('deleteTeamMember', [ $board['team_id']]) }}" 
+                 action="{{ isset($team) ? route('deleteTeamMember', [$team->id]) : 'no board' }}"
                   method="POST" 
                   @submit.prevent="open = true"
                   class="inline"
@@ -209,7 +209,7 @@
                   <p>Are you sure you want to remove this member?</p>
                   <div class="flex justify-center space-x-4">
                     <button @click="open = false" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
-                    <button @click="$el.closest('form').submit()" class="px-4 py-2 bg-red-500 text-white rounded">Yes, Remove</button>
+                    <button @click="$el.closest('form').submit()" class="px-4 py-2 bg-red-500 text-white rounded">Yes, Removed</button>
                   </div>
                 </div>
               </div>
@@ -218,10 +218,9 @@
 
           @else
             @if($member['user_id'] === Auth::id())
-              <form x-data="{ open: false }" x-ref="form" method="POST" action="{{ route('deleteTeamMember', [ $board['team_id']]) }}" class="inline">
+              <form x-data="{ open: false }" x-ref="form" method="POST" action="{{ isset($board) ? route('deleteTeamMember', [ $board['team_id']]) : '' }}" class="inline">
                 @csrf
                 <input type="hidden" name="emails" value="{{ $member['email'] }}">
-
                 <button 
                   type="button" 
                   @click="open = true" 
@@ -278,17 +277,20 @@
                   @click.away="open = false"
                   class="inline"
                   @if($member['user_id'] === Auth::id() && $board['status'] == 'Owner')
-                    action="{{ route('deleteBoard', [$board['team_id'] ,$board['board_id']]) }}" 
+                    action="{{ isset($board) ? route('deleteBoard', [$board['team_id'], $board['board_id']]) : '' }}"
+
                   @elseif($member['user_id'] === Auth::id() && $board['status'] == 'Member')
-                    action="{{ route('removeMember', [ $board['team_id'] ,$board['board_id']]) }}"
-                    {{ $board['team_id'] }}
+                   
+                    action="{{ isset($board) ? route('removeMember', [$board['team_id'], $board['board_id']]) : '' }}"
+
+                    
                   @endif
                 >
                   @csrf
                   <input type="hidden" name="user_id" value="{{ $member['user_id'] }}">
                   
                   @if($member['user_id'] === Auth::id() && $board['status'] == 'Owner')
-                    <button type="button" @click="open = true" class="text-red-600 px-3 py-2 text-xs hover:bg-red-500 hover:text-white hover:rounded">Deletee</button>
+                    <button type="button" @click="open = true" class="text-red-600 px-3 py-2 text-xs hover:bg-red-500 hover:text-white hover:rounded">Delete</button>
                   @elseif($member['user_id'] === Auth::id() && $board['status'] == 'Member')
                     <button type="button" @click="open = true" class="text-red-600 px-3 py-2 text-xs hover:bg-red-500 hover:text-white hover:rounded">leave</button>
                   @endif
@@ -334,24 +336,11 @@
             </div>
           </div>
           <div class="flex items-center gap-2">
-            <button class="text-sm text-green-600 border px-2 py-1 rounded hover:bg-green-100" onclick="ModalView.show('acceptInvite', { team_id: '{{ $team->id }}'  })">Approve</button>
-            <button class="text-sm text-red-600 border px-2 py-1 rounded hover:bg-red-100">Decline</button>
+            <a  href="{{ route('acceptTeamInvite', ['team_id' => $team->id , 'user_id' => Auth::id()])  }}" class="text-sm text-green-600 border px-2 py-1 rounded hover:bg-green-100" >Approve</a>
+            <a  href="{{ route('rejectTeamInvite', ['team_id' => $team->id , 'user_id' => Auth::id()]) }}" class="text-sm text-red-600 border px-2 py-1 rounded hover:bg-red-100">Decline</a>
           </div>
         </div>
       @endforeach
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     </div>
   </div>
@@ -363,7 +352,7 @@
 
        
 
-    </div>
+  </div>
 
 
 

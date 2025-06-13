@@ -94,6 +94,36 @@ class BoardLogic
         return $column;
     }
 
+    public function getTeamOwner(int $team_id)
+    {
+       $owner = BoardUser::where("status", "Owner")
+    ->where("board_id", $team_id)
+    ->get();
+        // $owner = User::find($team_user_pivot->user_id);
+        // dd( $owner);
+        return $owner;
+    }
+
+
+       function getTeamMember(int $team_id)
+    {
+    //     $team_members = BoardUser::with('users')
+    // ->where('board_id', $team_id)
+    // ->whereIn('status', ['Member', 'Owner'])
+    // ->get();
+$board = Board::find($team_id);
+              $team_members =  $board->users()->where('board_id', $team_id)
+    ->wherePivotIn('status', ['Member', 'Owner'])
+    ->get();
+        return $team_members;
+    }
+
+
+
+
+
+
+
     public function addCard(int $column_id, string $card_name)
     {
         $lastCard = Card::where("column_id", $column_id)
@@ -116,9 +146,10 @@ class BoardLogic
 
     public function getData(int $board_id)
     {
+        // dd($board_id);
         $columns = collect();
         $board = Board::find($board_id);
-
+       
         $column = Column::where("board_id", $board->id)
             ->whereNull('previous_id')
             ->first();
@@ -155,6 +186,7 @@ class BoardLogic
         }
         $board->columns = $columns->values();
         $board->setHidden(["team_id", "image_path", "created_at", "updated_at"]);
+        
         return $board;
     }
 

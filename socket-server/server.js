@@ -33,6 +33,21 @@ io.on("connection", (socket) => {
     socket.on("disconnect", () => {
         console.log("A user disconnected");
     });
+socket.on("join-card", (cardId) => {
+    socket.join(`card-${cardId}`);
+    console.log(`✅ Socket ${socket.id} joined card-${cardId}`);
+  });
+
+  socket.on("member-added", ({ cardId, user }) => {
+     console.log(`🚀 member-added ${cardId}`);
+    io.to(`card-${cardId}`).emit("member-add", { cardId, user });
+  });
+
+  socket.on("member-removed", ({ cardId, userId }) => {
+     console.log("🚀 member-removed");
+    io.to(`card-${cardId}`).emit("member-remove", { cardId, userId });
+  });
+
 });
 
 server.listen(3000, () => {

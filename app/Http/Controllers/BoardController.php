@@ -11,6 +11,9 @@ use App\Models\Column;
 use App\Models\Team;
 use App\Models\BoardUser;
 use App\Models\Upload;
+use App\Models\User;
+use App\Models\UserTeam;
+use App\Models\TeamInvitation;
 use Illuminate\Http\Request;
 use App\Events\BoardUpdated;
 use Illuminate\Http\Response as HttpResponse;
@@ -70,16 +73,21 @@ class BoardController extends Controller
         $board_id = intval($board_id);
         $board = $this->boardLogic->getData($board_id);
         $team = Team::find($board->team_id);
-        $teamOwner = $this->teamLogic->getTeamOwner($board->team_id);
-
+        $teamOwner = $this->boardLogic->getTeamOwner($board_id);
+        $team_members = $this->boardLogic->getTeamMember($board_id);
+        $user = User::find(Auth::user()->id);
+        $assign_board = $user->boards()->wherePivotIn('status', ['member', 'owner'])->get();
+// dd($board);
         return view("board")
             ->with("team", $team)
             ->with("owner", $teamOwner)
             ->with("board", $board)
-            ->with("patterns", BoardLogic::PATTERN);
+            ->with("members", $team_members)
+            ->with("assign_board", $assign_board);
     }
- public function viewmember(Request $request ,$team_id)
-    { $team = Team::find($team_id);
+    public function viewmember(Request $request, $team_id)
+    {
+        $team = Team::find($team_id);
         $teamOwner = $this->teamLogic->getTeamOwner($team_id);
         $team_members = $this->teamLogic->getTeamMember($team_id);
         return view("boardmember")
@@ -87,21 +95,76 @@ class BoardController extends Controller
         ->with("members", $team_members)
         ->with("team", $team);
     }
-    public function updateBoard(Request $request)
+    public function updateBoard(Request $request, $team_id, $board_id)
     {
         $request->validate([
-            "board_id" => "required",
             "board_name" => "required",
-            "board_pattern" => "required",
         ]);
 
-        $board = Board::find(intval($request->board_id));
+        $board = Board::find(intval($board_id));
         $board->name = $request->board_name;
-        $board->pattern = $request->board_pattern;
         $board->save();
 
         return redirect()->back()->with("notif", ["Success\nBoard is successfully updated!"]);
     }
+
+
+
+
+
+public function inviteUser(Request $request, $team_id, $board_id)
+{
+    $request->validate([
+        'invitemail' => 'required|email',
+        'role' => 'required|in:Member,Owner',
+    ]);
+
+    $email = $request->invitemail;
+    $role = $request->role;
+
+    $user = User::where('email', $email)->first();
+
+    if ($user) {
+        // If user exists, attach to the team
+        UserTeam::updateOrCreate([
+            'user_id' => $user->id,
+            'team_id' => $team_id,
+        ], [
+            'status' => 'Member',
+        ]);
+
+
+  BoardUser::updateOrCreate([
+        'user_id' => $user->id,
+        'board_id' => $board_id,
+    ], [
+        'status' => $role,
+    ]);
+
+
+
+
+
+
+    } else {
+        // If user doesn't exist, send invitation
+        $token = Str::uuid();
+
+        TeamInvitation::updateOrCreate(
+            ['email' => $email, 'team_id' => $team_id, 'board_id' => $board_id, 'board_role' => $role],
+            ['token' => $token, 'status' => 'Pending']
+        );
+
+        // Send email with invite link (optional: use a mailable)
+        // Mail::raw("You’ve been invited to join a board. Click the link to accept: " .
+        //     route('invite.accept', ['token' => $token]),
+        //     function ($message) use ($email) {
+        //         $message->to($email)->subject('You are invited to join a team on Mindr');
+        //     });
+    }
+
+    return response()->json(['message' => 'Invitation sent successfully']);
+}
 
     public function addCard(Request $request, $team_id, $board_id, $column_id)
     {

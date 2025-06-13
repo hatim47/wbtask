@@ -583,17 +583,12 @@ foreach ($team as $userTeam){
     }
 
 
-
+   //leave member
     public function deleteMembers(Request $request)
-
-    {
-
+    {       
         $team_id = intval($request->team_id);
-
         $this->teamLogic->deleteMembers($team_id, $request->emails);
-
         return redirect()->back()->with('notif', ["Success\nMember removed from the team."]);
-
     }
 
 
@@ -626,11 +621,11 @@ foreach ($team as $userTeam){
                 $subject = "Request from TaskVerse";
                 $message = "Click to log in: $link"; // Email body
             
-                Mail::raw($message, function ($mail) use ($email, $subject) {
-                    $mail->to($email)
-                         ->subject($subject)
-                         ->from('no-reply@task.wbsoftech.com', 'TaskVerse');
-                });
+                // Mail::raw($message, function ($mail) use ($email, $subject) {
+                //     $mail->to($email)
+                //          ->subject($subject)
+                //          ->from('no-reply@task.wbsoftech.com', 'TaskVerse');
+                // });
 
                 continue; 
             }
@@ -689,11 +684,11 @@ $board_id = $request->board_id ?? "";
         $subject = "Request from TaskVerse";
         $message = "you are invited to join the team " . $team->name; // Email body
 
-        Mail::raw($message, function ($mail) use ($email, $subject) {
-            $mail->to($email)
-                 ->subject($subject)
-                 ->from('no-reply@task.wbsoftech.com', 'TaskVerse');
-        });
+        // Mail::raw($message, function ($mail) use ($email, $subject) {
+        //     $mail->to($email)
+        //          ->subject($subject)
+        //          ->from('no-reply@task.wbsoftech.com', 'TaskVerse');
+        // });
 
         // If user exists, add to team if not already there
         if ($user) {
@@ -743,11 +738,11 @@ $board_id = $request->board_id ?? "";
    $subject = "Request from TaskVerse";
         $message = "Click to log in: $link"; // Email body
 
-        Mail::raw($message, function ($mail) use ($email, $subject) {
-            $mail->to($email)
-                 ->subject($subject)
-                 ->from('no-reply@task.wbsoftech.com', 'TaskVerse');
-        });
+        // Mail::raw($message, function ($mail) use ($email, $subject) {
+        //     $mail->to($email)
+        //          ->subject($subject)
+        //          ->from('no-reply@task.wbsoftech.com', 'TaskVerse');
+        // });
 
 
         }

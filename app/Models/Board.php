@@ -37,4 +37,11 @@ class Board extends Model
 {
     return $this->hasMany(BoardUser::class);
 }
+public function users()
+{
+    return $this->belongsToMany(User::class, 'board_user')
+                ->withPivot('status')
+                ->withTimestamps();
+}
+
 }

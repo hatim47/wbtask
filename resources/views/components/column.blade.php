@@ -58,9 +58,9 @@
 
         <div data-role="column"
 
-            class="your-class flex flex-col flex-shrink-0 max-h-full shadow-lg group h-min w-72 rounded-xl bg-slate-100">
+            class="your-class flex flex-col flex-shrink-0 max-h-full  group h-min w-72 rounded-xl bg-slate-100">
 
-            <header class="flex items-center gap-2 px-4 py-4 select-none rounded-t-xl shadow-md" draggable="true">
+            <header class="flex items-center gap-2 px-4 py-4 select-none rounded-t-xl " draggable="true">
 
                 <h2 class="w-full overflow-hidden text-sm font-bold truncate"></h2>
 
@@ -86,7 +86,7 @@
 
             </header>
 
-            <hr class="border-neutral-800/50  ">
+           
 
             <section class="w-full overflow-hidden overflow-y-auto">
 
@@ -102,13 +102,16 @@
 
             <button id="btn-add"
 
-                class="flex items-center gap-2 py-2 pl-4  text-gray-600 text-sm transition bg-slate-300 select-none rounded-b-xl hover:bg-slate-200">
+                class="flex items-center gap-2 py-2 pl-4  text-gray-600 text-sm transition bg-slate-100 select-none rounded-b-xl hover:bg-slate-200">
 
                 <x-fas-plus class="w-4 h-4" />
 
                 Add Card...
 
             </button>
+
+
+
 
         </div>
 
@@ -268,31 +271,7 @@
 
 
 
-document.addEventListener("DOMContentLoaded", function () {
 
-    const columns = document.querySelectorAll('[data-role="column"]'); // Select all columns
-
-
-
-    columns.forEach(column => {
-
-        // Remove existing bg-* classes
-
-        column.classList.forEach(cls => {
-
-            if (cls.startsWith('bg-')) column.classList.remove(cls);
-
-        });
-
-
-
-        // Assign a random color
-
-        column.classList.add(getRandomTailwindColor());
-
-    });
-
-});
 
 
 
@@ -986,6 +965,14 @@ notify.classList.add("notification-badge");
 
 // Check if cardData.notif exists and is greater than 0
 
+const pop = document.createElement("div");
+
+pop.classList.add("popup-container");
+
+// Add the click event
+
+
+
 const notificationCount = cardData.notif ? cardData.notif : 0;
 
 if (notificationCount > 0) {
@@ -1005,18 +992,12 @@ if (notificationCount > 0) {
 // iconContainer.append(notify,attachmentIcon, commentIcon, avatarContainer );
 
 innerone.append(notify,attachmentIcon, commentIcon);
-
 innertwo.append(avatarContainer);
-
 iconContainer.append(innerone,innertwo)
-
 footer.appendChild(iconContainer);
-
 card.ref.appendChild(labelContainer)
-
 card.ref.appendChild(footer);
-
-                    card.mountTo(this);
+card.mountTo(this);
 
                 }             
 

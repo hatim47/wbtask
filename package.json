@@ -23,8 +23,10 @@
         "croppie": "^2.6.5",
         "express": "^4.21.2",
         "laravel-echo": "^2.0.0",
+        "mitt": "^3.0.1",
         "socket.io": "^4.8.1",
         "socket.io-client": "^4.8.1",
-        "vue": "^3.5.14"
+        "vue": "^3.5.14",
+        "vue-final-modal": "^4.5.5"
     }
 }

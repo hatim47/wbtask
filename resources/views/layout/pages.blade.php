@@ -1,8 +1,9 @@
 @extends('layout.base')
 
 @section('body')
+
     <div id="app board-background" x-data="{ sidebar_is_open: true }" data-role="layout-page" class="flex w-full h-screen overflow-hidden bg-grad-{{ $board->pattern }}">
-        <aside style="background: #31313180; border-right-color: rgba(203, 203, 203, 0.407);" class="flex flex-col h-full overflow-hidden transition-all border-r-2 "
+        <aside style="background: #b5b5b5c4; border-right-color: rgba(203, 203, 203, 0.407);" class="flex flex-col h-full overflow-hidden transition-all border-r-2 "
             x-bind:class="sidebar_is_open ? 'w-80' : 'w-0'">
             <div class="flex justify-between  items-center px-6">
                 <h1 id="logo"
@@ -17,24 +18,12 @@
             </div>
 
             <section class="flex flex-col items-center justify-start w-full gap-2 overflow-x-hidden overflow-y-auto">
-                {{-- <div id="menu" class="flex flex-col items-center justify-start w-full">
 
-                    <a data-role="menu-item" href="{{ route('setting') }}"
-                        class="flex items-center justify-start w-full gap-3 px-6 py-2 text-sm text-black cursor-pointer select-none {{ Route::currentRouteName() == 'setting' ? 'bg-gray-200' : 'hover:bg-black hover:text-white' }}">
-                        <x-fas-gear class="w-6 h-6" />
-                        <p class="text-lg font-normal"> Setting </p>
-                    </a>
-
-                    <a data-role="menu-item" href="{{ route('home') }}"
-                        class="flex items-center justify-start w-full gap-3 px-6 py-2 text-sm text-black cursor-pointer select-none {{ Route::currentRouteName() == 'home' ? 'bg-gray-200' : 'hover:bg-black hover:text-white' }}">
-                        <x-fas-cube class="w-6 h-6" />
-                        <p class="text-lg font-normal"> Team </p>
-                    </a>
-                </div> --}}
 
                 @hasSection('app-side')
                     <div class="flex-grow w-full">
                         @yield('app-side')
+                     
                     </div>
                 @endif
             </section>
@@ -42,7 +31,7 @@
 
         <div class="flex flex-col items-center content-center flex-1 h-full overflow-y-auto">
             <header style="background: #31313180" data-role="app-header" class="sticky flex items-center justify-between w-full h-24 px-6 shadow">
-                <div class="flex items-center gap-4">
+                <div class="flex items-center w-full gap-4">
                         <div id="sidebar-button" class="w-6 h-6 text-white" x-on:click="sidebar_is_open = !sidebar_is_open">
                         <template x-if="!sidebar_is_open">
                             <x-fas-square-poll-horizontal />
@@ -59,6 +48,7 @@
                     </div> --}}
 
                     @yield('app-header')
+                   
                 </div>
 
 

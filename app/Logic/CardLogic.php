@@ -6,7 +6,9 @@ use App\Models\Card;
 use App\Models\CardHistory;
 use App\Models\CardComment;
 use App\Models\CardUser;
+use App\Models\Board;
 use App\Models\User;
+use App\Models\BoardUser;
 
 class CardLogic
 {
@@ -15,10 +17,17 @@ class CardLogic
         return $card;
     }
 
-    public function getWorkers(int $card_id) {
-        $users = Card::find($card_id)->users()->get();
+    // public function getWorkers(int $card_id) {
+    //     $users = Card::find($card_id)->users()->get();
+    //     return $users;
+    // }
+ public function getWorkers(int $card_id) {
+      
+        $board = Board::find($card_id);
+$users = $board->users;
         return $users;
     }
+
 
     public function addUser(int $card_id, int $user_id , string $content) {
         CardUser::create([

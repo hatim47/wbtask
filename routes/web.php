@@ -58,6 +58,7 @@ Route::middleware(["auth", "auth.session"])->post("update/lable/status", [CardCo
 Route::middleware(["auth", "auth.session"])->post("delete/lable", [CardController::class, "destroyLable"])->name("delete.lable");
 
 
+
 Route::middleware(["auth", "auth.session", "userInTeam"])->post("team/{team_id}/user/delete", [TeamController::class, "deleteMembers"])->name("deleteTeamMember");
 Route::middleware(["auth", "auth.session", "userInTeam"])->get("team/{team_id}/view", [TeamController::class, "showTeam"])->name("viewTeam");
 Route::middleware(["auth", "auth.session"])->get("Home/show", [TeamController::class, "showhome"])->name("viewHome");
@@ -69,6 +70,8 @@ Route::middleware(["auth", "auth.session", "userInTeam"])->post("team/{team_id}/
 Route::middleware(["auth", "auth.session", "userInTeam"])->post("team/{team_id}update/picture", [TeamController::class, "updateImage"])->name("doChangeTeamImage");
 
 Route::middleware(["auth", "auth.session", "userInTeam"])->post("team/{team_id}/board", [BoardController::class, "createBoard"])->name("createBoard");
+
+Route::middleware(["auth", "auth.session", "boardAccess"])->post('team/{team_id}/board/{board_id}/invite', [BoardController::class, 'inviteUser'])->name('invite.user');
 Route::middleware(["auth", "auth.session", "boardAccess"])->get("team/{team_id}/board/{board_id}", [BoardController::class, "showBoard"])->name("board");
 Route::middleware(["auth", "auth.session", "boardAccess"])->post("team/{team_id}/board/{board_id}/delete", [BoardController::class, "deleteBoard"])->name("deleteBoard");
 Route::middleware(["auth", "auth.session", "boardAccess"])->post("team/{team_id}/board/{board_id}/remove", [BoardController::class, "removeMember"])->name("removeMember");
@@ -87,7 +90,7 @@ Route::middleware(["auth", "auth.session"])->post("card/update-notify", [CardCon
 Route::middleware(["auth", "auth.session", "boardAccess","cardExist"])->get("team/{team_id}/board/{board_id}/card/{card_id}/view", [CardController::class, "showCard"])->name("viewCard");
 Route::middleware(["auth", "auth.session", "boardAccess","cardExist"])->post("team/{team_id}/board/{board_id}/card/{card_id}/assign", [CardController::class, "assignCard"])->name("assignCard");
 Route::middleware(["auth", "auth.session", "boardAccess","cardExist"])->post("team/{team_id}/board/{board_id}/card/{card_id}/assignself", [CardController::class, "assignSelf"])->name("assignSelf");
-Route::middleware(["auth", "auth.session", "boardAccess","cardExist"])->post("team/{team_id}/board/{board_id}/card/{card_id}/leave", [CardController::class, "leaveCard"])->name("leaveCard");
+Route::middleware(["auth", "auth.session", "boardAccess","cardExist"])->post("/board/{board_id}/card/{card_id}/leave", [CardController::class, "leaveCard"])->name("leaveCard");
 Route::middleware(["auth", "auth.session", "boardAccess","cardExist"])->post("team/{team_id}/board/{board_id}/card/{card_id}/delete", [CardController::class, "deleteCard"])->name("deleteCard");
 Route::middleware(["auth", "auth.session", "boardAccess","cardExist"])->post("team/{team_id}/board/{board_id}/card/{card_id}/update", [CardController::class, "updateCard"])->name("updateCard");
 Route::middleware(["auth", "auth.session", "boardAccess","cardExist"])->post("team/{team_id}/board/{board_id}/card/{card_id}/comment", [CardController::class, "addComment"])->name("commentCard");
