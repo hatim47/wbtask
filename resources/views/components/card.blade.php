@@ -82,24 +82,23 @@ console.log("🔼 top_id:", top_id);
                         });
                 })
 
-let isPopupOpen = false;
- this.ref.addEventListener("click", () => {
- 
-if (isPopupOpen) return; // Prevent opening if one is already open
-  
+this.ref.addEventListener("click", async () => {
   const board_id = this.board.ref.dataset.id;
   const card_id = this.ref.dataset.id;
-
-  isPopupOpen = true;
   
-  ServerRequest.get(`{{ url('team/'.$teamid.'/board/${board_id}/card/${card_id}/view') }}`).then((response) => {
+  try {
+    const response = await ServerRequest.get(
+      `{{ url('team/'.$teamid.'/board/${board_id}/card/${card_id}/view') }}`
+    );
+    
     window.showPopup({
-      data: response.data,
-      close: () => {
-        isPopupOpen = false;
-      }
+      data: response.data
     });
-  });
+
+    console.log("Card loaded successfully:", response.data);
+  } catch (error) {
+    console.error("Failed to load card:", error);
+  }
 });
    }
             setId(id) {

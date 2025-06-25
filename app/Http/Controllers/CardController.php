@@ -9,8 +9,10 @@ use App\Models\Card;
 use App\Models\Lable;
 use App\Models\Notice;
 use App\Models\CardUser;
+use App\Models\BoardLabel;
 use App\Models\Team;
 use App\Models\Upload;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -34,40 +36,17 @@ class CardController extends Controller
         $hist = $this->cardLogic->getHistories($card_id);
         $chatUser = CardUser::with('user')->where("card_id", $card->id)->get()->all();
         $chatOwner = CardUser::with('user')->where("card_id", $card->id)->where("status","Owner")->get()->first();
-        $lables = Lable::where("card_id", $card->id)->get()->all();
-        // dd($card, $upload, $board, $team, $workers, $hist, $owner);
-                    //dd($workers);
-        // return view("card")
-        //     ->with("card", $card)
-        //     ->with("upload", $upload)
-        //     ->with("chatUser", $chatUser)
-        //     ->with("board", $board)
-        //     ->with("lables", $lables)
-        //     ->with("team", $team)
-        //     ->with("members", $team_members)
-        //     ->with("workers", $workers)
-        //     ->with("histories", $hist)
-        //     ->with("chatOwner", $chatOwner)
-        //     ->with("owner", $owner);
-// dd([
-//     'card' => $card->only(['id', 'title']),  // or whatever fields you want
-//     'upload' => $upload,
-//     'chatUser' => $chatUser,
-//     'board' => $board->only(['id', 'name']),
-//     'lables' => $lables,
-//     'team' => $team->only(['id', 'name']),
-//     'members' => $team_members->pluck('name'),  // just names of members
-//     'workers' => $workers->pluck('name'),
-//     'histories' => $hist->pluck('action'),      // example field
-//     'chatOwner' => $chatOwner,
-//     'owner' => $owner->only(['id', 'name']),
-// ]);
+        $cardLabels = Lable::where("card_id", $card->id)->get()->all();
+        $labels = BoardLabel::where("board_id", $board_id)->get()->all();
+
+
 return response()->json([
     'card' => $card,
     'upload' => $upload,
     'chatUser' => $chatUser,
     'board' => $board,
-    'lables' => $lables,
+    'cardLabels' => $cardLabels,
+    'labels' => $labels,
     'team' => $team,
     'members' => $team_members,
     'workers' => $workers,
@@ -77,6 +56,24 @@ return response()->json([
 ]);
 
     }
+
+ public function updateLabel(Request $request ,int $label)
+{
+
+    $request->validate([
+        'color' => 'required|string|max:10', 
+        'title' => 'required|string|max:50',
+        'status' => 'required|boolean'
+    ]);
+
+    $label = BoardLabel::findOrFail($label);
+    $label->update($request->only(['color', 'title', 'status']));
+
+    return response()->json(['success' => true, 'message' => 'Label updated successfully']);
+
+}
+
+
 
 
 
@@ -107,22 +104,6 @@ return response()->json([
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public function viewmember($card_id ,$team_id,$board_id) {
         $owner = $this->teamLogic->getTeamOwner($team_id);
         $workers = $this->cardLogic->getWorkers($card_id);
@@ -136,7 +117,7 @@ return response()->json([
     }
 
 
-    public function notify(Request $request) {
+public function notify(Request $request) {
                
                 // $request->card_id;
                 Notice::where("card_id", $request->card_id)
@@ -146,24 +127,133 @@ return response()->json([
 
     }
 
-    public function AddTeamMember(Request $request) {
-        // $team_id = intval($request->team_id);
-        // $this->teamLogic->deleteMembers($team_id, $request->emails);
-          //dd($request);
+public function uploadImage(Request $request)
+{
+    $request->validate([
+        'image' => 'required|image|max:10240', // max 10MB
+    ]);
+
+    $path = $request->file('image')->store('attachments', 'public');
+
+    // Optionally save in DB
+    $uploadedFiles = Upload::create([
+        'file_path' => $path,
+        'original_name' => $request->file('image')->getClientOriginalName(),
+        'card_id' => $request->card_id ?? null, // if provided
+    ]);
+
+    return response()->json([
+        'success' => true,
+        'uploaded_files' => $uploadedFiles,
+    ]);
+}
+
+public function uploadAttachments (Request $request)
+{
+    $request->validate([
+        'image.*' => 'required|file|max:10240', // max 10MB each
+        'card_id' => 'required|exists:cards,id'
+    ]);
+
+    $uploadedFiles = [];
+
+    foreach ($request->file('image') as $file) {
+        $path = $file->store('attachments', 'public');
+
+        $attachment = Upload::create([
+        'file_path' => $path,
+        'original_name' => $file->getClientOriginalName(),
+        'card_id' => $request->card_id ?? null, // if provided
+    ]);
+
+        $uploadedFiles[] = $attachment;
+    }
+
+    return response()->json([
+        'success' => true,
+        'uploaded_files' => $uploadedFiles,
+    ]);
+}
+
+public function uploadDeleted(Request $request,  $card,  $upload)
+{
+  
+
+    // Find the upload record
+    $attachment = Upload::where('id', $upload)->where('card_id', $card)->first();
+
+    if (!$attachment) {
+        return response()->json(['error' => 'File not found.'], 404);
+    }
+
+    // Delete the file from storage
+    Storage::disk('public')->delete($attachment->file_path);
+
+    // Delete the record from the database
+    $attachment->delete();
+
+    return response()->json([
+    'success' => true,
+    'file_id' => $upload,
+    'file_path'=> $attachment->file_path,
+]);
+}
+public function updateDescription(Request $request, Card $card)
+    {
+        $validated = $request->validate([
+            'description' => 'nullable|string|max:990000'
+        ]);
+        // $card = Card::find($card);   
+        $card->description = $validated['description'];
+        $card->save();
+
+        return response()->json([
+            'message' => 'Description updated successfully.',
+            'card' => $card
+        ]);
+    }
+
+
+public function MakeCover (Request $request,  $card,  $upload)
+ {
+ $newCover = Upload::where('card_id', $card)
+                      ->where('id', $upload)
+                      ->first();
+
+    if (!$newCover) {
+        return response()->json(['message' => 'File not found for this card.'], 404);
+    }
+
+    // Step 2: Remove existing cover for this card (if any)
+    Upload::where('card_id', $card)
+          ->where('f_cover', 1)
+          ->update(['f_cover' => 0]);
+
+    // Step 3: Set the new file as cover
+    $newCover->f_cover = 1;
+    $newCover->save();
+
+    return response()->json(['message' => 'Cover updated successfully.']);
+
+
+
+ }
+
+
+
+public function AddTeamMember(Request $request) {
                  $id_card =  $request->card_id;
                  $status = $request->status;
                   $user_id =  $request->user_id;
-
             CardUser::create([  
                 'user_id' => $user_id,
                 'card_id' => $id_card,
                 'status' => $status
             ]);    
-        
      return response()->json(["message" => "Add success"]);
     }
 
-    public function store(Request $request) {
+public function store(Request $request) {
         $attachments = [];
         foreach ($request->file('attachments') as $file) {
             $path = $file->store('uploads', 'public');
@@ -182,20 +272,17 @@ return response()->json([
                 ]);
             }
         }
-        
         return response()->json([
             'success' => true,  // ✅ Ensure success key is returned
             'message' => 'Upload successful!'
         ], 200);
     }
-
-
-    public function assignCard(Request $request, $team_id, $board_id, $card_id)
+public function assignCard(Request $request, $team_id, $board_id, $card_id)
     {
         return redirect()->back();
     }
 
-    public function assignSelf(Request $request, $team_id, $board_id, $card_id)
+public function assignSelf(Request $request, $team_id, $board_id, $card_id)
     {
         $user_id = Auth::user()->id;
         $card_id = intval($card_id);
@@ -204,7 +291,7 @@ return response()->json([
         return redirect()->back()->with("notif", ["Success\nAdded yourself to the card"]);
     }
 
-    public function leaveCard(Request $request,  $board_id, $card_id)
+public function leaveCard(Request $request,  $board_id, $card_id)
     {
         $id = $request->user_id;
         $card_id = intval($card_id);
@@ -218,7 +305,7 @@ return response()->json([
           
     }
 
-    public function deleteCard(Request $request, $team_id, $board_id, $card_id)
+public function deleteCard(Request $request, $team_id, $board_id, $card_id)
     {
         $this->cardLogic->deleteCard(intval($card_id));
         return redirect()

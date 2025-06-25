@@ -25,6 +25,39 @@ io.on("connection", (socket) => {
         io.emit("board-refresh"); // Broadcast update
     });
 
+  socket.on("card-description-updated", (data) => {
+        const { cardId, description } = data;
+        console.log(`📝 Card ${cardId} description updated by ${socket.id}`);
+
+        // Broadcast to all users except sender
+        socket.broadcast.emit("card-description-updated", {
+            cardId,
+            description
+        });
+    });
+    socket.on("card-file-uploaded", (data) => {
+    const { cardId, file } = data;
+    console.log(`📁 File uploaded to card ${file} by ${socket.id}`);
+
+    // Broadcast to other users (except the sender)
+     io.emit("card-file-uploaded", {
+        cardId,
+        file
+    });
+});
+socket.on("card-file-deleted", ({ cardId, fileId }) => {
+  console.log("🗑 File deleted, broadcasting:", fileId);
+  io.emit("card-file-deleted", { cardId, fileId });
+});
+
+socket.on("cover-updated", ({ cardId, cover }) => {
+     console.log("🗑 File deleted, broadcasting:", cover);
+io.emit('cover-updated', {
+  cardId: cardId,
+  cover: cover
+});
+ });
+
     socket.on("comment-action", () => {
         console.log("📢 Comment action received, notifying all users...");
         io.emit("comment-refresh"); // Broadcast update
@@ -49,6 +82,7 @@ socket.on("join-card", (cardId) => {
   });
 
 });
+
 
 server.listen(3000, () => {
     console.log("🚀 Socket.io server running on port 3000");

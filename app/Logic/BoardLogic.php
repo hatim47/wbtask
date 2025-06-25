@@ -11,6 +11,7 @@ use App\Models\Team;
 use App\Models\Lable;
 use App\Models\User;
 use App\Models\BoardUser;
+use App\Models\BoardLabel;
 use App\Models\Upload;
 use App\Models\UserTeam;
 use Illuminate\Support\Facades\Auth;
@@ -67,6 +68,22 @@ class BoardLogic
             "board_id" => $createdBoard->id,
             "status" => "Owner"
         ]);
+        $defaultColors = [
+    '#4CD964', // Green
+    '#FFCC00', // Yellow
+    '#FF9500', // Orange
+    '#FF3B30', // Red
+    '#AF52DE', // Purple
+    '#007AFF'  // Blue
+];
+
+foreach ($defaultColors as $color) {
+    BoardLabel::create([
+        'board_id' => $createdBoard->id,
+        'title' => null,
+        'color' => $color
+    ]);
+}
 
         return $createdBoard;
     }
@@ -161,8 +178,9 @@ $board = Board::find($team_id);
                 ->first();
             while ($card) {
                 $card->setHidden(['nextCard', "created_at", "updated_at", "column_id", "previous_id", "next_id"]);
-                $card->images = Upload::where("card_id", $card->id)->get(["id", "file_path"]); 
-                $card->files = $card->images->count();
+                $card->images = Upload::where("card_id", $card->id)->where("f_cover", 1)->get(["id", "file_path"]); 
+                $card->pic = Upload::where("card_id", $card->id)->get(["id", "file_path"]); 
+                $card->files = $card->pic->count();
                 $workerNames = Card::find($card->id)->users()->pluck('name')->map(fn($name) => substr($name, 0, 2));
                 // dd($workerNames);
                $getcounmt = CardComment::where("card_id", $card->id)->count();

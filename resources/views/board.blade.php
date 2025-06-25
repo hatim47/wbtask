@@ -164,11 +164,7 @@
         </section>
     </div>
 
-
-
-
-
-
+    
 <template is-modal="sharebtn">
 <div class="  bg-black bg-opacity-50 flex items-center justify-center ">
     <div class="bg-white   w-full  ">

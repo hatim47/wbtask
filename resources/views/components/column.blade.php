@@ -215,7 +215,7 @@
 
                 // this.cards = cards;
 
-                console.log(cards);
+                console.log("CARDS DATA ",cards);
 
                 const content = columnTemplate.content.cloneNode(true);
 
@@ -737,7 +737,7 @@ function getContrastColor(hex) {
 
     const firstImage = cardData.images[0]; 
 
-    const imageUrl = `/storage/app/public/${firstImage.file_path}`;
+    const imageUrl = `/wbtask/public/storage/${firstImage.file_path}`;
 
     imageContainer.style.backgroundImage = `url('${imageUrl}')`;    
 
@@ -840,33 +840,10 @@ cardData.lables.forEach(label => {
 
 
     });
-
 });
-
-
-
-
-
     labelContainer.appendChild(labelElement);
 
 });
-
-
-
-
-
-   
-
-
-
-
-
-
-
-
-
-
-
 
 
     const footer = document.createElement("div");

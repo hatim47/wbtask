@@ -41,13 +41,14 @@ const vfm = createVfm()
 app.component('font-awesome-icon', FontAwesomeIcon);
 app.use(vfm)
 app.mount("#appp");
+
+
 let currentPopup = null;
 
 window.showPopup = function(data) {
-  // If popup exists, just update its data instead of creating new one
+  // Close existing popup if one is open
   if (currentPopup) {
-    currentPopup.app._instance.props.data = data;
-    return;
+    currentPopup.close(); // This should properly clean up the previous popup
   }
 
   const container = document.createElement("div");
@@ -68,20 +69,18 @@ window.showPopup = function(data) {
 
   modalApp.mount(container);
   
+  // Store reference to the current popup
   currentPopup = {
-    app: modalApp,
-    container,
     close: () => {
       modalApp.unmount();
-      container.remove();
+      if (container.parentNode) {
+        container.remove();
+      }
       currentPopup = null;
-    }
+    },
+    container,
+    app: modalApp
   };
 };
 
 // Close popup when clicking outside (optional)
-document.addEventListener('click', (e) => {
-  if (currentPopup && !e.target.closest('.popup-container')) {
-    currentPopup.close();
-  }
-});

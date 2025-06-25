@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Upload extends Model
 {
     use HasFactory;
-    protected $fillable = ['card_id', 'file_path'];
+    protected $fillable = ['card_id', 'file_path','original_name'];
 
     public function card()
     {
