@@ -320,6 +320,7 @@
                 v-model="selectedLabelIds" 
                 :value="label.id"
                 class="rounded text-blue-500 focus:ring-blue-500"
+                 @change="handleCheckbox(label)"
               />
               <div 
                 class="flex-1 h-6 rounded px-2 text-xs text-white flex items-center"
@@ -510,11 +511,12 @@ directives: {
   //   { id: 4, name: '', color: '#c377e0' },
   //   { id: 5, name: '', color: '#0079bf' },
   // ],
-  availableLabels: this.data.data.labels ,
+  availableLabels: [],
  showDeleteModal: false,
       selectedFile: {},
   labelTitle: '',
   labelColor: '',
+  labelId: null,
   colorOptions: [
     '#61bd4f', '#f2d600', '#ff9f1a', '#eb5a46', '#c377e0',
     '#0079bf', '#00c2e0', '#51e898', '#ff78cb', '#344563',
@@ -565,22 +567,40 @@ directives: {
       ? this.reversedUploads
       : this.reversedUploads.slice(0, this.uploadDisplayLimit);
   }
-
   },
-
-
   mounted() {
+    
  this.localUploads = [...(this.data?.data?.upload || [])];
 const cover = this.data.data.upload.find(file => file.f_cover == 1);
 if (cover) {
 this.coverImage = `/wbtask/public/storage/${cover.file_path}`;
 }
-    // Initialize reactive copy of chatUser
-    this.localChatUser = [...(this.data.data?.chatUser || [])];
-     this.localWorkers = [...(this.data.data?.workers || [])];
+  this.data.data.cardLabels.forEach(label => {
+    const exists = this.data.data.labels.some(l =>
+      label.board_card_id != null && l.id == label.board_card_id
+    );
+    if (!exists) {
+      this.data.data.labels.push(label);
      
-    this.initSocket();
- 
+    }
+  });
+  this.selectedLabelIds = this.data.data.labels.filter(label => {
+    const match = this.data.data.cardLabels.some(cl => cl.status === 0 && cl.board_card_id === label.id);
+    if (label.status === 0 || match) {
+    
+      return true;
+    }
+    return false;
+  })
+  .map(label => label.id);
+  // this.selectedLabelIds = this.data.data.labels
+  //   .filter(label => this.data.data.cardLabels.some(cl => cl.status === 0 || label.status == 0 && console.log("label",label.status,"cl", cl.status)))
+  //   .map(label => label.id);
+this.availableLabels=(this.data.data.labels);
+    // Initialize reactive copy of chatUser
+  this.localChatUser = [...(this.data.data?.chatUser || [])];
+  this.localWorkers = [...(this.data.data?.workers || [])];
+  this.initSocket(); 
    this.editor = new Editor({
       extensions: [StarterKit],
       content: this.originalDescription,
@@ -599,7 +619,48 @@ this.coverImage = `/wbtask/public/storage/${cover.file_path}`;
     },
   },
   methods: {
-   
+    handleCheckbox(label) {
+    const isChecked = this.selectedLabelIds.includes(label.id);
+    const newStatus = isChecked ? 0 : 1;
+    if (isChecked) {
+      // 🔵 Send API to insert (POST)
+      fetch(`/wbtask/public/api/update-label/${label.id}`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+        body: JSON.stringify({
+          title: label.title,
+          color: label.color,
+          status: newStatus
+
+        })
+
+      })
+      .then(res => {
+        if (!res.ok) throw new Error('Insert failed');
+         label.status = newStatus;
+        this.socket.emit('label-Checked-updated', label, this.clientId);
+        console.log('Label Checked show');
+      })
+      .catch(err => console.error(err));
+    } else {
+      fetch(`/wbtask/public/api/update-label/${label.id}`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+          body: JSON.stringify({
+          title:  label.title,
+          color: label.color,
+          status: newStatus
+        })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error('Remove failed');
+         label.status = newStatus;
+          this.socket.emit('label-Checked-updated', label, this.clientId);
+        console.log('Label Check removed');
+      })
+      .catch(err => console.error(err));
+    }  
+  },
     startEditingDescription() {
       this.localDescription = this.data.data.card.description || ''
       this.isEditingDescription = true
@@ -642,10 +703,7 @@ this.coverImage = `/wbtask/public/storage/${cover.file_path}`;
       } catch (error) {
         console.error('❌ Failed to save:', error)
       }
-
-
-
-    },
+  },
     toggleDescription() {
       this.showFull = !this.showFull
     },
@@ -662,11 +720,9 @@ this.coverImage = `/wbtask/public/storage/${cover.file_path}`;
   const input = document.createElement('input');
   input.type = 'file';
  input.accept = 'image/*';
-
   input.onchange = async () => {
     const file = input.files[0];
     if (!file) return;
-
     const formData = new FormData();
     formData.append('image', file);
     formData.append('card_id', this.data.data.card.id); 
@@ -675,26 +731,19 @@ this.coverImage = `/wbtask/public/storage/${cover.file_path}`;
         method: 'POST',
         body: formData,
       });
-
       if (!response.ok) {
         throw new Error('Upload failed');
       }
-
-      const result = await response.json();
-     const imageUrl = `/wbtask/public/storage/${result.uploaded_files.file_path}`;
-
+    const result = await response.json();
+    const imageUrl = `/wbtask/public/storage/${result.uploaded_files.file_path}`;
       // insert image into the editor
       this.editor.chain().focus().setImage({ src: imageUrl }).run();
       this.upload.push(result.uploaded_files);
 socket.emit('card-file-uploaded', {
       cardId: this.data.data.card.id,
-      file: result.uploaded_files // include id, name, path, etc.
-      
+      file: result.uploaded_files // include id, name, path, etc.      
     });
   console.log('✅ Uploaded:', result);
-
-
-
     } catch (err) {
       console.error('❌ Upload failed:', err);
     }
@@ -706,33 +755,25 @@ socket.emit('card-file-uploaded', {
   input.type = 'file';
   input.accept = '*/*'; // Accept all types
   input.multiple = true;
-
   input.onchange = async () => {
     const files = Array.from(input.files);
     if (!files.length) return;
-
     const formData = new FormData();
     files.forEach(file => {
       formData.append('image[]', file); // support for multiple files
     });
     formData.append('card_id', this.data.data.card.id);
-
     try {
       const response = await fetch('/wbtask/public/api/upload-attachments', {
         method: 'POST',
         body: formData,
       });
-
       if (!response.ok) throw new Error('Upload failed');
-
-      const result = await response.json();
-    
-
+      const result = await response.json();  
       // Optional: update your local card.uploads list
     if (Array.isArray(result.uploaded_files)) {
   this.data.data.upload.push(...result.uploaded_files);
 }
-
    socket.emit('card-file-uploaded', {
       cardId: this.data.data.card.id,
       file: result.uploaded_files // include id, name, path, etc.
@@ -743,13 +784,8 @@ socket.emit('card-file-uploaded', {
     console.error('❌ Attachment upload failed:', err);
   }
 };
-
   input.click();
-},
- 
-  
-   
-  
+},  
      toggleLabelSelector() {
     this.showLabelSelector = !this.showLabelSelector;
     if (this.showLabelSelector) {
@@ -814,14 +850,15 @@ backToLabels() {
   },
     editLabel(label, event) {
     this.editingLabel = label;
-    this.labelTitle = label.name;
+    this.labelTitle = label.title;
     this.labelColor = label.color;
        
     this.showInlineEditor = true;
   },  
   startEditingLabel(label) {
     this.editingLabel = label;
-    this.labelTitle = label.name;
+    this.labelId = label.id;
+    this.labelTitle = label.title;
     this.labelColor = label.color;
     this.showLabelEditor = true;
   },
@@ -839,30 +876,53 @@ backToLabels() {
     formData.append('color', this.labelColor);
 formData.append('status', 0);
 
-      const response =  fetch('/wbtask/public/api/update-label/' + this.editingLabel.id, {
+     const response = fetch('/wbtask/public/api/update-label/' + parseInt(this.editingLabel.id), {
+
         method: 'POST',
         body: formData,
       });
-
-      this.editingLabel.name = this.labelTitle;
+      this.editingLabel.id = this.labelId;
+      this.editingLabel.title = this.labelTitle;
       this.editingLabel.color = this.labelColor;
 
+  this.socket.emit('label-updated', this.editingLabel);
+  console.log('✅ label-updated:', this.editingLabel);
     } else {
       // Create new label
+
+
+      fetch(`/wbtask/public/api/labels/insert`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+          id: 0,
+          title:  this.labelTitle,
+          color: this.labelColor,
+          card_id: this.data.data.card.id
+        })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error('Remove failed');
+        console.log('Label Create ');
+      })
       const newLabel = {
-        id: Date.now(),
-        title: this.labelTitle,
-        color: this.labelColor
+      id: Date.now(),
+      title: this.labelTitle,
+      color: this.labelColor
       };
       this.availableLabels.push(newLabel);
-    }
-    
+      this.socket.emit('label-created', newLabel);
+    }    
     this.showLabelEditor = false;
     this.editingLabel = null;
   },
   
   deleteLabel() {
     if (confirm('Are you sure you want to delete this label?')) {
+    fetch(`/wbtask/public/api/labels/${this.editingLabel.id}`, {
+          method: 'get',
+          headers: { 'Content-Type': 'application/json' },
+        })
       this.availableLabels = this.availableLabels.filter(
         l => l.id !== this.editingLabel.id
       );
@@ -883,7 +943,6 @@ formData.append('status', 0);
   }
   return path.split('.').pop().toUpperCase();
 },
-  
     formatDate(dateStr) {
       const date = new Date(dateStr)
       return date.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
@@ -976,7 +1035,6 @@ formData.append('status', 0);
       img.remove();
     }
   });
-
   // 4. Update editor and local data
   const newHTML = div.innerHTML;
   if (this.editor) {
@@ -995,6 +1053,7 @@ formData.append('status', 0);
       this.socket = io("http://localhost:3000"); // replace with your real backend
 
       this.socket.on("connect", () => {
+          this.clientId = this.socket.id;
           const cardId = this.data?.data?.card?.id;
          console.log("📨 Emitting join-card with cardId:", cardId);
         console.log("✅ Connected to Socket.io");
@@ -1002,10 +1061,47 @@ formData.append('status', 0);
   
       });
 
+  this.socket.on('label-created', (label) => {
+    console.log('New label created:', label);
+    this.availableLabels.push(label);
+  });
 
+  this.socket.on('label-updated', (label) => {
+    const index = this.availableLabels.findIndex(l => l.id === label.id);
+    if (index !== -1) {
+      this.availableLabels[index] = label;
+    }
+    console.log('Updated label Received:', label);
+  });
+this.socket.on('label-Checked-updated', ({ label, clientId }) => {
+   if (clientId === this.clientId) {
+    console.log("Skipped processing label update from this client:", label);
+    return;
+  }
+  console.log('✏️ Checked Label updated:', label);
+  // ✅ Find and update label in availableLabels
+ const existing = this.data.data.cardLabels.find(l => l.id === label.id);
 
+  if (existing) {
+    Object.assign(existing, label);
+  } else {
+    this.data.data.cardLabels.push(label);
+  }
 
+  // Sync checkbox state reactively
+  if (label.status === 0) {
+    if (!this.selectedLabelIds.includes(label.id)) {
+      this.selectedLabelIds.push(label.id);
+    }
+  } else {
+    const index = this.selectedLabelIds.indexOf(label.id);
+    if (index !== -1) {
+      this.selectedLabelIds.splice(index, 1);
+    }
+  }
 
+  console.log("✅ Updated selectedLabelIds:", this.selectedLabelIds);
+});
 
         socket.on("card-file-uploaded", (data) => {
             const cardId = this.data?.data?.card?.id;

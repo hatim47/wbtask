@@ -10,8 +10,9 @@ class Lable extends Model
     use HasFactory;
     protected $fillable = [
         'card_id',
+        'board_card_id',
         'color',
-        'text',
+        'title',
         'status',       
     ];
 }

@@ -15,6 +15,7 @@ use App\Models\Upload;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class CardController extends Controller
 {
@@ -59,23 +60,72 @@ return response()->json([
 
  public function updateLabel(Request $request ,int $label)
 {
-
+$labelId = $label;
     $request->validate([
         'color' => 'required|string|max:10', 
         'title' => 'required|string|max:50',
         'status' => 'required|boolean'
     ]);
 
-    $label = BoardLabel::findOrFail($label);
+    // $label = BoardLabel::findOrFail($label);
+  try {
+        // Try to find in BoardLabel
+        $label = BoardLabel::findOrFail($labelId);
+    } catch (ModelNotFoundException $e) {
+        // Fallback to Label if not found
+        $label = Lable::findOrFail($labelId);
+    }
+
+
     $label->update($request->only(['color', 'title', 'status']));
 
     return response()->json(['success' => true, 'message' => 'Label updated successfully']);
 
 }
+public function addLabel(Request $request){
 
+    $request->validate([
+        'id' => 'nullable|integer',
+        'card_id' => 'required|integer',
+        'color' => 'required|string|max:10', 
+        'title' => 'nullable|string|max:50',
+    ]);
+        $existing = Lable::where('card_id', $request->card_id)->where('board_card_id', $request->id)->first();
+    if ($existing) {
+        // Toggle the status
+        $existing->status = $existing->status == 0 ? 1 : 0;
+        $existing->save();
+        return response()->json(['message' => 'Label status updated', 'status' => $existing]);
+    } else {
+        // Create new label
+        $label = Lable::create([
+            'board_card_id' => $request->id,
+            'card_id' => $request->card_id,
+            'color' => $request->color,
+            'title' => $request->title,
+            'status' => 0
+        ]);
+        return response()->json(['message' => 'Label created', 'label' => $label]);
+    }
+}
 
+public function deleteLabel(int $label)
+{
+    $labell = Lable::where('board_card_id', $label)->first();
+    if ($labell) {
+        $labell->delete();
+        $boardLabel = BoardLabel::find($label);
 
+        if ($boardLabel) {
+            $boardLabel->delete();
 
+          
+        return response()->json(['success' => true, 'message' => 'Label deleted successfully']);  
+        } 
+              return response()->json(['success' => true, 'message' => 'Label deleted successfully']);      
+    }
+    return response()->json(['success' => false, 'message' => 'Label not found'], 404);
+}
 
 
                public function updateNotify(Request $request)
@@ -364,7 +414,7 @@ public function deleteCard(Request $request, $team_id, $board_id, $card_id)
             Lable::create([
                 'card_id' => $request->card_id,
                 'color'=>$request->rang,
-                'text'=>$request->label,
+                'title'=>$request->title,
             ]);
             return response()->json(['success' => true, 'message' => 'Task deleted successfully']);
 

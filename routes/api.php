@@ -14,3 +14,6 @@ Route::post('/upload-attachments', [CardController::class, 'uploadAttachments'])
 Route::post('/card/{card}/upload/{upload}', [CardController::class, 'uploadDeleted']);
 Route::post('/card/{card}/makeCover/{upload}', [CardController::class, 'MakeCover']);
 Route::post('/update-label/{label}', [CardController::class, 'updateLabel']);
+Route::post('/labels/insert', [CardController::class, 'addLabel']);
+Route::get('/labels/{label}', [CardController::class, 'deleteLabel']);
+

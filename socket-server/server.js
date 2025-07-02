@@ -81,6 +81,26 @@ socket.on("join-card", (cardId) => {
     io.to(`card-${cardId}`).emit("member-remove", { cardId, userId });
   });
 
+
+ socket.on('label-created', (label) => {
+    console.log('📥 Label created:', label);
+
+    // Broadcast to all other clients
+   io.to(`card-${label.card_id}`).emit('label-created', label);
+  });
+
+  socket.on('label-updated', (label) => {
+    console.log('✏️ Label updated:', label);
+
+    // Broadcast to all other clients
+    io.to(`card-${label.card_id}`).emit('label-updated', label);
+  });
+ socket.on('label-Checked-updated', ( label, clientId ) => {
+    console.log('✏️Checked Label updated:', label ,clientId);
+
+    // Broadcast to all other clients
+    io.to(`card-${label.card_id}`).emit('label-Checked-updated', { label, clientId });
+  });
 });
 
 
