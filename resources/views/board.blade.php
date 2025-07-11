@@ -371,11 +371,11 @@
 
 
 const boardId = @json($board->id);
-     const socket = io("http://localhost:3000"); // Use correct port
-    {{-- const socket = io("http://task.wbsoftech.com/", {
+     {{-- const socket = io("http://localhost:3000"); // Use correct port --}}
+     const socket = io("http://task.wbsoftech.com/", {
         path: "/socket.io",
         transports: ["websocket", "polling"]
-}); --}}
+}); 
     console.log(io,"ggfg");
     socket.on("connect", () => {
         console.log("✅ Connected t00000000o Socket.io server"); 
