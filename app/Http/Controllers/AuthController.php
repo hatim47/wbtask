@@ -18,7 +18,6 @@ class AuthController extends Controller
     public function __construct(protected UserLogic $userLogic , protected TeamLogic $teamLogic,   protected CleanUpBoardsWithoutUsers $cleanupService )
     {
     }
-
     public function showLogin()
     {
         return view("login");
