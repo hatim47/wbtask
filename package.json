@@ -20,6 +20,7 @@
         "@fortawesome/vue-fontawesome": "^3.0.8",
         "@tiptap/extension-bubble-menu": "^2.14.0",
         "@tiptap/extension-image": "^2.14.0",
+        "@tiptap/extension-mention": "^2.25.0",
         "@tiptap/starter-kit": "^2.14.0",
         "@tiptap/vue-3": "^2.14.0",
         "@vueup/vue-quill": "^1.2.0",

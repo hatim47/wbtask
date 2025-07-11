@@ -183,17 +183,16 @@ $board = Board::find($team_id);
                 $card->files = $card->pic->count();
                 $workerNames = Card::find($card->id)->users()->pluck('name')->map(fn($name) => substr($name, 0, 2));
                 // dd($workerNames);
-               $getcounmt = CardComment::where("card_id", $card->id)->count();
-                $card->comments = $getcounmt;
+              $card->comments = CardComment::where("card_id", $card->id)->count();
                 $card->users = $workerNames;
                $notify = Notice::where("froms", Auth::user()->id )->where("card_id", $card->id)->where("status",0)->count();
                 //   dd($notify);
-                $lables = Lable::where("card_id", $card->id)->get()->all();
-                 $card->notif = $notify;
-                 $card->lables = $lables;
-                 
-                $cards->push($card);
-                $card = $card->nextCard;
+            $lables = Lable::where("card_id", $card->id)->where("status", 0)->get()->all();
+                $card->notif = $notify;
+                $card->lables = $lables;
+                
+            $cards->push($card);
+            $card = $card->nextCard;
 
             }
             $column->setHidden(['nextColumn', 'updated_at', 'created_at', 'previous_id', "next_id", "board_id"]);
@@ -267,10 +266,17 @@ $board = Board::find($team_id);
     public function moveCol(int $target_column_id, int $right_column_id, int $left_column_id)
     {
         $target_column = Column::find($target_column_id);
+        if (
+    $target_column->next_id == $right_column_id &&
+    $target_column->previous_id == $left_column_id
+) {
+    return response()->json(['message' => 'No position change'], 200);
+}
         $previous_top_column = null;
         $previous_bottom_column = null;
         $top_column = null;
         $bottom_column = null;
+        // dd( "target_column_id: $target_column_id, right_column_id: $right_column_id, left_column_id: $left_column_id");
 
         if($right_column_id != 0) $bottom_column = Column::find($right_column_id);
         if($bottom_column != null) $top_column = Column::find($bottom_column->previous_id);

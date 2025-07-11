@@ -46,11 +46,7 @@
                     this.ref.classList.add("is-dragging");
                     this.ref.classList.toggle("!bg-gray-500");
                 });
-
-  
-
-             
-                // });
+                  // });
 
                 this.ref.addEventListener("dragend", () => {
                     this.ref.classList.remove("is-dragging");

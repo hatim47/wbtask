@@ -1,5 +1,8 @@
 {{-- @php dump('VIEW: ' . __FILE__, $board->id ?? 'not set') @endphp --}}
 @extends('layout.pages')
+@push('metasa')
+   <meta name="id" content="{{ Auth::id() }}">
+@endpush
 
 @section('app-header')
 <div class="flex items-center justify-between  w-full px-6">
@@ -46,7 +49,7 @@
     }"
     class="text-xl font-semibold cursor-pointer">
     
-    <span x-show="!editing" @click="enableEdit" x-text="title"
+    <span x-show="!editing" @click="enableEdit" x-text="title" id="board-title"
           class="hover:border-gray-100 hover:border px-2 py-1 rounded transition"></span>
           
     <input x-show="editing" x-model="title" x-ref="input"
@@ -328,21 +331,21 @@
     gap: 5px;
 }
       /* Notification Badge */
-      .notification-badge {
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 28px;
-            height: 24px;
-            background-color: #d32f2f; /* Red background */
-            color: #fff;
-            font-size: 12px;
-           
-            border-radius: 6px;
-            padding: 0;
-            cursor: pointer;
-        }
+.notification-badge {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 24px;
+    background-color: #d32f2f; /* Red background */
+    color: #fff;
+    font-size: 12px;
+    
+    border-radius: 6px;
+    padding: 0;
+    cursor: pointer;
+}
 
         .notification-badge svg {
             width: 14px;
@@ -367,7 +370,7 @@
 
 
 
-
+const boardId = @json($board->id);
      const socket = io("http://localhost:3000"); // Use correct port
     {{-- const socket = io("http://task.wbsoftech.com/", {
         path: "/socket.io",
@@ -375,12 +378,20 @@
 }); --}}
     console.log(io,"ggfg");
     socket.on("connect", () => {
-        {{-- console.log("✅ Connected to Socket.io server"); --}}
+        console.log("✅ Connected t00000000o Socket.io server"); 
+          socket.emit("join-board", boardId); 
     });
     socket.on("board-refresh", () => {
         console.log("🔄 Board refreshed");
         board.refresh(); // Calls your existing refresh() function
     });
+   socket.on("label-createddd", (label) => {
+        console.log("🔄 Label created",label);
+        {{-- board.refreshCard(label); // Calls your existing refresh() function --}}
+        board.refresh();
+    });
+
+
         class Board {
                 constructor(boardJson) {
                 this.id = boardJson.id;
@@ -395,8 +406,7 @@
                     this.addCol(
                         column.id,
                         column.name,
-                        column.cards,
-                        
+                        column.cards,                        
                     )
                 }     
                 this.ref.addEventListener("dragover", (e) => {
@@ -440,7 +450,6 @@
                 this.columnList.push(column);
                 column.mountTo(this);
             }
-
             refresh() {
                 if (this.IS_EDITING) return;
                 ServerRequest.get(`{{ route('boardJson', ['board_id' => $board->id, 'team_id' => $board->team_id]) }}`)
@@ -449,7 +458,7 @@
                         this.IS_EDITING = true;
                         this.columnList = [];
                         const json = response.data;
-
+                            console.log("json.name",json)
                         //update board
                         this.title.textContent = json.name;
                         if (!this.background.classList.contains("bg-grad-" + json.pattern)) {
@@ -459,7 +468,6 @@
                                 .filter(c => c.startsWith('bg-grad')));
                             this.background.classList.add("bg-grad-" + json.pattern);
                         }
-
                         //update columns and cards
                         this.ref.innerHTML = "";
                         for (const column of json.columns) {
@@ -473,13 +481,13 @@
                         console.log("[BOARD]: refreshed...");
                     }).catch((error) => {
                         console.log("ERROR");
-                        PageLoader.show();
+                      
                         this.ref.innerHTML = "";
                         console.log(error);
                     });
             }
-        }
 
+        }
         const board = new Board(@json($board));
         @if ($owner->contains('user_id', Auth::user()->id))
             ModalView.onShow('deleteBoard', (modal) => {
@@ -487,7 +495,6 @@
                     form => form.addEventListener("submit", () => PageLoader.show())
                 );
             });
-
            
         @endif
 

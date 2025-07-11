@@ -37,7 +37,7 @@ class GoogleController extends Controller
 
             // Log in the user
             Auth::login($user);
-
+session(['user_id' => Auth::id()]);
             return redirect('/Home/show')->with('success', 'Successfully logged in with Google!');
         } catch (Exception $e) {
             return redirect('/')->with('error', 'Google login failed!');

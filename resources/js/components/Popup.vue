@@ -13,7 +13,7 @@
         />
         <button class="absolute bottom-2 right-2 bg-white text-sm px-2 py-1 rounded">Cover</button>
       </div>
-    <div class="bg-white w-full max-w-3xl  rounded-b-lg shadow-lg p-6  h-[90vh] overflow-y-auto  overflow-x-hidden relative">
+    <div class="bg-gray-100 w-full max-w-3xl  rounded-b-lg shadow-lg p-3  h-[90vh] overflow-y-auto  overflow-x-hidden relative">
 
 
    
@@ -31,16 +31,48 @@
 
           <!-- Description -->
           <div class="mb-4">
-            <h3 class="text-sm font-semibold text-gray-700 mb-1">Description</h3>
-           
+             <div class="flex items-center gap-2  ">
+           <svg width="20" height="20" role="presentation" focusable="false" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M4 5C3.44772 5 3 5.44772 3 6C3 6.55228 3.44772 7 4 7H20C20.5523 7 21 6.55228 21 6C21 5.44772 20.5523 5 20 5H4ZM4 9C3.44772 9 3 9.44772 3 10C3 10.5523 3.44772 11 4 11H20C20.5523 11 21 10.5523 21 10C21 9.44772 20.5523 9 20 9H4ZM3 14C3 13.4477 3.44772 13 4 13H20C20.5523 13 21 13.4477 21 14C21 14.5523 20.5523 15 20 15H4C3.44772 15 3 14.5523 3 14ZM4 17C3.44772 17 3 17.4477 3 18C3 18.5523 3.44772 19 4 19H14C14.5523 19 15 18.5523 15 18C15 17.4477 14.5523 17 14 17H4Z" fill="currentColor"></path></svg>
+            <h3 class="font-semibold text-gray-700 mb-1">Description</h3>
+               </div>
      <div v-if="isEditingDescription" class="mt-1">
       <div class="flex gap-2 mb-2">
-      <button @click="toggleBold">Bold</button>
-      <button @click="toggleItalic">Italic</button>
-      <button @click="toggleBulletList">List</button>
-      <button @click="addImage">Image</button>
+      <button @click="toggleBold" class="editor-btn" title="Bold">
+        <!-- Bold SVG -->
+      <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M6 4h8a4 4 0 0 1 0 8H6z" />
+  <path d="M6 12h9a4 4 0 0 1 0 8H6z" />
+</svg>
+      </button>   
+      <button @click="toggleItalic" class="editor-btn" title="Italic">
+        <!-- Italic SVG -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <line x1="19" y1="4" x2="10" y2="4" />
+  <line x1="14" y1="20" x2="5" y2="20" />
+  <line x1="15" y1="4" x2="9" y2="20" />
+</svg>
+      </button>
+      <button @click="toggleBulletList" class="editor-btn" title="Bullet list">
+        <!-- Bullet List SVG -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <line x1="8" y1="6" x2="21" y2="6" />
+  <line x1="8" y1="12" x2="21" y2="12" />
+  <line x1="8" y1="18" x2="21" y2="18" />
+  <circle cx="4" cy="6" r="1" />
+  <circle cx="4" cy="12" r="1" />
+  <circle cx="4" cy="18" r="1" />
+</svg>
+      </button>
+      <button @click="addImage" class="editor-btn" title="Add image">
+        <!-- Image SVG -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+  <circle cx="8.5" cy="8.5" r="1.5" />
+  <path d="M21 15l-5-5L5 21" />
+</svg>
+      </button>
     </div>
-   <editor-content :editor="editor" class="prose p-3 border rounded bg-white" />
+   <editor-content :editor="editor" class=" p-3 border rounded bg-white" />
     <div class="flex gap-2 mt-2">
       <button @click="saveDescription" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
         Save
@@ -91,9 +123,9 @@
 <div class="  mt-6 ">
     <!-- Header -->
     <div class="flex items-center justify-between mb-4">
-      <div class="flex items-center gap-2 ">
-          <h3 class="text-sm font-semibold text-gray-700  mb-2">Attachments</h3>
-
+      <div class="flex items-center gap-2  ">
+          <svg xmlns="http://www.w3.org/2000/svg" id="Outline" viewBox="0 0 24 24" width="14" height="14"><path d="M22.95,9.6a1,1,0,0,0-1.414,0L10.644,20.539a5,5,0,1,1-7.072-7.071L14.121,2.876a3,3,0,0,1,4.243,4.242L7.815,17.71a1.022,1.022,0,0,1-1.414,0,1,1,0,0,1,0-1.414l9.392-9.435a1,1,0,0,0-1.414-1.414L4.987,14.882a3,3,0,0,0,0,4.243,3.073,3.073,0,0,0,4.243,0L19.778,8.532a5,5,0,0,0-7.071-7.07L2.158,12.054a7,7,0,0,0,9.9,9.9L22.95,11.018A1,1,0,0,0,22.95,9.6Z"/></svg>    
+<h3 class=" font-semibold text-gray-700">Attachments</h3>
       </div>
       <button @click="uploadAttachments" class="text-sm bg-gray-300 text-black px-3 py-1 rounded hover:bg-gray-400">Add</button>
     </div>
@@ -195,24 +227,137 @@
       </button>
     </div>
   </div>
-
-
-
-
-
-
-
-
   </div>
 </div>
+  <!---------------------------------------------------------                ---------------------------------------------------------------------------------------------------------------
+  -----------------------------------------------------------                     ----------------------------------------------------------------------------------------------------------------
+  ---------------------------------------------------------                       -----------------------------------------------------------------------------------------------------------------------------
+  -----------------------------------------------------------------------             💬 Add New Comment--------------------------------------------------------------------------------------------
+  --------------------------------------------------                                 --------------------------------------------------------------------------------------------------->
+
+
+ <div class="comment-section max-w-xl">
+    <!-- 🔹 Comment Editor -->
+    <div class="mb-4">
+    <h3 class="text-lg font-medium mb-2">Add a comment</h3>
+<div v-if="isEditingComment">
+    <!-- Toolbar -->
+    <div class="flex flex-wrap gap-2 mb-2">
+      <button @click="toggleBoldd" class="editor-btn" title="Bold">
+        <!-- Bold SVG -->
+      <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M6 4h8a4 4 0 0 1 0 8H6z" />
+  <path d="M6 12h9a4 4 0 0 1 0 8H6z" />
+</svg>
+      </button>   
+      <button @click="toggleItalicc" class="editor-btn" title="Italic">
+        <!-- Italic SVG -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <line x1="19" y1="4" x2="10" y2="4" />
+  <line x1="14" y1="20" x2="5" y2="20" />
+  <line x1="15" y1="4" x2="9" y2="20" />
+</svg>
+      </button>
+       <button @click="toggleBulletListt" class="editor-btn" title="Bullet list">
+        <!-- Bullet List SVG -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <line x1="8" y1="6" x2="21" y2="6" />
+  <line x1="8" y1="12" x2="21" y2="12" />
+  <line x1="8" y1="18" x2="21" y2="18" />
+  <circle cx="4" cy="6" r="1" />
+  <circle cx="4" cy="12" r="1" />
+  <circle cx="4" cy="18" r="1" />
+</svg>
+      </button>
+
+      <button @click="addImageToComment" class="editor-btn" title="Add image">
+        <!-- Image SVG -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+  <circle cx="8.5" cy="8.5" r="1.5" />
+  <path d="M21 15l-5-5L5 21" />
+</svg>
+      </button>
+    </div>
+
+
+
+
+
+
+
+    <!-- Editor Content -->
+    <EditorContent :editor="commentEditor" class="editor-box" />
+
+    <!-- Submit -->
+    <div class="text-right mt-2">
+      <button
+        @click="postComment"
+        :disabled="loading"
+        class="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700 disabled:opacity-50"
+      >
+        {{ loading ? 'Posting...' : 'Post' }}
+      </button>
+    </div>
+</div>
+<div
+  v-else
+  class="comment-preview text-sm text-gray-800 bg-white p-3 rounded-xl shadow-sm prose max-w-full cursor-pointer hover:bg-gray-50"
+  v-html="'<p class=\'text-gray-400\'>Click to write a comment...</p>'"
+  @click="startEditingComment"
+></div>
+
+  </div>
+
+    <!-- 🔽 Render Comments -->
+    <div v-for="comment in reversedComments" :key="comment.id" class="flex items-start gap-3 mb-4 group">
+       <div v-if="comment.user?.image_path">
+      <img
+        :src="getFullImagePath(comment.user.image_path)"
+        class="w-10 h-10 rounded-full object-cover"
+        alt="Avatar"
+      />
+    </div>
+    <div v-else class="w-10 h-10 rounded-full bg-gray-400 flex items-center justify-center text-white font-bold uppercase">
+      {{ getInitials(comment.user.name) }}
+    </div>
+
+
+     <div class="bg-white p-3 rounded-xl  w-full relative">
+    <div class="flex justify-between items-center">
+      <div class="text-sm font-medium text-gray-900">
+        {{ comment.user.name }}
+        <span class="text-xs text-gray-500 ml-2">{{ formatDate(comment.created_at) }}</span>
+      </div>
+      <div v-if="canEditComment(comment)" class="text-xs text-blue-600 space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        <button @click="startEditing(comment)">Edit</button>
+        <button @click="deleteComment(comment.id)">Delete</button>
+      </div>
+    </div>
+
+    <div v-if="editingComment?.id === comment.id">
+      <EditorContent :editor="editEditor" class="border p-2 rounded mt-2" />
+      <div class="text-right mt-2 space-x-2">
+        <button @click="cancelCommentEditing">Cancel</button>
+        <button @click="submitEdit">Save</button>
+      </div>
+    </div>
+    <div v-else class="mt-1 prose prose-sm" v-html="comment.content"></div>
+  </div>
+
+
+
+    </div>
+  </div>
+
 
 
         </div>
         <div class="flex flex-col">
           <!-- Team -->
           <button id="membersBtn" @click="showMembers = !showMembers"
-            class="text-sm px-3 mb-2 py-1 rounded bg-gray-200 hover:bg-gray-300">
-            Members
+            class=" text-black px-3 mb-2 py-1 rounded flex gap-3 items-center bg-gray-200 hover:bg-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" viewBox="0 0 24 24" height="14" width="14" data-name="Layer 1"><path d="m8 0c-3.309 0-6 2.691-6 6s2.691 6 6 6 6-2.691 6-6-2.691-6-6-6zm0 10c-2.206 0-4-1.794-4-4s1.794-4 4-4 4 1.794 4 4-1.794 4-4 4zm2.992 5.187c-.068.547-.563.938-1.116.868-.287-.036-.579-.054-.876-.054-3.859 0-7 3.14-7 7 0 .552-.447 1-1 1s-1-.448-1-1c0-4.962 4.037-9 9-9 .377 0 .755.023 1.124.07.549.069.937.568.868 1.117zm7.008 7.813c0 .552-.447 1-1 1h-1c-1.654 0-3-1.346-3-3v-6c0-1.654 1.346-3 3-3h1c.553 0 1 .448 1 1s-.447 1-1 1h-1c-.552 0-1 .449-1 1v6c0 .551.448 1 1 1h1c.553 0 1 .448 1 1zm5.996-4.979c0 .543-.21 1.011-.599 1.349l-2.199 1.939c-.189.167-.426.25-.661.25-.276 0-.553-.114-.75-.339-.365-.414-.325-1.046.089-1.411l.917-.809h-2.792c-.553 0-1-.448-1-1s.447-1 1-1h2.658l-.783-.691c-.414-.365-.454-.997-.089-1.411.365-.415 1-.452 1.411-.089l2.207 1.946c.369.314.592.788.592 1.266z"/></svg>  Members
           </button>
 
           <!-- Members Popover -->
@@ -257,8 +402,8 @@
             <div v-if="filteredBoardMembers.length" class="mb-4">
               <h4 class="text-gray-700 font-semibold text-sm mb-2">Board members</h4>
               <ul>
-                <li v-for="member in filteredBoardMembers" :key="member.id"
-                  class="text-gray-800 text-sm py-1 flex items-center justify-between hover:bg-gray-50">
+                <li v-for="member in filteredBoardMembers" :key="member.id"  @click="addUserToCard(member)" 
+                  class="text-gray-800 text-sm p-2 cursor-pointer flex items-center justify-between hover:bg-gray-50">
                   <div class="flex items-center gap-2">
                     <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-medium">
                       {{ member.name[0] }} <!-- First letter avatar -->
@@ -267,9 +412,11 @@
                   </div>
 
                   <!-- + Button to add user -->
-                  <button @click="addUserToCard(member)" class="text-green-500 hover:text-green-700 text-lg font-bold"
-                    title="Add to card">
-                    +
+                  <button class="text-gray-500 hover:text-gray-700 "                   >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="12" y1="5" x2="12" y2="19"/>
+    <line x1="5" y1="12" x2="19" y2="12"/>
+  </svg>
                   </button>
                 </li>
               </ul>
@@ -286,8 +433,8 @@
   <!-- Label button trigger -->
   <button 
     @click="toggleLabelSelector"
-    class="mb-2 flex items-center justify-center w-full px-4 py-1 rounded-sm bg-gray-200 hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
-  >
+     class="w-full text-black px-3 py-1 rounded flex gap-3 items-center bg-gray-200 hover:bg-gray-300">
+  <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24" width="14" height="14"><path d="M7.707,9.256c.391,.391,.391,1.024,0,1.414-.391,.391-1.024,.391-1.414,0-.391-.391-.391-1.024,0-1.414,.391-.391,1.024-.391,1.414,0Zm13.852,6.085l-.565,.565c-.027,1.233-.505,2.457-1.435,3.399l-3.167,3.208c-.943,.955-2.201,1.483-3.543,1.487h-.017c-1.335,0-2.59-.52-3.534-1.464L1.882,15.183c-.65-.649-.964-1.542-.864-2.453l.765-6.916c.051-.456,.404-.819,.858-.881l6.889-.942c.932-.124,1.87,.193,2.528,.851l7.475,7.412c.387,.387,.697,.823,.931,1.288,.812-1.166,.698-2.795-.342-3.835L12.531,2.302c-.229-.229-.545-.335-.851-.292l-6.889,.942c-.549,.074-1.052-.309-1.127-.855-.074-.547,.309-1.051,.855-1.126L11.409,.028c.921-.131,1.869,.191,2.528,.852l7.589,7.405c1.946,1.945,1.957,5.107,.032,7.057Zm-3.438-1.67l-7.475-7.412c-.223-.223-.536-.326-.847-.287l-6.115,.837-.679,6.14c-.033,.303,.071,.601,.287,.816l7.416,7.353c.569,.57,1.322,.881,2.123,.881h.01c.806-.002,1.561-.319,2.126-.893l3.167-3.208c1.155-1.17,1.149-3.067-.014-4.229Z"/></svg>
     Label
   </button>
 
@@ -418,34 +565,19 @@
     </div>
   </div>
 </div>
-
-
-
-
-
-
-
-   
-
-
           <!-- Workers -->
-          <button id="workersBtn"
-            class="flex items-center justify-center w-full mb-2 px-4 py-1 rounded-sm  bg-gray-200 hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors">Workers</button>
-
-          <div id="workersPopover" class="hidden absolute bg-white shadow-lg rounded p-4 mt-2 border z-50 w-32">
-            <h4 class="font-semibold mb-2 text-sm text-gray-700">Assigned Workers</h4>
-            <div id="workersList" class="space-y-1"></div>
-          </div>
+          
 
           <!-- Owner -->
 
 
           <!-- Attachments -->
-          <div
-            class="mb-2 flex items-center justify-center w-full mb-2 px-4 py-1 rounded-sm  bg-gray-200 hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors">
-            Attachments
-          </div>
+          <button
+          class=" text-black px-3 mb-2 py-1 rounded flex gap-2 items-center bg-gray-200 hover:bg-gray-300" @click="uploadAttachments">
+<svg xmlns="http://www.w3.org/2000/svg" id="Outline" viewBox="0 0 24 24" width="14" height="14"><path d="M22.95,9.6a1,1,0,0,0-1.414,0L10.644,20.539a5,5,0,1,1-7.072-7.071L14.121,2.876a3,3,0,0,1,4.243,4.242L7.815,17.71a1.022,1.022,0,0,1-1.414,0,1,1,0,0,1,0-1.414l9.392-9.435a1,1,0,0,0-1.414-1.414L4.987,14.882a3,3,0,0,0,0,4.243,3.073,3.073,0,0,0,4.243,0L19.778,8.532a5,5,0,0,0-7.071-7.07L2.158,12.054a7,7,0,0,0,9.9,9.9L22.95,11.018A1,1,0,0,0,22.95,9.6Z"/></svg>    
 
+Attachments
+</button>
           <!-- Activity -->
           
         </div>
@@ -458,6 +590,9 @@
 import { io } from "socket.io-client";
 import { Editor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
+import Mention from '@tiptap/extension-mention'
+import BulletList from '@tiptap/extension-bullet-list'
+import ListItem from '@tiptap/extension-list-item'
 import Image from '@tiptap/extension-image'
 import axios from 'axios'
 
@@ -491,6 +626,7 @@ directives: {
       isTruncated: false,
    showMembers: false,
   searchQuery: '',
+   showConfirm: false,
   showInlineEditor: false,
   socket: null,
   localChatUser: [],
@@ -501,16 +637,16 @@ directives: {
   selectedLabelIds: [],
   coverImage:'',
   isEditingDescription: false,
+  isEditingComment:false,
      editor: null,
       originalDescription: this.data.data.card.description || '',
-     
-  // availableLabels: [
-  //   { id: 1, name: '', color: '#61bd4f' },
-  //   { id: 2, name: '', color: '#f2d600' },
-  //   { id: 3, name: '', color: '#eb5a46' },
-  //   { id: 4, name: '', color: '#c377e0' },
-  //   { id: 5, name: '', color: '#0079bf' },
-  // ],
+       commentEditor: null,
+      comments: this.data.data.cardcomment,       // list of comments
+      newComment: '',     // text of the new comment
+      loading: false,
+      authUserId: document.querySelector('meta[name="id"]')?.getAttribute('content') || null,
+   editingComment: null,
+      editEditor: null,
   availableLabels: [],
  showDeleteModal: false,
       selectedFile: {},
@@ -545,6 +681,9 @@ directives: {
         !existingUserIds.includes(worker.id)
       );
     },
+     filteredUsers() {
+    return this.filteredCardMembers.find(m => m.user?.id == this.authUserId);
+  },
     filteredLabels() {
    const term = this.labelSearch.toLowerCase().trim();
 
@@ -559,6 +698,9 @@ directives: {
      reversedUploads() {
     return [...this.localUploads].reverse();
   },
+   reversedComments() {
+    return [...this.comments].reverse();
+  },
    upload() {
     return this.data.data.upload;
   },
@@ -569,7 +711,8 @@ directives: {
   }
   },
   mounted() {
-    
+     this.fetchCard();
+   
  this.localUploads = [...(this.data?.data?.upload || [])];
 const cover = this.data.data.upload.find(file => file.f_cover == 1);
 if (cover) {
@@ -580,36 +723,30 @@ this.coverImage = `/wbtask/public/storage/${cover.file_path}`;
       label.board_card_id != null && l.id == label.board_card_id
     );
     if (!exists) {
-      this.data.data.labels.push(label);
-     
+      this.data.data.labels.push(label);  
     }
   });
   this.selectedLabelIds = this.data.data.labels.filter(label => {
     const match = this.data.data.cardLabels.some(cl => cl.status === 0 && cl.board_card_id === label.id);
-    if (label.status === 0 || match) {
-    
+    if (label.status === 0 || match) {    
       return true;
     }
     return false;
   })
   .map(label => label.id);
-  // this.selectedLabelIds = this.data.data.labels
-  //   .filter(label => this.data.data.cardLabels.some(cl => cl.status === 0 || label.status == 0 && console.log("label",label.status,"cl", cl.status)))
-  //   .map(label => label.id);
 this.availableLabels=(this.data.data.labels);
-    // Initialize reactive copy of chatUser
   this.localChatUser = [...(this.data.data?.chatUser || [])];
   this.localWorkers = [...(this.data.data?.workers || [])];
   this.initSocket(); 
    this.editor = new Editor({
-      extensions: [StarterKit],
+      extensions: [StarterKit,  Image], 
       content: this.originalDescription,
     })
   },
  beforeUnmount() {
     if (this.editor) this.editor.destroy()
-  },
-   
+      if (this.commentEditor) this.commentEditor.destroy()
+  },   
   watch: {
     'data.data.card.description'(newVal) {
       this.description = newVal || ''
@@ -619,8 +756,259 @@ this.availableLabels=(this.data.data.labels);
     },
   },
   methods: {
-    handleCheckbox(label) {
+    async  fetchCard() {
+      try {
+        const response = await fetch(`/wbtask/public/api/notify/${this.data.data.card.id}/${this.authUserId}`);
+        if (!response.ok) throw new Error("Network error");
+        const data = await response.json();
+this.socket.emit('cardupdate');
+        console.log("Card data loaded:", data);
+      } catch (error) {
+        console.error("Error loading card data:", error);
+      }
+
+    },
+     canEditComment(comment) {
+    if (!comment?.user || !this.authUserId) return false;
+  const commentUserId = parseInt(comment.user.id);
+  const currentUserId = parseInt(this.authUserId);
+  if (commentUserId !== currentUserId) return false;
+
+  return new Date() - new Date(comment.created_at) < 6 * 60 * 60 * 1000;
+  },
+ startEditing(comment) {
+      this.editingComment = comment;
+      this.editEditor = new Editor({
+        content: comment.content,
+        extensions: [StarterKit,Image],
+      });
+    },
+    startEditingComment() {
+  this.localComment =  ''
+  this.isEditingComment = true
+
+  this.commentEditor = new Editor({
+    content: this.localComment,
+    extensions: [
+      StarterKit,
+      Image,
+      Mention.configure({
+        HTMLAttributes: {
+          class: 'mention',
+        },
+        suggestion: {
+          items: ({ query }) => {
+            const search = typeof query === 'string' ? query.toLowerCase() : ''
+            return this.filteredCardMembers
+              .filter(member => member.user?.name?.toLowerCase().includes(search))
+              .map(member => ({
+                id: member.user.id,
+                label: member.user.name,
+              }))
+          },
+
+          render: () => {
+            let component
+            let popup
+
+            return {
+              onStart: props => {
+                component = document.createElement('div')
+                component.classList.add(
+                  'bg-white',
+                  'border',
+                  'rounded',
+                  'shadow-lg',
+                  'text-sm',
+                  'z-50'
+                )
+                component.style.position = 'absolute'
+                component.style.zIndex = 9999
+                component.style.padding = '4px'
+
+                props.items.forEach(item => {
+                  const el = document.createElement('div')
+                  el.textContent = item.label
+                  el.className = 'px-2 py-1 hover:bg-blue-100 cursor-pointer'
+                  el.addEventListener('click', () => {
+                    props.command({ id: item.id, label: item.label })
+                  })
+                  component.appendChild(el)
+                })
+
+                document.body.appendChild(component)
+                popup = props.clientRect
+                updatePosition()
+              },
+              onUpdate(props) {
+                component.innerHTML = ''
+                props.items.forEach(item => {
+                  const el = document.createElement('div')
+                  el.textContent = item.label
+                  el.className = 'px-2 py-1 hover:bg-blue-100 cursor-pointer'
+                  el.addEventListener('click', () => {
+                    props.command({ id: item.id, label: item.label })
+                  })
+                  component.appendChild(el)
+                })
+                popup = props.clientRect
+                updatePosition()
+              },
+              onExit() {
+                component.remove()
+              },
+            }
+
+            function updatePosition() {
+              if (popup && component) {
+                const box = popup()
+                if (box) {
+                  component.style.top = box.top + window.scrollY + 'px'
+                  component.style.left = box.left + window.scrollX + 'px'
+                }
+              }
+            }
+          },
+        },
+      }),
+    ],
+    editorProps: {
+      attributes: {
+        class: 'prose prose-sm p-2 border border-gray-300 rounded min-h-[80px]',
+      },
+    },
+    // onUpdate: ({ editor }) => {
+    //   this.localComment = editor.getHTML()
+    // },
+  })
+},
+    cancelCommentEditing() {
+      this.editingComment = null;
+      if (this.editEditor) {
+        this.editEditor.destroy();
+        this.editEditor = null;
+      }
+    },
+    async submitEdit() {
+      const html = this.editEditor.getHTML();
+      const id = this.editingComment.id;
+
+      try {
+        const res = await fetch(`/wbtask/public/api/comments/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ content: html }),
+        });
+
+        if (!res.ok) throw new Error("Update failed");
+        const result = await res.json();
+        this.socket.emit('commentupdate', result.comment);
+        console.log("✅ Comment updated:", result.comment);
+        this.editingComment.content = html;
+        this.cancelCommentEditing();
+      } catch (err) {
+        console.error("❌ Error updating comment:", err);
+      }
+    },
+    async deleteComment(id) {
+      if (!confirm("Delete this comment?")) return;
+
+     try {
+    const res = await fetch(`/wbtask/public/api/comments/${id}/delete`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!res.ok) throw new Error("Delete failed");
+    const result = await res.json();
+    this.socket.emit('commentdelete', id, this.data.data.card.id  );
+    // this.comments = this.comments.filter(c => c.id !== id);
+    console.log("✅ Comment deleted:", id, this.data.data.card.id);
+  } catch (err) {
+    console.error("❌ Error deleting comment:", err);
+  }
+    },
+   postComment() {
+      const html = this.commentEditor.getHTML()
+      if (!html || html === '<p></p>') return
+      this.loading = true
+
+      const response =  fetch('/wbtask/public/api/comments', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            // Include auth token if needed
+          },
+          body: JSON.stringify({
+            content: html,
+            card_id: this.data.data.card.id, // or this.cardId
+            user_id: this.authUserId,  // optional if session handles it
+            board_id: this.data.data.board.id
+          })
+        })
+.then(response => {
+  if (!response.ok) {
+    throw new Error('Failed to submit comment');
+  }
+  return response.json(); // must return this promise
+})
+.then(result => {
+
+  
+
+  console.log('✅ Comment submitted:', result);
+  const user = this.filteredUsers?.user;
+
+  // 👇 Attach the user to the comment
+  result.comment.user = user || {
+    name: 'Unknown',
+    image_path: null
+  };
+        
+        this.socket.emit('commentinsert', result.comment);
+   
+        
+     })
+.catch(err => {
+        console.error('❌ Error submitting comment:', err);
+      });
+         setTimeout(() => {
+        this.commentEditor.commands.clearContent()
+        this.loading = false
+      }, 300)
+    },
+
+
+
+    
+    formatDate(dateStr) {
+      const date = new Date(dateStr)
+      return date.toLocaleString()
+    },
+  getFullImagePath(path) {
+       const base = 'http://localhost/wbtask/public/';
+    if (path) {
+      const shortPath = path.slice(0, 2); // get first 2 characters
+      return base + '/' + path;
+    }
+    return ;
+  },
+  getInitials(name) {
+      if (!name) return '';
+      const parts = name.trim().split(' ');
+      const first = parts[0]?.[0] || '';
+      const last = parts[1]?.[0] || '';
+      return (first + last).toUpperCase();
+    },
+  handleCheckbox(label) {
     const isChecked = this.selectedLabelIds.includes(label.id);
+if (!label.card_id) {
+    label.card_id = this.data.data.card.id;
+    console.log(`Assigned card_id: ${label.card_id} to label`, label);
+  }
     const newStatus = isChecked ? 0 : 1;
     if (isChecked) {
       // 🔵 Send API to insert (POST)
@@ -631,15 +1019,13 @@ this.availableLabels=(this.data.data.labels);
           title: label.title,
           color: label.color,
           status: newStatus
-
         })
-
       })
       .then(res => {
         if (!res.ok) throw new Error('Insert failed');
          label.status = newStatus;
         this.socket.emit('label-Checked-updated', label, this.clientId);
-        console.log('Label Checked show');
+        console.log('Label Checked show', label);
       })
       .catch(err => console.error(err));
     } else {
@@ -673,6 +1059,8 @@ this.availableLabels=(this.data.data.labels);
         },
       })
     },
+
+
     cancelEditDescription() {
       this.isEditingDescription = false
       this.editor.commands.setContent(this.description || '')
@@ -698,7 +1086,6 @@ this.availableLabels=(this.data.data.labels);
       cardId: this.data.data.card.id,
       description: html
     })
-
         console.log('✅ Description saved.')
       } catch (error) {
         console.error('❌ Failed to save:', error)
@@ -713,9 +1100,76 @@ this.availableLabels=(this.data.data.labels);
     toggleItalic() {
       this.editor.chain().focus().toggleItalic().run()
     },
-    toggleBulletList() {
-      this.editor.chain().focus().toggleBulletList().run()
+  toggleBulletList() {
+  if (this.editor) {
+    this.editor.chain().focus().toggleBulletList().run();
+  
+  }
+},
+  toggleBulletListt() {
+
+  if (this.commentEditor) {
+     this.commentEditor.chain().focus().toggleBulletList().run();
+
+  }  
+ 
+},
+
+ toggleBoldd() {
+      this.commentEditor.chain().focus().toggleBold().run();
     },
+    toggleItalicc() {
+      this.commentEditor.chain().focus().toggleItalic().run();
+    },
+
+    buttonClass(format) {
+      const active = this.commentEditor?.isActive(format);
+      return `px-2 py-1 border rounded ${active ? 'bg-gray-800 text-white' : 'bg-gray-100 text-black'}`;
+    },
+
+addImageToComment() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+
+  input.onchange = async () => {
+    const file = input.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('card_id', this.data.data.card.id);  // Use the correct card ID
+
+    try {
+      const response = await fetch('/wbtask/public/api/upload-image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error('Upload failed');
+
+      const result = await response.json();
+      const imageUrl = `/wbtask/public/storage/${result.uploaded_files.file_path}`;
+
+      // Insert into the comment editor
+      this.commentEditor.chain().focus().setImage({ src: imageUrl }).run();
+
+      // Optionally emit socket if you use file sync in comments
+      // this.socket.emit('comment-file-uploaded', { ... })
+socket.emit('card-file-uploaded', {
+      cardId: this.data.data.card.id,
+      file: result.uploaded_files // include id, name, path, etc.      
+    });
+      console.log('✅ Image inserted into comment:', imageUrl);
+    } catch (err) {
+      console.error('❌ Upload failed:', err);
+    }
+  };
+
+  input.click();
+},
+
+
    addImage() {
   const input = document.createElement('input');
   input.type = 'file';
@@ -903,15 +1357,22 @@ formData.append('status', 0);
       })
       .then(res => {
         if (!res.ok) throw new Error('Remove failed');
-        console.log('Label Create ');
+         return res.json();
+    
       })
-      const newLabel = {
-      id: Date.now(),
+      .then(data => {
+
+    const newLabel = {
+      id: data.label.id,
+      card_id: this.data.data.card.id,
       title: this.labelTitle,
       color: this.labelColor
       };
-      this.availableLabels.push(newLabel);
+
       this.socket.emit('label-created', newLabel);
+        console.log('Label Create ');
+       })
+     
     }    
     this.showLabelEditor = false;
     this.editingLabel = null;
@@ -919,18 +1380,37 @@ formData.append('status', 0);
   
   deleteLabel() {
     if (confirm('Are you sure you want to delete this label?')) {
+      let superid;
+       if (this.editingLabel && 'board_card_id' in this.editingLabel) {
+   superid = (
+    this.editingLabel.board_card_id == '0' ||
+    this.editingLabel.board_card_id == 0 ||
+    this.editingLabel.board_card_id == null
+  ) ? 0 : this.editingLabel.id;
+
+  // You can now use superid safely
+ 
+} else {
+  superid = this.editingLabel.id;
+}
+
     fetch(`/wbtask/public/api/labels/${this.editingLabel.id}`, {
-          method: 'get',
-          headers: { 'Content-Type': 'application/json' },
+          method: 'POST',
+          headers: {'Content-Type': 'application/json','Accept': 'application/json',},
+          body: JSON.stringify({superid: superid }),           
         })
-      this.availableLabels = this.availableLabels.filter(
-        l => l.id !== this.editingLabel.id
-      );
-      this.selectedLabelIds = this.selectedLabelIds.filter(
-        id => id !== this.editingLabel.id
-      );
-      this.showLabelEditor = false;
-      this.editingLabel = null;
+         .then(response => response.json())
+         .then(data => {
+      // Success handling
+      alert('Label deleted successfully');
+       this.socket.emit('delete-label', data.data.id, this.data.data.card.id);
+       console.log('Label deleted:', data.data.id);
+    })
+    .catch(error => {
+      console.error(error);
+      alert('An error occurred while deleting the label.');
+    });
+     this.backToLabels();
     }
   },
     isImage(path) {
@@ -969,7 +1449,6 @@ formData.append('status', 0);
   console.log("📥 cover send to in real-time:");
       // call API if needed
     },
-    
     deleteFile(file) {
       this.selectedFile = file
       this.showDeleteModal = true
@@ -978,11 +1457,6 @@ formData.append('status', 0);
       this.showDeleteModal = false
       this.selectedFile = {}
     },
-
-
-
-
-
     confirmDelete() {
       fetch(`/wbtask/public/api/card/${this.data.data.card.id}/upload/${this.selectedFile.id}`, {
           method: 'POST',
@@ -1000,8 +1474,8 @@ formData.append('status', 0);
       });
        console.log("🗑 File deleted:", data.file_id);
  this.removeImageFromDescription(data.file_path);
-           console.log('deletedFilePath',data.file_path)
-             if (this.coverImage?.includes(data.file_path)) {
+   console.log('deletedFilePath',data.file_path)
+    if (this.coverImage?.includes(data.file_path)) {
     this.coverImage = null;
     // 🔄 Also reset the f_cover flags
     if (Array.isArray(this.upload)) {
@@ -1165,11 +1639,44 @@ this.socket.on("card-file-deleted", ({ cardId, fileId }) => {
     }
   });
 
+
+
+this.socket.on("commentinserted", (comment) => {
+  console.log("💬 Comment inserted:", comment);
+   this.comments.push(comment);
+});
+
+
+this.socket.on("commentupdated", (comment) => {
+  console.log("💬 Comment updateddddddddd:", comment);
+  const index = this.comments.findIndex(c => c.id == comment.id);
+ if (index != -1) {
+    this.comments[index].content = comment.content;
+  }
+});
+
+
+this.socket.on("commentdeleted", (id) => {
+  console.log("💬 Comment deleteddddddddddddddddd:", id);
+  this.comments = this.comments.filter(c => c.id != id);
+});
+
       // ✅ Listen for member remove
 this.socket.on("member-remove", (userId) => {
   console.log("🗑️ Received member-removed", userId);
   this.localChatUser = this.localChatUser.filter(m => m.user.id !== userId.userId);
 });
+
+ this.socket.on('label-deleted', (deletedId) => {
+  console.log("Received deleted label ID:", deletedId);
+    this.availableLabels = this.availableLabels.filter(
+        l => l.id != deletedId
+      );
+      this.selectedLabelIds = this.selectedLabelIds.filter(
+        id => id != deletedId
+      );
+    });
+
     },
 
     async addUserToCard(worker) {
@@ -1236,6 +1743,14 @@ this.socket.on("member-remove", (userId) => {
   max-height: 400px;
   overflow-y: auto;
 }
+::v-deep ul, ol {
+  list-style: disc;
+  margin-left: 1.25rem;
+  padding-left: 1.25rem;
+}
+::v-deep li {
+  margin: 0.25em 0;
+}
 .ql-editor img {
   max-width: 100% !important;
   height: auto !important;
@@ -1273,4 +1788,29 @@ this.socket.on("member-remove", (userId) => {
   border-radius: 8px;
   object-fit: contain;
 }
+.editor-btn {
+  background-color: #f4f5f7;
+  border: 1px solid #dfe1e6;
+  border-radius: 6px;
+  padding: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.editor-btn:hover {
+  background-color: #ebecf0;
+}
+
+::v-deep .editor-box > div {
+  min-height: 80px;
+  border: 1px solid #dfe1e6;
+  border-radius: 6px;
+  padding: 8px;  
+  background-color: white;
+}
+
+
 </style>

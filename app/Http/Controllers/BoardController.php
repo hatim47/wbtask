@@ -165,7 +165,6 @@ public function inviteUser(Request $request, $team_id, $board_id)
 
     return response()->json(['message' => 'Invitation sent successfully']);
 }
-
     public function addCard(Request $request, $team_id, $board_id, $column_id)
     {
         $board_id = intval($board_id);
@@ -179,7 +178,6 @@ public function inviteUser(Request $request, $team_id, $board_id)
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) { // Loop through each uploaded file
                 $imagePath = $image->store('uploads', 'public'); // Store file
-        
                 Upload::create([
                     'card_id' => $newCard->id,
                     'file_path' => $imagePath,
@@ -188,21 +186,13 @@ public function inviteUser(Request $request, $team_id, $board_id)
         } else {
             $imagePath = null; // Define $imagePath even if no image is uploaded
         }
-        
-
-       
-
         return response()->json($newCard);
     }
-
-
     public function getData($team_id, $board_id)
     {
         $boardData = $this->boardLogic->getData(intval($board_id));
-      
         return response()->json($boardData);
     }
-
     public function reorderCard(Request $request, $team_id, $board_id)
     {
         $board_id = intval($board_id);
@@ -210,12 +200,9 @@ public function inviteUser(Request $request, $team_id, $board_id)
         $middle_id = intval($request->middle_id);
         $bottom_id = intval($request->bottom_id);
         $top_id = intval($request->top_id);
-
-        $updatedCard = $this->boardLogic->moveCard($middle_id, $column_id, $bottom_id, $top_id);
-       
+        $updatedCard = $this->boardLogic->moveCard($middle_id, $column_id, $bottom_id, $top_id);       
         return response()->json($updatedCard);
     }
-
     public function reorderCol(Request $request, $team_id, $board_id)
     {
         $user_id = Auth::user()->id;
@@ -223,13 +210,10 @@ public function inviteUser(Request $request, $team_id, $board_id)
         $middle_id = intval($request->middle_id);
         $right_id = intval($request->right_id);
         $left_id = intval($request->left_id);
-
         if (!$this->boardLogic->hasAccess($user_id, $board_id)) {
             return response()->json(["url" => route("home")], HttpResponse::HTTP_BAD_REQUEST);
         }
-
         $updatedCol = $this->boardLogic->moveCol($middle_id, $right_id, $left_id);
-
         return response()->json($updatedCol);
     }
 
@@ -250,13 +234,10 @@ if ($remainingUsers == 0) {
 }
         return redirect()->back()->with("notif", ["Success\nMember removed successfully"]);
     }
-
-
-
     public function deleteBoard($team_id, $board_id)
     {
         Board::where("id", intval($board_id))->delete();
-        return redirect()->back()->with("notif", ["Deleted\n Board deleted successfulyy"]);
+        return redirect()->back()->with("notif", ["Deleted\n Board deleted successfully"]);
     }
     public function updateCol(Request $request, $team_id, $board_id)
     {

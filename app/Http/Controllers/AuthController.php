@@ -43,6 +43,7 @@ class AuthController extends Controller
         if(!$isValid){
             $request->session()->invalidate();
             $request->session()->regenerateToken();
+
             return redirect()->route('login')
                 ->withErrors("Wrong email or password, please try again");
         }
@@ -56,7 +57,7 @@ class AuthController extends Controller
             return redirect()->route('login')
                 ->withErrors("Account is inactive");
         }
-
+session(['user_id' => Auth::id()]);
      $this->cleanupService->clean();
        // dd($team);
         return redirect()->route('viewHome');

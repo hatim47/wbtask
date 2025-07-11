@@ -66,6 +66,10 @@ public function cardUsers()
 {
     return $this->hasMany(CardUser::class, 'user_id');
 }
+public function commentUsers()
+{
+    return $this->hasMany(CardComment::class, 'user_id');
+}
 
     public function teamRelations()
     {

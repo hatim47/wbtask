@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Logic\CardLogic;
 use App\Logic\TeamLogic;
 use App\Models\Board;
+use App\Models\BoardLabel;
+use App\Models\BoardUser;
 use App\Models\Card;
+use App\Models\CardUser;
+use App\Models\CardComment;
 use App\Models\Lable;
 use App\Models\Notice;
-use App\Models\CardUser;
-use App\Models\BoardLabel;
 use App\Models\Team;
 use App\Models\Upload;
 use Illuminate\Support\Facades\Storage;
@@ -31,7 +33,7 @@ class CardController extends Controller
         $board = Board::find($board_id);
         $team = Team::find($team_id);
         $upload = Upload::where("card_id", $card->id)->get()->all();
-        
+        $cardcomment = CardComment::with('user')->where("card_id", $card->id)->get()->all();
         $team_members = $this->cardLogic->getTeamMember($team_id ,$card_id);
         $workers = $this->cardLogic->getWorkers($board_id);
         $hist = $this->cardLogic->getHistories($card_id);
@@ -48,6 +50,7 @@ return response()->json([
     'board' => $board,
     'cardLabels' => $cardLabels,
     'labels' => $labels,
+    'cardcomment' => $cardcomment,
     'team' => $team,
     'members' => $team_members,
     'workers' => $workers,
@@ -57,6 +60,7 @@ return response()->json([
 ]);
 
     }
+    
 
  public function updateLabel(Request $request ,int $label)
 {
@@ -71,27 +75,30 @@ $labelId = $label;
   try {
         // Try to find in BoardLabel
         $label = BoardLabel::findOrFail($labelId);
+
     } catch (ModelNotFoundException $e) {
         // Fallback to Label if not found
         $label = Lable::findOrFail($labelId);
+        
     }
-
-
+     $labels = Lable::where( 'board_card_id' , $labelId);
+          $labels->update($request->only(['color', 'title', 'status']));
     $label->update($request->only(['color', 'title', 'status']));
 
     return response()->json(['success' => true, 'message' => 'Label updated successfully']);
-
 }
 public function addLabel(Request $request){
-
     $request->validate([
         'id' => 'nullable|integer',
         'card_id' => 'required|integer',
         'color' => 'required|string|max:10', 
         'title' => 'nullable|string|max:50',
     ]);
+        if ( $request->id != 0){
         $existing = Lable::where('card_id', $request->card_id)->where('board_card_id', $request->id)->first();
-    if ($existing) {
+        if (!$existing) {
+            return response()->json(['message' => 'Label not found'], 404);
+        }
         // Toggle the status
         $existing->status = $existing->status == 0 ? 1 : 0;
         $existing->save();
@@ -109,24 +116,24 @@ public function addLabel(Request $request){
     }
 }
 
-public function deleteLabel(int $label)
+public function deleteLabel(Request $request, int $label)
 {
-    $labell = Lable::where('board_card_id', $label)->first();
+if ($request->superid == 0) {
+    $labell = Lable::find($label);
     if ($labell) {
-        $labell->delete();
-        $boardLabel = BoardLabel::find($label);
-
-        if ($boardLabel) {
-            $boardLabel->delete();
-
-          
-        return response()->json(['success' => true, 'message' => 'Label deleted successfully']);  
-        } 
-              return response()->json(['success' => true, 'message' => 'Label deleted successfully']);      
-    }
-    return response()->json(['success' => false, 'message' => 'Label not found'], 404);
+        $labell->delete();  
+         return response()->json(['success' => true, 'message' => 'Label deleted successfully' , 'data' => $labell]);  
+    }  
 }
-
+else{
+     $boardLabel = BoardLabel::find($label);
+        if ($boardLabel) {
+            $boardLabel->delete();          
+        return response()->json(['success' => true, 'message' => 'Label deleted successfully', 'data' => $boardLabel]); 
+        } 
+    }       
+ return response()->json(['success' => false, 'message' => 'Label not found'], 404);
+}
 
                public function updateNotify(Request $request)
     {
@@ -176,6 +183,77 @@ public function notify(Request $request) {
                 return;
 
     }
+
+    public function addComments(Request $request)
+    {
+        $request->validate([
+            'card_id' => 'required|integer',
+            'content' => 'required|string|max:1000',
+        ]);
+
+        $comment = CardComment::create([
+            'card_id' => $request->card_id,
+            'user_id' => $request->user_id,
+            'content' => $request->content,
+        ]);
+         $workers = BoardUser::where('board_id', $request->board_id)->get();
+        foreach ($workers as $worker) {
+              if ($worker->user_id != $request->user_id) {
+        Notice::create([
+            'tos' => $request->user_id,
+            'froms' => $worker->user_id,
+            'card_id' =>$request->card_id,
+            'title' => 'Comment has been done',
+        ]);
+
+    }
+}
+        return response()->json([
+            'success' => true,
+            'message' => 'Comment added successfully.',
+            'comment' => $comment,
+        ]);
+    }
+public function shownotification ($id,$userId)
+    {
+
+    Notice::where('card_id', $id)
+          ->where('froms', $userId)
+          ->update(['status' => 1]);
+
+return response()->json(['message' => 'Notices updated']);
+    }
+
+
+
+public function updateComment(Request $request, $id)
+    {
+        $request->validate([
+            'content' => 'required|string|max:1000',
+        ]);
+
+        $comment = CardComment::findOrFail($id);
+        $comment->content = $request->content;
+        $comment->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Comment updated successfully.',
+            'comment' => $comment,
+        ]);
+    }
+
+    public function destroyComment($id)
+    {
+        $comment = CardComment::findOrFail($id);
+        $comment->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Comment deleted successfully.',
+        ]);
+    }
+
 
 public function uploadImage(Request $request)
 {
@@ -378,30 +456,23 @@ public function deleteCard(Request $request, $team_id, $board_id, $card_id)
         return redirect()->back()->with("notif", ["Succss\nCard updated successfully"]);
     }
 
-    public function addComment(Request $request, $team_id, $board_id, $card_id)
-    {
-        $request->validate(["content" => "required|max:200"]);
-        $user_id = AUth::user()->id;
-        $card_id = intval($card_id);
-        $this->cardLogic->cardComment($card_id, $user_id, $request->content);
-        $workers = $this->cardLogic->getWorkers($card_id);
-        foreach ($workers as $worker) {
-                   if ($worker->id != $user_id) {      
-        Notice::create([
-            'tos' => $user_id,
-            'froms' => $worker->id,
-            'card_id' =>$card_id,
-            'title' => 'Comment has been done',
-        ]);
-    }
-}        // return redirect()->back();
-        return response()->json([
-            "message" => "Comment added successfully",
-            "status" => "success",
-            "content" => $request->content,
-            "user_id" => $user_id
-        ], 200);
-    }
+//     public function addComment(Request $request, $team_id, $board_id, $card_id)
+//     {
+//         $request->validate(["content" => "required|max:200"]);
+//         $user_id = AUth::user()->id;
+//         $card_id = intval($card_id);
+//         $this->cardLogic->cardComment($card_id, $user_id, $request->content);
+//         $workers = $this->cardLogic->getWorkers($card_id);
+//         foreach ($workers as $worker) {
+     
+// }        // return redirect()->back();
+//         return response()->json([
+//             "message" => "Comment added successfully",
+//             "status" => "success",
+//             "content" => $request->content,
+//             "user_id" => $user_id
+//         ], 200);
+//     }
 
     public function showComment($card_id)
     {
