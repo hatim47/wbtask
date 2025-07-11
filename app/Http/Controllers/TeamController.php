@@ -108,7 +108,7 @@ class TeamController extends Controller
 
         if ($selectedTeam == null) {
 
-            return redirect()->route("home")->withErrors("This team is alredy deleted please contact team owner");
+            return redirect()->route("viewHome")->withErrors("This team is alredy deleted please contact team owner");
 
         }
 
@@ -162,7 +162,7 @@ class TeamController extends Controller
 
         if ($selectedTeam == null) {
 
-            return redirect()->route("home")->withErrors("This team is alredy deleted please contact team owner");
+            return redirect()->route("viewHome")->withErrors("This team is alredy deleted please contact team owner");
 
         }
 
@@ -364,7 +364,7 @@ foreach ($team as $userTeam){
 
         if ($validator->fails()) {
 
-            return redirect()->route("home");
+            return redirect()->route("viewHome");
 
         }
 
@@ -621,11 +621,11 @@ foreach ($team as $userTeam){
                 $subject = "Request from TaskVerse";
                 $message = "Click to log in: $link"; // Email body
             
-                // Mail::raw($message, function ($mail) use ($email, $subject) {
-                //     $mail->to($email)
-                //          ->subject($subject)
-                //          ->from('no-reply@task.wbsoftech.com', 'TaskVerse');
-                // });
+                Mail::raw($message, function ($mail) use ($email, $subject) {
+                    $mail->to($email)
+                         ->subject($subject)
+                         ->from('no-reply@task.wbsoftech.com', 'TaskVerse');
+                });
 
                 continue; 
             }
@@ -684,11 +684,11 @@ $board_id = $request->board_id ?? "";
         $subject = "Request from TaskVerse";
         $message = "you are invited to join the team " . $team->name; // Email body
 
-        // Mail::raw($message, function ($mail) use ($email, $subject) {
-        //     $mail->to($email)
-        //          ->subject($subject)
-        //          ->from('no-reply@task.wbsoftech.com', 'TaskVerse');
-        // });
+        Mail::raw($message, function ($mail) use ($email, $subject) {
+            $mail->to($email)
+                 ->subject($subject)
+                 ->from('no-reply@task.wbsoftech.com', 'TaskVerse');
+        });
 
         // If user exists, add to team if not already there
         if ($user) {
@@ -738,11 +738,11 @@ $board_id = $request->board_id ?? "";
    $subject = "Request from TaskVerse";
         $message = "Click to log in: $link"; // Email body
 
-        // Mail::raw($message, function ($mail) use ($email, $subject) {
-        //     $mail->to($email)
-        //          ->subject($subject)
-        //          ->from('no-reply@task.wbsoftech.com', 'TaskVerse');
-        // });
+        Mail::raw($message, function ($mail) use ($email, $subject) {
+            $mail->to($email)
+                 ->subject($subject)
+                 ->from('no-reply@task.wbsoftech.com', 'TaskVerse');
+        });
 
 
         }
@@ -767,7 +767,7 @@ $board_id = $request->board_id ?? "";
 
 
 
-        return redirect()->route("home")->with("notif", ["Deleted\nTeam deleted successfully"]);
+        return redirect()->route("viewHome")->with("notif", ["Deleted\nTeam deleted successfully"]);
 
     }
 
@@ -787,7 +787,7 @@ $board_id = $request->board_id ?? "";
 
         $this->teamLogic->deleteTeam($team_id);
 
-        return redirect()->route("home")->with("notif", ["Deleted\nTeam deleted successfully"]);
+        return redirect()->route("viewHome")->with("notif", ["Deleted\nTeam deleted successfully"]);
 
     }
 
@@ -811,7 +811,7 @@ $board_id = $request->board_id ?? "";
 
         $this->teamLogic->deleteMembers($team_id, [$user_email]);
 
-        return redirect()->route("home")->with("notif", ["Leave\nSuccessfully left team..."]);
+        return redirect()->route("viewHome")->with("notif", ["Leave\nSuccessfully left team..."]);
 
     }
 

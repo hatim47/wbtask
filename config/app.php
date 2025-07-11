@@ -55,9 +55,9 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://task.wbsoftech.com/'),
+    'url' => env('APP_URL', 'http://localhost/wbtask'),
 
-    'asset_url' => env('ASSET_URL','http://task.wbsoftech.com/public'),
+    'asset_url' => env('ASSET_URL','http://localhost/wbtask/public'),
 
     /*
     |--------------------------------------------------------------------------

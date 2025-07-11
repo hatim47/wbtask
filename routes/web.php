@@ -86,7 +86,6 @@ Route::middleware(["auth", "auth.session", "boardAccess"])->post("team/{team_id}
 
 
 Route::middleware(["auth", "auth.session"])->post("card/update-notify", [CardController::class, "notify"])->name("notify");
-
 Route::middleware(["auth", "auth.session", "boardAccess","cardExist"])->get("team/{team_id}/board/{board_id}/card/{card_id}/view", [CardController::class, "showCard"])->name("viewCard");
 Route::middleware(["auth", "auth.session", "boardAccess","cardExist"])->post("team/{team_id}/board/{board_id}/card/{card_id}/assign", [CardController::class, "assignCard"])->name("assignCard");
 Route::middleware(["auth", "auth.session", "boardAccess","cardExist"])->post("team/{team_id}/board/{board_id}/card/{card_id}/assignself", [CardController::class, "assignSelf"])->name("assignSelf");

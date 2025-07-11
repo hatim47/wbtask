@@ -66,6 +66,7 @@ return response()->json([
 {
 $labelId = $label;
     $request->validate([
+           'id' => 'nullable|integer',
         'color' => 'required|string|max:10', 
         'title' => 'required|string|max:50',
         'status' => 'required|boolean'
@@ -81,11 +82,15 @@ $labelId = $label;
         $label = Lable::findOrFail($labelId);
         
     }
-     $labels = Lable::where( 'board_card_id' , $labelId);
-          $labels->update($request->only(['color', 'title', 'status']));
+    
     $label->update($request->only(['color', 'title', 'status']));
 
     return response()->json(['success' => true, 'message' => 'Label updated successfully']);
+
+
+
+
+
 }
 public function addLabel(Request $request){
     $request->validate([
@@ -94,7 +99,7 @@ public function addLabel(Request $request){
         'color' => 'required|string|max:10', 
         'title' => 'nullable|string|max:50',
     ]);
-        if ( $request->id != 0){
+        if ($request->id != 0){
         $existing = Lable::where('card_id', $request->card_id)->where('board_card_id', $request->id)->first();
         if (!$existing) {
             return response()->json(['message' => 'Label not found'], 404);
@@ -340,35 +345,21 @@ public function updateDescription(Request $request, Card $card)
             'card' => $card
         ]);
     }
-
-
 public function MakeCover (Request $request,  $card,  $upload)
  {
  $newCover = Upload::where('card_id', $card)
                       ->where('id', $upload)
                       ->first();
-
     if (!$newCover) {
         return response()->json(['message' => 'File not found for this card.'], 404);
     }
-
-    // Step 2: Remove existing cover for this card (if any)
     Upload::where('card_id', $card)
           ->where('f_cover', 1)
           ->update(['f_cover' => 0]);
-
-    // Step 3: Set the new file as cover
     $newCover->f_cover = 1;
     $newCover->save();
-
     return response()->json(['message' => 'Cover updated successfully.']);
-
-
-
  }
-
-
-
 public function AddTeamMember(Request $request) {
                  $id_card =  $request->card_id;
                  $status = $request->status;
@@ -380,7 +371,6 @@ public function AddTeamMember(Request $request) {
             ]);    
      return response()->json(["message" => "Add success"]);
     }
-
 public function store(Request $request) {
         $attachments = [];
         foreach ($request->file('attachments') as $file) {
@@ -409,7 +399,6 @@ public function assignCard(Request $request, $team_id, $board_id, $card_id)
     {
         return redirect()->back();
     }
-
 public function assignSelf(Request $request, $team_id, $board_id, $card_id)
     {
         $user_id = Auth::user()->id;
@@ -418,7 +407,6 @@ public function assignSelf(Request $request, $team_id, $board_id, $card_id)
         $this->cardLogic->cardAddEvent($card_id, $user_id, "Joined card.");
         return redirect()->back()->with("notif", ["Success\nAdded yourself to the card"]);
     }
-
 public function leaveCard(Request $request,  $board_id, $card_id)
     {
         $id = $request->user_id;
@@ -432,7 +420,6 @@ public function leaveCard(Request $request,  $board_id, $card_id)
         
           
     }
-
 public function deleteCard(Request $request, $team_id, $board_id, $card_id)
     {
         $this->cardLogic->deleteCard(intval($card_id));
@@ -440,7 +427,6 @@ public function deleteCard(Request $request, $team_id, $board_id, $card_id)
             ->route("board", ["team_id" => $team_id, "board_id" => $board_id])
             ->with("notif", ["Success\nCard is deleted"]);
     }
-
     public function updateCard(Request $request, $team_id, $board_id, $card_id)
     {
         $request->validate([
@@ -455,7 +441,6 @@ public function deleteCard(Request $request, $team_id, $board_id, $card_id)
         $this->cardLogic->cardAddEvent($card_id, $user_id, "Updated card informations.");
         return redirect()->back()->with("notif", ["Succss\nCard updated successfully"]);
     }
-
 //     public function addComment(Request $request, $team_id, $board_id, $card_id)
 //     {
 //         $request->validate(["content" => "required|max:200"]);

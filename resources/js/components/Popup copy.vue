@@ -716,7 +716,7 @@ directives: {
  this.localUploads = [...(this.data?.data?.upload || [])];
 const cover = this.data.data.upload.find(file => file.f_cover == 1);
 if (cover) {
-this.coverImage = `/wbtask/public/storage/${cover.file_path}`;
+this.coverImage = `http://task.wbsoftech.com/storage/app/public/${cover.file_path}`;
 }
   this.data.data.cardLabels.forEach(label => {
     const exists = this.data.data.labels.some(l =>
@@ -758,11 +758,10 @@ this.availableLabels=(this.data.data.labels);
   methods: {
     async  fetchCard() {
       try {
-        const response = await fetch(`/wbtask/public/api/notify/${this.data.data.card.id}/${this.authUserId}`);
+        const response = await fetch(`http://task.wbsoftech.com/api/notify/${this.data.data.card.id}/${this.authUserId}`);
         if (!response.ok) throw new Error("Network error");
         const data = await response.json();
 this.socket.emit('cardupdate');
-        console.log("Card data loaded:", data);
       } catch (error) {
         console.error("Error loading card data:", error);
       }
@@ -876,10 +875,7 @@ this.socket.emit('cardupdate');
       attributes: {
         class: 'prose prose-sm p-2 border border-gray-300 rounded min-h-[80px]',
       },
-    },
-    // onUpdate: ({ editor }) => {
-    //   this.localComment = editor.getHTML()
-    // },
+    },   
   })
 },
     cancelCommentEditing() {
@@ -892,9 +888,8 @@ this.socket.emit('cardupdate');
     async submitEdit() {
       const html = this.editEditor.getHTML();
       const id = this.editingComment.id;
-
       try {
-        const res = await fetch(`/wbtask/public/api/comments/${id}`, {
+        const res = await fetch(`http://task.wbsoftech.com/api/comments/${id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -905,7 +900,6 @@ this.socket.emit('cardupdate');
         if (!res.ok) throw new Error("Update failed");
         const result = await res.json();
         this.socket.emit('commentupdate', result.comment);
-        console.log("✅ Comment updated:", result.comment);
         this.editingComment.content = html;
         this.cancelCommentEditing();
       } catch (err) {
@@ -916,7 +910,7 @@ this.socket.emit('cardupdate');
       if (!confirm("Delete this comment?")) return;
 
      try {
-    const res = await fetch(`/wbtask/public/api/comments/${id}/delete`, {
+    const res = await fetch(`http://task.wbsoftech.com/api/comments/${id}/delete`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -925,8 +919,6 @@ this.socket.emit('cardupdate');
     if (!res.ok) throw new Error("Delete failed");
     const result = await res.json();
     this.socket.emit('commentdelete', id, this.data.data.card.id  );
-    // this.comments = this.comments.filter(c => c.id !== id);
-    console.log("✅ Comment deleted:", id, this.data.data.card.id);
   } catch (err) {
     console.error("❌ Error deleting comment:", err);
   }
@@ -935,8 +927,7 @@ this.socket.emit('cardupdate');
       const html = this.commentEditor.getHTML()
       if (!html || html === '<p></p>') return
       this.loading = true
-
-      const response =  fetch('wbtask/public/api/comments', {
+      const response =  fetch('http://task.wbsoftech.com/api/comments', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -975,7 +966,7 @@ this.socket.emit('cardupdate');
       return date.toLocaleString()
     },
   getFullImagePath(path) {
-       const base = '/wbtask/public/';
+       const base = 'http://task.wbsoftech.com/';
     if (path) {
       const shortPath = path.slice(0, 2); 
       return base + '/' + path;
@@ -996,7 +987,7 @@ if (!label.card_id) {
   }
     const newStatus = isChecked ? 0 : 1;
     if (isChecked) {
-      fetch(`/wbtask/public/api/update-label/${label.id}`, {
+      fetch(`http://task.wbsoftech.com/api/update-label/${label.id}`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
         body: JSON.stringify({
@@ -1012,7 +1003,7 @@ if (!label.card_id) {
       })
       .catch(err => console.error(err));
     } else {
-      fetch(`/wbtask/public/api/update-label/${label.id}`, {
+      fetch(`http://task.wbsoftech.com/api/update-label/${label.id}`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
           body: JSON.stringify({
@@ -1050,7 +1041,7 @@ if (!label.card_id) {
       this.isEditingDescription = false
 
       try {
-        await fetch(`/wbtask/public/api/card/${this.data.data.card.id}/description`, {
+        await fetch(`http://task.wbsoftech.com/api/card/${this.data.data.card.id}/description`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ description: html }),
@@ -1104,13 +1095,13 @@ addImageToComment() {
     formData.append('image', file);
     formData.append('card_id', this.data.data.card.id);  
     try {
-      const response = await fetch('/wbtask/public/api/upload-image', {
+      const response = await fetch('http://task.wbsoftech.com/api/upload-image', {
         method: 'POST',
         body: formData,
       });
       if (!response.ok) throw new Error('Upload failed');
       const result = await response.json();
-      const imageUrl = `/wbtask/public/storage/${result.uploaded_files.file_path}`;
+      const imageUrl = `http://task.wbsoftech.com/storage/app/public/${result.uploaded_files.file_path}`;
       this.commentEditor.chain().focus().setImage({ src: imageUrl }).run();
 socket.emit('card-file-uploaded', {
       cardId: this.data.data.card.id,
@@ -1133,7 +1124,7 @@ socket.emit('card-file-uploaded', {
     formData.append('image', file);
     formData.append('card_id', this.data.data.card.id); 
     try {
-      const response = await fetch('wbtask/public/api/upload-image', {
+      const response = await fetch('http://task.wbsoftech.com/api/upload-image', {
         method: 'POST',
         body: formData,
       });
@@ -1141,7 +1132,7 @@ socket.emit('card-file-uploaded', {
         throw new Error('Upload failed');
       }
     const result = await response.json();
-    const imageUrl = `/wbtask/public/storage/${result.uploaded_files.file_path}`;
+    const imageUrl = `http://task.wbsoftech.com/storage/app/public/${result.uploaded_files.file_path}`;
       this.editor.chain().focus().setImage({ src: imageUrl }).run();
       this.upload.push(result.uploaded_files);
 socket.emit('card-file-uploaded', {
@@ -1168,7 +1159,7 @@ socket.emit('card-file-uploaded', {
     });
     formData.append('card_id', this.data.data.card.id);
     try {
-      const response = await fetch('wbtask/public/api/upload-attachments', {
+      const response = await fetch('http://task.wbsoftech.com/api/upload-attachments', {
         method: 'POST',
         body: formData,
       });
@@ -1265,21 +1256,21 @@ backToLabels() {
       return;
     }    
     if (this.editingLabel) {
-      const formData = new FormData(); 
-          formData.append('id', this.labelId);   
+      const formData = new FormData();    
       formData.append('title', this.labelTitle);   
     formData.append('color', this.labelColor);
 formData.append('status', 0);
-     const response = fetch('/wbtask/public/api/update-label/' + parseInt(this.editingLabel.id), {
+     const response = fetch('http://task.wbsoftech.com/api/update-label/' + parseInt(this.editingLabel.id), {
         method: 'POST',
         body: formData,
       });
       this.editingLabel.id = this.labelId;
       this.editingLabel.title = this.labelTitle;
       this.editingLabel.color = this.labelColor;
+
   this.socket.emit('label-updated', this.editingLabel);
     } else {
-      fetch(`/wbtask/public/api/labels/insert`, {
+      fetch(`http://task.wbsoftech.com/api/labels/insert`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
@@ -1320,7 +1311,7 @@ formData.append('status', 0);
   superid = this.editingLabel.id;
 }
 
-    fetch(`/wbtask/public/api/labels/${this.editingLabel.id}`, {
+    fetch(`http://task.wbsoftech.com/api/labels/${this.editingLabel.id}`, {
           method: 'POST',
           headers: {'Content-Type': 'application/json','Accept': 'application/json',},
           body: JSON.stringify({superid: superid }),           
@@ -1360,7 +1351,7 @@ formData.append('status', 0);
     },
     makeCover(file) {
        this.selectedFile = file
-  fetch(`/wbtask/public/api/card/${this.data.data.card.id}/makeCover/${this.selectedFile.id}`, {
+  fetch(`http://task.wbsoftech.com/api/card/${this.data.data.card.id}/makeCover/${this.selectedFile.id}`, {
           method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       })
@@ -1381,7 +1372,7 @@ formData.append('status', 0);
       this.selectedFile = {}
     },
     confirmDelete() {
-      fetch(`/wbtask/public/api/card/${this.data.data.card.id}/upload/${this.selectedFile.id}`, {
+      fetch(`http://task.wbsoftech.com/api/card/${this.data.data.card.id}/upload/${this.selectedFile.id}`, {
           method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       })
@@ -1429,14 +1420,14 @@ formData.append('status', 0);
 
 
   fileUrl(path) {
-   return `/wbtask/public/storage/${path}`;
+   return `http://task.wbsoftech.com/storage/app/public/${path}`;
   },
     initSocket() {
-       this.socket = io("http://localhost:3000"); 
-// this.socket = io("wbtask/public/", {
-//         path: "/socket.io",
-//         transports: ["websocket", "polling"]
-// });
+      // this.socket = io("http://localhost:3000"); 
+this.socket = io("http://task.wbsoftech.com/", {
+        path: "/socket.io",
+        transports: ["websocket", "polling"]
+});
       this.socket.on("connect", () => {
           this.clientId = this.socket.id;
           const cardId = this.data?.data?.card?.id;
@@ -1446,7 +1437,6 @@ formData.append('status', 0);
 
   this.socket.on('label-created', (label) => {
     this.availableLabels.push(label);
-    this.selectedLabelIds.push(label.id);
   });
 
   this.socket.on('label-updated', (label) => {
@@ -1486,7 +1476,7 @@ this.localUploads = [...this.localUploads, ...files];
 this.socket.on("cover-updated", (payload) => {
     if (payload.cardId == this.data.data.card.id) {
       const newCover = payload.cover;
-      this.coverImage = `/wbtask/public/storage/${newCover.file_path}`;
+      this.coverImage = `http://task.wbsoftech.com/storage/app/public/${newCover.file_path}`;
       this.data.data.upload.forEach(f => f.f_cover = f.id === newCover.id ? 1 : 0);
     }
   });
@@ -1554,7 +1544,7 @@ this.socket.on("member-remove", (userId) => {
 
     async addUserToCard(worker) {
       try {
-        await axios.post('wbtask/public/api/team/user/add', {
+        await axios.post('http://task.wbsoftech.com/api/team/user/add', {
           card_id: this.data.data.card.id,
           user_id: worker.id,
           status: 'Member'
@@ -1577,7 +1567,7 @@ this.socket.on("member-remove", (userId) => {
 
     async removeUserFromCard(member) {
       try {
-        await axios.post(`/wbtask/public/api/board/${this.data.data.board.id}/card/${this.data.data.card.id}/leave`, {
+        await axios.post(`http://task.wbsoftech.com/api/board/${this.data.data.board.id}/card/${this.data.data.card.id}/leave`, {
           user_id: member.user.id
         });
 

@@ -156,11 +156,11 @@ public function inviteUser(Request $request, $team_id, $board_id)
         );
 
         // Send email with invite link (optional: use a mailable)
-        // Mail::raw("You’ve been invited to join a board. Click the link to accept: " .
-        //     route('invite.accept', ['token' => $token]),
-        //     function ($message) use ($email) {
-        //         $message->to($email)->subject('You are invited to join a team on Mindr');
-        //     });
+        Mail::raw("You’ve been invited to join a board. Click the link to accept: " .
+            route('invite.accept', ['token' => $token]),
+            function ($message) use ($email) {
+                $message->to($email)->subject('You are invited to join a team on Mindr');
+            });
     }
 
     return response()->json(['message' => 'Invitation sent successfully']);
@@ -211,7 +211,7 @@ public function inviteUser(Request $request, $team_id, $board_id)
         $right_id = intval($request->right_id);
         $left_id = intval($request->left_id);
         if (!$this->boardLogic->hasAccess($user_id, $board_id)) {
-            return response()->json(["url" => route("home")], HttpResponse::HTTP_BAD_REQUEST);
+            return response()->json(["url" => route("viewHome")], HttpResponse::HTTP_BAD_REQUEST);
         }
         $updatedCol = $this->boardLogic->moveCol($middle_id, $right_id, $left_id);
         return response()->json($updatedCol);
