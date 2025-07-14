@@ -38,7 +38,7 @@ public function handleGoogleCallback()
         );
 
         // Check for team invitation
-        $teamInvitation = TeamInvitation::where('email', $googleUser->email)->first();
+        $teamInvitation = TeamInvitation::where('email', $googleUser->email)->where('status','pending')->first();
 
         if ($teamInvitation) {
             // ✅ Update invitation status
