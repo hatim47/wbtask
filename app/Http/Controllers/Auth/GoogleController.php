@@ -58,7 +58,7 @@ class GoogleController extends Controller
              $hasTeams = UserTeam::where("user_id", $user->id)->exists();
     if (!$hasTeams) {        
         $defaultTeam = Team::create([
-        'name' => $request->input('name'),
+        'name' => $googleUser->name,
         ]);
         UserTeam::create([
             'team_id' => $defaultTeam->id,
