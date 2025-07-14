@@ -42,7 +42,7 @@ public function handleGoogleCallback()
 
         if ($teamInvitation) {
             // ✅ Update invitation status
-            $teamInvitation->status = 'active';
+            $teamInvitation->status = 'accepted';
             $teamInvitation->save();
 
             // Add to invited team
