@@ -38,9 +38,9 @@ class GoogleController extends Controller
                     'password' => bcrypt(Str::random(12)), // Generate a random password
                 ]
             );
-  $team =  TeamInvitation::where('email', $request->input('email'))->exists();
+  $team =  TeamInvitation::where('email', $googleUser->email)->exists();
         if ($team) {
-            $teamInvitation = TeamInvitation::where('email', $request->input('email'))->first();        
+            $teamInvitation = TeamInvitation::where('email', $googleUser->email)->first();        
             UserTeam::create([
                 'user_id' => $user->id,
                 'team_id' => $teamInvitation->team_id,
