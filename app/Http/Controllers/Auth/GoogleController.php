@@ -38,7 +38,7 @@ class GoogleController extends Controller
                     'password' => bcrypt(Str::random(12)), // Generate a random password
                 ]
             );
-  $team =  TeamInvitation::where('email', $googleUser->email)->exists();
+  $team =  TeamInvitation::where('email', $googleUser->email)->where('status' , 'pending')->exists();
         if ($team) {
             $teamInvitation = TeamInvitation::where('email', $googleUser->email)->first();        
             UserTeam::create([
@@ -51,11 +51,18 @@ class GoogleController extends Controller
                 'user_id'  => $user->id,
                 'board_id' => $teamInvitation->board_id,
                'status' => $teamInvitation->board_role ?? 'Member',
-            ]);
-                    Auth::login($user);
+            ]); 
+
+            Auth::login($user);
 session(['user_id' => Auth::id()]);
-            return redirect('/Home/show')->with('success', 'Successfully logged in with Google!');
-        }            
+            return redirect('/Home/show')->with('success', 'Successfully logged in with Google!'); 
+
+        } 
+         $teamInvitation->status = 'accepted';
+    $teamInvitation->save();
+          Auth::login($user);
+session(['user_id' => Auth::id()]);
+            return redirect('/Home/show')->with('success', 'Successfully logged in with Google!');           
         }  
         else{
              $hasTeams = UserTeam::where("user_id", $user->id)->exists();
@@ -72,12 +79,11 @@ session(['user_id' => Auth::id()]);
 session(['user_id' => Auth::id()]);
             return redirect('/Home/show')->with('success', 'Successfully logged in with Google!');
     }
-        } 
-     
+        }     
             Auth::login($user);
 session(['user_id' => Auth::id()]);
             return redirect('/Home/show')->with('success', 'Successfully logged in with Google!');
-        } catch (Exception $e) {
+        } catch (Exception $e) {            
             return redirect('/')->with('error', 'Google login failed!');
         } 
     }
