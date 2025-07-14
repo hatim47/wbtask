@@ -26,7 +26,7 @@ class GoogleController extends Controller
     // Handle Google callback
     public function handleGoogleCallback()
     {
-       
+       try {
             $googleUser = Socialite::driver('google')->user();
             // dd($googleUser);
             // Find or create user
@@ -66,6 +66,13 @@ class GoogleController extends Controller
             'status' => 'Owner',
         ]);
     }
-        }   
+        } 
+     
+            Auth::login($user);
+session(['user_id' => Auth::id()]);
+            return redirect('/Home/show')->with('success', 'Successfully logged in with Google!');
+        } catch (Exception $e) {
+            return redirect('/')->with('error', 'Google login failed!');
+        } 
     }
 }
