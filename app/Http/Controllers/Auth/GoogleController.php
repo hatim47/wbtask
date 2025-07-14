@@ -52,6 +52,9 @@ class GoogleController extends Controller
                 'board_id' => $teamInvitation->board_id,
                'status' => $teamInvitation->board_role ?? 'Member',
             ]);
+                    Auth::login($user);
+session(['user_id' => Auth::id()]);
+            return redirect('/Home/show')->with('success', 'Successfully logged in with Google!');
         }            
         }  
         else{
@@ -65,6 +68,9 @@ class GoogleController extends Controller
             'user_id' => $user->id,
             'status' => 'Owner',
         ]);
+                Auth::login($user);
+session(['user_id' => Auth::id()]);
+            return redirect('/Home/show')->with('success', 'Successfully logged in with Google!');
     }
         } 
      
