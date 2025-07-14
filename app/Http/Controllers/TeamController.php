@@ -665,17 +665,12 @@ $board_id = $request->board_id ?? "";
     if (empty($email)) {
         return redirect()->back();
     }
-
-    $link = "http://task.wbsoftech.com/";
-
-  
-
+    $link = "http://task.wbsoftech.com/"; 
         $user = User::where("email", $email)->first();
  $team = Team::find($team_id);
         // Send invitation email
         $subject = "Request from TaskVerse";
         $message = "you are invited to join the team " . $team->name; // Email body
-
         Mail::raw($message, function ($mail) use ($email, $subject) {
             $mail->to($email)
                  ->subject($subject)

@@ -23,7 +23,7 @@ class GoogleController extends Controller
     // Handle Google callback
     public function handleGoogleCallback()
     {
-        try {
+       
             $googleUser = Socialite::driver('google')->user();
             // dd($googleUser);
             // Find or create user
@@ -35,23 +35,34 @@ class GoogleController extends Controller
                     'password' => bcrypt(Str::random(12)), // Generate a random password
                 ]
             );
-   $defaultTeam = Team::create([
-            'name' => $googleUser->name,
-            // other default fields if required
+  $team =  TeamInvitation::where('email', $request->input('email'))->exists();
+        if ($team) {
+            $teamInvitation = TeamInvitation::where('email', $request->input('email'))->first();        
+            UserTeam::create([
+                'user_id' => $user->id,
+                'team_id' => $teamInvitation->team_id,
+                'status' => $teamInvitation->team_role ?? 'Member'
+            ]);
+        if (!empty($teamInvitation->board_id)) {
+            BoardUser::create([
+                'user_id'  => $user->id,
+                'board_id' => $teamInvitation->board_id,
+               'status' => $teamInvitation->board_role ?? 'Member',
+            ]);
+        }            
+        }  
+        else{
+             $hasTeams = UserTeam::where("user_id", $user->id)->exists();
+    if (!$hasTeams) {        
+        $defaultTeam = Team::create([
+        'name' => $request->input('name'),
         ]);
-
-        // Add user to this new team as Owner
         UserTeam::create([
             'team_id' => $defaultTeam->id,
             'user_id' => $user->id,
             'status' => 'Owner',
         ]);
-            // Log in the user
-            Auth::login($user);
-session(['user_id' => Auth::id()]);
-            return redirect('/Home/show')->with('success', 'Successfully logged in with Google!');
-        } catch (Exception $e) {
-            return redirect('/')->with('error', 'Google login failed!');
-        }
+    }
+        }   
     }
 }
