@@ -7,24 +7,16 @@ namespace App\Http\Controllers;
 
 
 use App\Logic\BoardLogic;
-
 use App\Logic\FileLogic;
-
 use App\Logic\TeamLogic;
-
 use App\Logic\UserLogic;
-
 use App\Models\Team;
-
 use App\Models\User;
 use App\Models\TeamInvitation;
 use App\Models\BoardUser;
 use App\Models\UserTeam;
-
 use Illuminate\Http\Request;
-
 use Illuminate\Support\Facades\Auth;
-
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 

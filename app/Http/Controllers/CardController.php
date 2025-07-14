@@ -17,6 +17,7 @@ use App\Models\Upload;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class CardController extends Controller
