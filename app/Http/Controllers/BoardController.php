@@ -16,6 +16,7 @@ use App\Models\UserTeam;
 use App\Models\TeamInvitation;
 use Illuminate\Http\Request;
 use App\Events\BoardUpdated;
+use Illuminate\Support\Str;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\Auth;
 
