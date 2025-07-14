@@ -151,6 +151,7 @@ public function inviteUser(Request $request, $team_id, $board_id)
     } else {
         // If user doesn't exist, send invitation
         $token = Str::uuid();
+ $link = "http://task.wbsoftech.com/";
 
         TeamInvitation::updateOrCreate(
             ['email' => $email, 'team_id' => $team_id, 'board_id' => $board_id, 'board_role' => $role],
@@ -158,11 +159,14 @@ public function inviteUser(Request $request, $team_id, $board_id)
         );
 
         // Send email with invite link (optional: use a mailable)
-        Mail::raw("You’ve been invited to join a board. Click the link to accept: " .
-            route('invite.accept', ['token' => $token]),
-            function ($message) use ($email) {
-                $message->to($email)->subject('You are invited to join a team on Mindr');
-            });
+          $subject = "Request from TaskVerse";
+        $message = "Click to log in: $link"; // Email body
+
+        Mail::raw($message, function ($mail) use ($email, $subject) {
+            $mail->to($email)
+                 ->subject($subject)
+                 ->from('no-reply@task.wbsoftech.com', 'TaskVerse');
+        });
     }
 
     return response()->json(['message' => 'Invitation sent successfully']);
