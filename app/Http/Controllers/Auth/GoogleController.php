@@ -26,6 +26,7 @@ class GoogleController extends Controller
     // Handle Google callback
     public function handleGoogleCallback()
     {
+        // Get user from Google
        try {
             $googleUser = Socialite::driver('google')->user();
             // dd($googleUser);
@@ -38,7 +39,7 @@ class GoogleController extends Controller
                     'password' => bcrypt(Str::random(12)), // Generate a random password
                 ]
             );
-  $team =  TeamInvitation::where('email', $googleUser->email)->where('status' , 'pending')->exists();
+  $team = TeamInvitation::where('email', $googleUser->email)->where('status','pending')->exists();
         if ($team) {
             $teamInvitation = TeamInvitation::where('email', $googleUser->email)->first();        
             UserTeam::create([
@@ -52,11 +53,9 @@ class GoogleController extends Controller
                 'board_id' => $teamInvitation->board_id,
                'status' => $teamInvitation->board_role ?? 'Member',
             ]); 
-
             Auth::login($user);
 session(['user_id' => Auth::id()]);
             return redirect('/Home/show')->with('success', 'Successfully logged in with Google!'); 
-
         } 
          $teamInvitation->status = 'accepted';
     $teamInvitation->save();
@@ -79,12 +78,13 @@ session(['user_id' => Auth::id()]);
 session(['user_id' => Auth::id()]);
             return redirect('/Home/show')->with('success', 'Successfully logged in with Google!');
     }
-        }     
+        } 
             Auth::login($user);
 session(['user_id' => Auth::id()]);
             return redirect('/Home/show')->with('success', 'Successfully logged in with Google!');
         } catch (Exception $e) {            
             return redirect('/')->with('error', 'Google login failed!');
         } 
+
     }
 }
