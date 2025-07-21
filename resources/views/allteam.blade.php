@@ -9,6 +9,12 @@
 
 @section('app-side')
     <div class="flex flex-col gap-1  pl-4 mt-2" >
+
+ <a data-role="menu-item" href="{{ route('setting') }}"
+        class="flex items-center justify-start w-full gap-3 px-6 py-2  text-gray-600 cursor-pointer  select-none {{ Route::currentRouteName() == 'Setting' ? 'bg-neutral-100' : 'hover:bg-neutral-200 ' }}">
+       
+        <p class=" "> Setting   </p>
+    </a>              
 @foreach ($teams_info as $info)
         {{-- {{dd($teams_info);}} --}}
 <div x-data="{ open: true }">
@@ -23,16 +29,16 @@
              class="py-2 space-y-2" style="display: none;">
                   <li>
 <a data-role="menu-item" href="{{ route('viewTeam', ['team_id' => $info['team']->id]) }}"
-       class="flex items-center justify-start w-full gap-3 px-6 py-2  text-gray-600 cursor-pointer  select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-100' : 'hover:bg-neutral-200 ' }}">
+       class="flex items-center justify-start w-full gap-3 px-6 py-2  text-gray-600 cursor-pointer  select-none {{ Route::currentRouteName() == 'Board' ? 'bg-neutral-100' : 'hover:bg-neutral-200 ' }}">
        <p class=" "> Board </p>
     </a>                  </li>
                   <li>
  <a data-role="menu-item" href="{{ route('viewWorkspace', ['team_id' => $info['team']->id]) }}"
-        class="flex items-center justify-start w-full gap-3 px-6 py-2  text-gray-600 cursor-pointer  select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-100' : 'hover:bg-neutral-200 ' }}">
+        class="flex items-center justify-start w-full gap-3 px-6 py-2  text-gray-600 cursor-pointer  select-none {{ Route::currentRouteName() == 'Member' ? 'bg-neutral-100' : 'hover:bg-neutral-200 ' }}">
        
         <p class=" "> Member   </p>
     </a>                  </li>
-                 
+               
             </ul>
         
 <hr class=" border-gray-200"> 
@@ -152,7 +158,7 @@
     <div class="flex flex-col w-full h-full overflow-auto">
  
 
-        <div class="flex flex-grow gap-8 px-6 py-4 overflow-hidden">
+        <div class="flex flex-grow gap-8 px-6 py-4 overflow-y-auto">
             {{-- page left section --}}
             <section class="flex flex-col flex-grow h-full gap-6">
 
@@ -183,29 +189,59 @@
             <div class="flex flex-col w-full gap-4 p-4">
                 <h1 class="text-3xl font-bold">Create Board</h1>
                 <hr>
-                <form action="{{ route('createBoard', ['team_id' =>$info['team']->id]) }}" method="POST" class="flex flex-col gap-4">
-                    @csrf
-                    <input type="hidden" name="team_id" value="{{ $info['team']->id }}">
-                    <x-form.text name="board_name" label="Board's Name" required />
-                    <div class="flex flex-col w-full gap-2" x-data="{ selected: '{{ $backgrounds[0] }}' }">
-                        <label class="pl-6">Board's Color</label>
-                        <input type="hidden" id="pattern-field" name="board_pattern" x-bind:value="selected">
-                        <div
-                            class="flex items-center justify-start w-full max-w-2xl gap-2 px-4 py-2 overflow-hidden overflow-x-scroll border-2 border-gray-200 h-36 rounded-xl">
-                            @foreach ($backgrounds as $pattern)
-                                <div x-on:click="selected = '{{ $pattern }}'"
-                                    x-bind:class="(selected == '{{ $pattern }}') ? 'border-black' : 'border-gray-200'"
-                                    class="{{ $pattern == $backgrounds[0] ? 'order-first' : '' }} h-full flex-shrink-0 border-4 rounded-lg w-36 bg-grad-{{ $pattern }} hover:border-black">
-                                    <div x-bind:class="(selected == '{{ $pattern }}') ? 'opacity-100' : 'opacity-0'"
-                                        class="flex items-center justify-center w-full h-full">
-                                        <x-fas-circle-check class="w-6 h-6" />
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
+       <div x-data="createBoardForm()" class="flex flex-col gap-4">
+
+<form 
+    action="{{ route('createBoard', ['team_id' => $info['team']->id]) }}" 
+    method="POST" 
+    class="flex flex-col gap-4"
+    x-data="{ buttonDisabled: false }"
+    @submit="buttonDisabled = true"
+>
+    @csrf
+
+    <input type="hidden" name="team_id" value="{{ $info['team']->id }}">
+
+    <x-form.text name="board_name" label="Board's Name" required />
+
+    <!-- Background selection -->
+    <div class="flex flex-col w-full gap-2" x-data="{ selected: '{{ $backgrounds[0] }}' }">
+        <label class="pl-6">Board's Color</label>
+        <input type="hidden" name="board_pattern" :value="selected">
+
+        <div class="flex items-center gap-2 px-4 py-2 border-2 w-full max-w-2xl border-gray-200 h-36 rounded-xl overflow-x-scroll">
+            @foreach ($backgrounds as $pattern)
+                <div @click="selected = '{{ $pattern }}'"
+                     :class="selected === '{{ $pattern }}' ? 'border-black' : 'border-gray-200'"
+                     class="{{ $loop->first ? 'order-first' : '' }} h-full w-36 flex-shrink-0 border-4 rounded-lg bg-grad-{{ $pattern }} hover:border-black">
+                    <div :class="selected === '{{ $pattern }}' ? 'opacity-100' : 'opacity-0'"
+                         class="flex items-center justify-center w-full h-full">
+                        <x-fas-circle-check class="w-6 h-6" />
                     </div>
-                    <x-form.button class="mt-4" type="submit" primary>Submit</x-form.button>
-                </form>
+                </div>
+            @endforeach
+        </div>
+    </div>
+
+    <!-- Submit Button -->
+   <button
+  type="submit"
+  class="mt-4 px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-700"
+  :disabled="buttonDisabled"
+  x-bind:class="{ 'opacity-50 cursor-not-allowed': buttonDisabled }"
+>
+  Submit
+</button>
+</form>
+
+    <!-- Feedback -->
+    <div x-show="successMessage" class="mt-4 text-green-600 text-sm">
+        Board created successfully!
+    </div>
+    <div x-show="errorMessage" class="mt-4 text-red-600 text-sm">
+        Failed to create board. Please try again.
+    </div>
+</div>
             </div>
         </template> 
 
@@ -218,8 +254,6 @@
                        
         <h3 class="text-lg font-semibold text-gray-700">{{ $info['team']->name }} Boards</h3>
                         <hr class="w-full border-gray-200">
-                       
-                         
 <div onclick="ModalView.show('createBoard{{ $info['team']->id }}')"
                                 class="flex flex-col items-center justify-center gap-2 text-gray-600 transition duration-300 bg-gray-100 shadow-md cursor-pointer select-none w-72 h-32 rounded-xl hover:shadow-2xl">
                                 <x-fas-plus class="w-8 h-8" />
@@ -274,6 +308,7 @@
 
 @pushOnce('page')
     <script>
+    
           document.querySelectorAll('[data-collapse-toggle]').forEach(btn => {
         btn.addEventListener('click', () => {
             const target = document.getElementById(btn.dataset.collapseToggle);

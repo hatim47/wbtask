@@ -8,8 +8,7 @@
     <title>Taskly</title>
     @vite('resources/css/app.css')
     @vite('resources/js/app.js')
-    @stack("head")
-    
+    @stack("head")    
 </head>
 <body>
     <x-toast-manager></x-toast-manager>

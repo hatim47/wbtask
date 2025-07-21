@@ -1,26 +1,9 @@
-@extends('layout.page')
-
-
-
+@extends('layout.pagesetting')
 @pushOnce('metasa')
-
 <meta name="csrf-token" content="{{ csrf_token() }}">
-
 @endPushOnce
-
-{{-- @section('app-header')
-
-    <h1 class="text-xl font-bold">Teams</h1>
-
-@endsection --}}
-
-
-
 @section('app-side')
-
     <div class="flex flex-col gap-1 px-8 pl-4 mt-2">
-
-
  <a data-role="menu-item" href="{{ route('viewHome') }}"
        class="flex items-center justify-start w-full gap-3 px-6 py-2  text-gray-600 cursor-pointer  select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-100' : 'hover:bg-neutral-200 ' }}">
        <p class=" "> Home </p>
@@ -28,33 +11,22 @@
             <a data-role="menu-item" href="{{ route('viewTeam', ['team_id' => $team->id]) }}"
        class="flex items-center justify-start w-full gap-3 px-6 py-2  text-gray-600 cursor-pointer  select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-100' : 'hover:bg-neutral-200 ' }}">
        <p class=" "> Board </p>
-    </a> 
-
-            
-
-
+    </a>            
+ <a data-role="menu-item" href="{{ route('setting') }}"
+        class="flex items-center justify-start w-full gap-3 px-6 py-2  text-gray-600 cursor-pointer  select-none {{ Route::currentRouteName() == 'Setting' ? 'bg-neutral-100' : 'hover:bg-neutral-200 ' }}">
+       
+        <p class=" "> Setting   </p>
+    </a>                  
     </div>
-
-
-
-
 <div class="flex flex-col gap-1  pl-4 mt-2" >
-
-
-
-
   @foreach ($assign_board   as $board)
-
                             <a href="{{ route('board', ['board_id' => $board->id, 'team_id' => $board->team_id]) }}"  class="flex gap-3  px-6 py-2 cursor-pointer select-none transition duration-300  border-gray-200  select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-100' : 'hover:bg-neutral-200 ' }}">
                                     <div
                                         class="flex cursor-pointer select-none flex-col transition duration-300 border border-gray-200 shadow-xl rounded-xl h-6 w-6 hover:shadow-2xl bg-grad-{{ $board->pattern }} overflow-hidden">
                                         </div>
                                     <h3 class="overflow-hidden  truncate ">{{ $board->name }}</h3>
-
                             </a>
                         @endforeach
-
-
  </div>
 
 @endsection
@@ -98,21 +70,11 @@
 
         <header class="w-full">
 
-            <h2 class="ml-6 mb-5 text-4xl font-extrabold"> Teams</h2>
+            <h2 class="ml-6 mb-5 text-xl "> Collaborators</h2>
 
 
 
-            <form class="flex items-center gap-4 " id="search-form" action="{{ route('searchTeam') }}" method="GET">
-
-                @csrf
-
-                <x-form.text icon="fas-magnifying-glass" name="team_name" placeholder="Team's name"
-
-                    value="{{ session('__old_team_name') }}" />
-
-             
-
-            </form>
+         
 
         </header>
 
@@ -189,67 +151,76 @@
           >
             View boards
           </button>
-          <span class="bg-gray-200 text-xs px-2 py-1 rounded">{{ $member['status'] }}</span>
-      
-          @if ($owner->id == Auth::id())
-           @if ($member['user_id'] != Auth::id())
-            <form x-data="{ open: false }"
-                 action="{{ isset($team) ? route('deleteTeamMember', [$team->id]) : 'no board' }}"
-                  method="POST" 
-                  @submit.prevent="open = true"
-                  class="inline"
-            >
-              @csrf         
+          <span class="bg-gray-200 text-xs px-2 py-1 rounded">{{ $member['status'] }}</span>      
+             @if ($owner->id == Auth::id() && $member['user_id'] != Auth::id())
+          <div x-data="{ open: false }">
+          <form x-ref="removeForm" action="{{ isset($team) ? route('deleteTeamMember', [$team->id]) : '#' }}"
+             method="POST" class="inline">
+              @csrf
               <input type="hidden" name="emails" value="{{ $member['email'] }}">
-              <button type="submit" class="bg-red-500 text-white px-3 py-2 rounded-md mx-3 text-xs hover:font-bold">Remove</button>
-
-              <div x-show="open" x-cloak class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                <div class="bg-white p-6 rounded shadow-xl text-center space-y-4">
-                  <h2 class="text-lg font-semibold">Confirm Removal</h2>
-                  <p>Are you sure you want to remove this member?</p>
-                  <div class="flex justify-center space-x-4">
-                    <button @click="open = false" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
-                    <button @click="$el.closest('form').submit()" class="px-4 py-2 bg-red-500 text-white rounded">Yes, Removed</button>
-                  </div>
+              <button 
+                type="button" 
+                @click="open = true" 
+                class="bg-red-500 text-white px-3 py-2 rounded-md mx-3 text-xs hover:font-bold">
+                Remove
+              </button>
+            </form>
+            <!-- Modal -->
+            <div x-show="open" x-cloak class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+              <div class="bg-white p-6 rounded shadow-xl text-center space-y-4 w-80">
+                <h2 class="text-lg font-semibold">Confirm Removal</h2>
+                <p>Are you sure you want to remove this member?</p>
+                <div class="flex justify-center space-x-4 mt-4">
+                  <button @click="open = false" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
+                  <button @click="open = false; $nextTick(() => $refs.removeForm.submit())" class="px-4 py-2 bg-red-500 text-white rounded">
+                    Yes, Remove
+                  </button>
                 </div>
               </div>
-            </form>
-            @endif
+            </div>
+          </div>
 
-          @else
-            @if($member['user_id'] === Auth::id())
-              <form x-data="{ open: false }" x-ref="form" method="POST" action="{{ isset($board) ? route('deleteTeamMember', [ $board['team_id']]) : '' }}" class="inline">
-                @csrf
-                <input type="hidden" name="emails" value="{{ $member['email'] }}">
-                <button 
-                  type="button" 
-                  @click="open = true" 
-                  class="bg-red-400 text-white px-3 py-2 rounded-md mx-3 text-xs hover:font-bold"
-                  x-transition
-                >
-                  Leave
-                </button>
+  @elseif ($member['user_id'] === Auth::id())
+  
+    <!-- PLACE CASE 2 HERE -->
+    {{-- Current user removing themselves (Leave) --}}
+    <div x-data="{ open: false }">
+      <form 
+        x-ref="leaveForm"
+        method="POST"
+        action="{{ isset($board) ? route('deleteTeamMember', [$board['team_id']]) : '#' }}"
+        class="inline"
+      >
+        @csrf
+        <input type="hidden" name="emails" value="{{ $member['email'] }}">
+        <button 
+          type="button" 
+          @click="open = true" 
+          class="bg-red-400 text-white px-3 py-2 rounded-md mx-3 text-xs hover:font-bold"
+        >
+          Leave
+        </button>
+      </form>
 
-                <div 
-                  x-show="open" 
-                  x-cloak 
-                  class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
-                  @keydown.escape.window="open = false"
-                >
-                  <div class="bg-white p-6 rounded shadow-xl text-center space-y-4 w-80">
-                    <h2 class="text-lg font-semibold">Confirm Removal</h2>
-                    <p>Are you sure you want to remove this member?</p>
-                    <div class="flex justify-center space-x-4 mt-4">
-                      <button type="button" @click="open = false" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
-                      <button type="button" @click="open = false; $nextTick(() => $refs.form.submit())" class="px-4 py-2 bg-red-500 text-white rounded">Yes, Leave</button>
-                    </div>
-                  </div>
-                </div>
-              </form>
-            @else
-              <div class="px-6 mx-3"></div>
-            @endif
-          @endif
+      <!-- Modal -->
+      <div x-show="open" x-cloak class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div class="bg-white p-6 rounded shadow-xl text-center space-y-4 w-80">
+          <h2 class="text-lg font-semibold">Confirm Leave</h2>
+          <p>Are you sure you want to leave this team?</p>
+          <div class="flex justify-center space-x-4 mt-4">
+            <button @click="open = false" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
+            <button @click="open = false; $nextTick(() => $refs.leaveForm.submit())" class="px-4 py-2 bg-red-500 text-white rounded">
+              Yes, Leave
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  @else
+    {{-- Other cases (just filler or spacing) --}}
+    <div class="px-6 mx-3"></div>
+  @endif
         </div>
 
         <!-- Board list tooltip -->

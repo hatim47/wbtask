@@ -188,9 +188,9 @@ $board = Board::find($team_id);
                $notify = Notice::where("froms", Auth::user()->id )->where("card_id", $card->id)->where("status",0)->count();
                 //   dd($notify);
             $cardLabels = Lable::where("card_id", $card->id)->where("status", 0)->get()->all();
-              $boardLabels = BoardLabel::where("board_id", $board->id)->where("status", 0)->get()->all();
+             
                 $card->notif = $notify;
-                $card->lables = array_merge($cardLabels, $boardLabels);
+                $card->lables =  $cardLabels;
                 
             $cards->push($card);
             $card = $card->nextCard;

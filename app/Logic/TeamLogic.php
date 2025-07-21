@@ -6,6 +6,7 @@ use App\Models\Board;
 use App\Models\Team;
 use App\Models\User;
 use App\Models\UserTeam;
+use App\Models\BoardUser;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -201,52 +202,82 @@ function getTeamMember(int $team_id)
     }
 
     /**
-     * delete list of members from a given team
-     * based of a given list of emails, if the
-     * email is non-existent then it will be ignored
-     * and continue to other emails.
-     *
      * @param int $team_id team id
      * @param array $emails member emaile to be removed from team
      */
     public function deleteMembers(int $team_id, $emails)
     {
-       $deletedUser = User::where("email", $emails)->first();
+        $deletedUser = User::where("email", $emails)->first();
 
-if ($deletedUser) {
-    UserTeam::where("team_id", $team_id)
-        ->where("user_id", $deletedUser->id)
-        ->where("status", "Member")
-        ->delete();
-
- 
-$assign_board = $deletedUser->boards()->where("team_id", $team_id)->delete();
-
-    // Check if user belongs to any other teams
-    $hasTeams = UserTeam::where("user_id", $deletedUser->id)->exists();
-
-    if (!$hasTeams) {
-        // Create a default team for the user
-        $firstName = explode(' ', trim($deletedUser->name))[0] ?? 'Default';
-
-        $defaultTeam = Team::create([
-            'name' => $firstName ,
-            // other default fields if required
-        ]);
-
-        // Add user to this new team as Owner
-        UserTeam::create([
-            'team_id' => $defaultTeam->id,
-            'user_id' => $deletedUser->id,
-            'status' => 'Owner',
-        ]);
-    }
-}
-       
-
-        return;
-    }
-
+        if (!$deletedUser) {
+            return "User not found.";
+        }
+    
+        $currentUser = Auth::user();
+        $isSelf = $currentUser->id === $deletedUser->id;
+    
+        $userTeamRecord = UserTeam::where("team_id", $team_id)
+            ->where("user_id", $deletedUser->id)
+            ->first();
+    
+        if (!$userTeamRecord) {
+            return "User is not part of the team.";
+        }
+    
+        $teamMembers = UserTeam::where("team_id", $team_id)->get();
+    
+        if ($teamMembers->count() <= 1) {
+            return "You can't remove the last team member.";
+        }
+    
+        $currentUserStatus = $teamMembers->firstWhere("user_id", $currentUser->id)?->status;
+    
+        if (!$isSelf && $currentUserStatus !== "Owner") {
+            return "Only team owners can remove members.";
+        }
+    
+        if ($userTeamRecord->status === "Owner") {
+            $otherOwners = $teamMembers->filter(fn($m) => $m->status === "Owner" && $m->user_id !== $deletedUser->id);
+    
+            if ($otherOwners->isEmpty()) {
+                $nextMember = $teamMembers->firstWhere(fn($m) =>
+                    $m->user_id !== $deletedUser->id && $m->status !== "Owner"
+                );
+    
+                if ($nextMember) {
+                    $nextMember->status = 'Owner';
+                    $nextMember->save();
+                } else {
+                    return "Can't remove last owner. No other members to promote.";
+                }
+            }
+        }    
+        $boardIds = Board::where('team_id', $team_id)->pluck('id');    
+        foreach ($boardIds as $boardId) {
+            $boardUser = BoardUser::where('board_id', $boardId)
+                ->where('user_id', $deletedUser->id)
+                ->first();    
+            if ($boardUser) {
+                if ($boardUser->status === 'Owner') {
+                    $otherBoardUsers = BoardUser::where('board_id', $boardId)
+                        ->where('user_id', '!=', $deletedUser->id)
+                        ->get();    
+                    if ($otherBoardUsers->isNotEmpty()) {
+                        $nextBoardUser = $otherBoardUsers->first();
+                        $nextBoardUser->status = 'Owner';
+                        $nextBoardUser->save();
+                    }
+                    else {
+                        // 🚨 No users left, so delete the board too
+                        Board::where('id', $boardId)->delete();
+                    }
+                }    
+                $boardUser->delete();
+            }
+        }    
+        $userTeamRecord->delete();    
+        return $isSelf ? "You have left the team." : "Member removed from the team.";
+    }  
     /**
      * delete a certain team data, including boards,
      * cards, and mebers data

@@ -19,6 +19,9 @@ class UserController extends Controller
     public function showSetting()
     {
         return view("setting");
+
+
+        
     }
 
     public function updateImage(Request $request)
@@ -40,12 +43,10 @@ class UserController extends Controller
         $userId = Auth::user()->id;
         $request->validate([
             "name" => "required|min:1|max:35",
-            "email" => 'unique:users,email,' . $userId . '|required|email',
         ]);
 
         $user = User::find($userId);
         $user->name = $request->name;
-        $user->email = $request->email;
         $user->save();
 
         return redirect()->back()->with("notif", ["Success\nProfile updated successfully"]);

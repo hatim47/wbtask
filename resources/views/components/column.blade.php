@@ -84,54 +84,31 @@
 
                 @endif
 
-            </header>
-
-           
-
+            </header> 
             <section class="w-full overflow-hidden overflow-y-auto">
-
                 <div class="flex flex-col gap-3 p-2" id="card-container">
-
-
-
                 </div>
-
-            </section>
-
-            
-
-            <button id="btn-add"
-
-                class="flex items-center gap-2 py-2 pl-4  text-gray-600 text-sm transition bg-slate-100 select-none rounded-b-xl hover:bg-slate-200">
-
+            </section>           
+            <button id="btn-add" class="flex items-center gap-2 py-2 pl-4  text-gray-600 text-sm transition bg-slate-100 select-none rounded-b-xl hover:bg-slate-200">
                 <x-fas-plus class="w-4 h-4" />
-
-                Add Card...
-
+                Add Card.
             </button>
-
-
-
-
         </div>
-
     </template>
-
 </div>
-
 <div id="modal-views" data-role="modal-manager-container" class="fixed z-40 flex flex-wrap items-center justify-center w-screen h-screen overflow-hidden bg-black bg-opacity-50 backdrop-blur-sm" style="display: none;">
 
 
 
     <div class="min-w-[40rem] max-w-[70%] max-h-[70%] flex flex-col bg-white rounded-xl overflow-hidden">
 
-        <header class="flex items-center justify-between flex-grow-0 w-full px-4 py-2 bg-black">
+        <header class="flex items-center justify-between flex-grow-0 w-full px-4 py-2 bg-white">
 
             <h1 class="text-2xl font-bold text-white" id="modal-title"></h1>
 
-            <svg onclick="closeModal()" class="w-8 h-8 text-white" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.3.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc. --><path d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64zm79 143c9.4-9.4 24.6-9.4 33.9 0l47 47 47-47c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-47 47 47 47c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-47-47-47 47c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l47-47-47-47c-9.4-9.4-9.4-24.6 0-33.9z"></path></svg>        </header>
+            <svg onclick="closeModal()" class="w-8 h-8 text-gray-300" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.3.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc. --><path d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64zm79 143c9.4-9.4 24.6-9.4 33.9 0l47 47 47-47c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-47 47 47 47c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-47-47-47 47c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l47-47-47-47c-9.4-9.4-9.4-24.6 0-33.9z"></path></svg>        </header>
 
-        <div class="flex-grow w-full h-full p-4" id="modal-content">
+        <div class="flex-grow w-full h-full" id="modal-content">
 
             <div class="flex flex-col w-full gap-4 p-4">
 
@@ -139,27 +116,41 @@
 
                    
 
-                    <textarea
+                    <div class="relative w-full">
+  <!-- Text Input -->
+  <input
+    class="w-full px-4 py-2 pr-10 mb-1 bg-white border border-gray-200 shadow resize-none rounded-xl"
+    id="card"
+    placeholder="Type something..."
+  />
 
-                          class="w-full px-4 py-2 mb-1 bg-white border border-gray-200 shadow cursor-pointer resize-none select-none line-clamp-3 rounded-xl"
+  <!-- Hidden File Input -->
+  <input
+    type="file"
+    id="fileUpload"
+    class="hidden"
+  />
 
-                          id="card" cols="30" rows="3" maxlength="95"></textarea>
+  <!-- Label styled as button inside the input -->
+  <label
+    for="fileUpload"
+    class="absolute right-3 top-2 cursor-pointer text-gray-500 hover:text-blue-500"
+    title="Attach file"
+  >
+    <!-- Paperclip SVG Icon -->
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+      stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round"
+        d="M21 12.79V17a4 4 0 01-4 4H7a4 4 0 01-4-4V7a4 4 0 014-4h5.21a1 1 0 01.7.3l6.79 6.79a1 1 0 01.3.7z" />
+    </svg>
+  </label>
+</div>
 
-                          <input type="file" id="fileUpload" class=" bottom-2 right-2 opacity-0 w-full h-full cursor-pointer">
-
-                          <label for="fileUpload" class=" bottom-2 right-2 bg-blue-500 text-white px-3 py-1 rounded-lg cursor-pointer">📁 Upload</label>
-
-                     
-
-                      <button id="btn-submit"
-
-                          class="flex items-center w-lg gap-2 py-1 pl-4 mb-2 rounded-2xl bg-slate-200">
-
-                          <x-fas-plus class="w-4 h-4" />
-
-                          Add Card...
-
-                      </button>
+<!-- Submit Button -->
+<button id="btn-submit" class="flex items-center gap-2 my-2 py-1 px-3 mb-2 rounded-2xl bg-slate-200">
+  <x-fas-plus class="w-4 h-4" />
+  Add Card
+</button>
 
                   </form>
 
@@ -314,7 +305,7 @@ function handleFormSubmit() {
     const submitButton = document.querySelector("#btn-submit");
 if (submitButton.disabled) return;
 submitButton.disabled = true;
-    const inputCard = document.querySelector("#modal-views textarea#card");
+    const inputCard = document.querySelector("#modal-views input#card");
     const fileUpload = document.querySelector("#modal-views input#fileUpload");
     const modal = document.querySelector("#modal-views");
     const cardValue = inputCard.value.trim();

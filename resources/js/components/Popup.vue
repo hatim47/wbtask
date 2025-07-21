@@ -1,18 +1,25 @@
 <!-- CardPopup.vue -->
 <template>
-
+ <div id="toast-container" class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 space-y-3"></div>
   <div class="card-popup flex flex-col  overflow-y-auto " @click.self="close">
      
-      <button class="close-btn absolute  top-4 right-[37.5rem] text-gray-500 z-50 hover:text-black hover:bg-slate-200 hover:rounded-full pt-0 px-[7px] pb-[3px] text-xl"
-        @click.self="close">&times;</button><div class="h-40 w-full max-w-3xl rounded-t-lg shadow-lg p-6 bg-blue-900 relative">
-        <img
-          v-if="coverImage"
-          :src="coverImage"
-          alt="Cover"
-          class="absolute top-0 left-1/2 transform -translate-x-1/2 h-full object-contain"
-        />
-        <button class="absolute bottom-2 right-2 bg-white text-sm px-2 py-1 rounded">Cover</button>
-      </div>
+      <button class="close-btn absolute  top-4 right-[40.5rem] text-gray-500 z-50 hover:text-black hover:bg-slate-200 hover:rounded-full pt-0 px-[7px] pb-[3px] text-xl"
+        @click.self="close">&times;</button>
+        <div
+    class=" h-40 w-full max-w-3xl rounded-t-lg shadow-lg p-6 relative"
+    :style="{ backgroundColor: dominantColor }"
+  >
+    <img
+     v-if="coverImage"
+      :src="coverImage"
+      alt="Cover"
+      crossorigin="anonymous"
+      @load="extractColor"
+      ref="coverImg"
+      class=" absolute top-0 left-1/2 transform -translate-x-1/2 h-full object-contain"
+    />
+   
+  </div>
     <div class="bg-gray-100 w-full max-w-3xl  rounded-b-lg shadow-lg p-3  h-[90vh] overflow-y-auto  overflow-x-hidden relative">
 
 
@@ -21,11 +28,25 @@
 
     
       <div class="mb-6">
-        <h2 class="popup-title text-2xl font-semibold">{{ data && data.data.card ? data.data.card.name : 'Loading...' }}
-        </h2>
-        <div class="text-sm text-gray-500 mt-1">in list <span class="font-medium">To Do</span></div>
-      </div>
-      <div class="grid grid-cols-[568px_minmax(0,1fr)] grid-rows-[auto_auto] gap-x-4 gap-y-2 ">
+        
+    <h2
+      v-if="!editing"
+      @click="editing = true"
+      class="popup-title text-2xl font-semibold cursor-pointer"
+    >
+      {{ name }}
+    </h2>
+
+     <input
+      v-else
+      v-model="name"
+      @blur="savecardname"
+      @keyup.enter="savecardname"
+      class="text-2xl font-semibold border border-gray-300 rounded px-2 py-1 w-full"
+      autofocus
+    />
+  </div>
+      <div class="grid grid-cols-[508px_minmax(0,1fr)] grid-rows-[auto_auto] gap-x-4 gap-y-2 ">
         <div>
 
 
@@ -36,7 +57,7 @@
             <h3 class="font-semibold text-gray-700 mb-1">Description</h3>
                </div>
      <div v-if="isEditingDescription" class="mt-1">
-      <div class="flex gap-2 mb-2">
+      <div class="flex gap-2 p-2  bg-white border rounded">
       <button @click="toggleBold" class="editor-btn" title="Bold">
         <!-- Bold SVG -->
       <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -72,7 +93,7 @@
 </svg>
       </button>
     </div>
-   <editor-content :editor="editor" class=" p-3 border rounded bg-white" />
+   <editor-content :editor="editor" class="p-1 descp border rounded bg-white" />
     <div class="flex gap-2 mt-2">
       <button @click="saveDescription" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
         Save
@@ -84,23 +105,38 @@
   </div>
 
  <div v-else class="mt-1 group">
+  
   <div
-    class="description-content text-sm text-gray-800 bg-white p-3 rounded-md shadow-sm prose max-w-full transition-all duration-300 overflow-hidden"
-    :class="{ 'max-h-40': !showFull, 'max-h-none': showFull }"
-     :key="originalDescription"
+    class="description-content  text-gray-800  prose max-w-full transition-all duration-300 overflow-hidden"
+ :class="{ 'max-h-40': !showFull, 'max-h-none': showFull }"
+  :style="!showFull 
+    ? {
+        'mask-image': 'linear-gradient(to bottom, black 0%, black calc(100% - 140px), transparent 100%)',
+        '-webkit-mask-image': 'linear-gradient(to bottom, black 0%, black calc(100% - 140px), transparent 100%)'
+      }
+    : {}"     :key="originalDescription"
   v-html="originalDescription"
     @click="startEditingDescription"
   ></div>
 
   <!-- Show More / Less only if long -->
-  <div v-if="isTruncated" class="text-center mt-2">
-    <button
-      class="text-blue-600 text-sm hover:underline focus:outline-none"
-      @click="toggleDescription"
-    >
-      {{ showFull ? 'Show Less' : 'Show More' }}
-    </button>
-  </div>
+ <div v-if="isTruncated" class="text-center flex justify-center  py-2  relative z-40 bg-gray-200 rounded-sm ">
+  <button
+    class="focus:outline-none flex items-center justify-center gap-1"
+    @click="toggleDescription"
+  >
+  <template v-if="showFull">
+     <svg xmlns="http://www.w3.org/2000/svg" id="Outline" viewBox="0 0 24 24" width="18" height="18"><path d="M18,15.5a1,1,0,0,1-.71-.29l-4.58-4.59a1,1,0,0,0-1.42,0L6.71,15.21a1,1,0,0,1-1.42-1.42L9.88,9.21a3.06,3.06,0,0,1,4.24,0l4.59,4.58a1,1,0,0,1,0,1.42A1,1,0,0,1,18,15.5Z"/></svg>
+    Show Less
+  </template>
+    <template v-else class="" >
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18">
+        <path d="M18.71,8.21a1,1,0,0,0-1.42,0l-4.58,4.58a1,1,0,0,1-1.42,0L6.71,8.21a1,1,0,0,0-1.42,0,1,1,0,0,0,0,1.41l4.59,4.59a3,3,0,0,0,4.24,0l4.59-4.59A1,1,0,0,0,18.71,8.21Z"/>
+      </svg>
+      Show More
+    </template>
+  </button>
+</div>
 
   <!-- Show Add a description if empty -->
   <div
@@ -131,7 +167,7 @@
     </div>
 
     <!-- Files List -->
-      <div v-for="(file, index) in visibleUploads" :key="index" class="flex items-start gap-3 py-2 border-b last:border-b-0">
+      <div v-for="(file, index) in visibleUploads" :key="index" class="flex items-start gap-3 py-2 px-3 border-b last:border-b-0">
         <!-- Thumbnail -->
         <div class="w-16 h-12 flex items-center justify-center bg-gray-100 rounded overflow-hidden">
           <img v-if="isImage(file.file_path)" :src="fileUrl(file.file_path)" class="object-cover w-full h-full" />
@@ -144,7 +180,7 @@
             <a :href="fileUrl(file.file_path)" target="_blank" class="font-medium text-gray-600 hover:underline">
               {{ file.original_name }}
             </a>
-            <span v-if="file.is_cover" class="text-xs text-gray-500 px-2 py-0.5 bg-gray-200 rounded">Cover</span>
+            <span v-if="file.f_cover" class="text-xs text-gray-500 px-2 py-0.5 bg-gray-200 rounded">Cover</span>
           </div>
           <div class="text-xs text-gray-500">Added  <br>
             {{ formatDate(file.created_at) }}</div>
@@ -159,7 +195,21 @@
           
             <button class="block w-full px-4 py-2 text-left hover:bg-gray-100">Comment</button>
             <a :href="fileUrl(file.file_path)" download class="block w-full px-4 py-2 text-left hover:bg-gray-100">Download</a>
-            <button v-if="isImage(file.file_path)" class="block w-full px-4 py-2 text-left hover:bg-gray-100" @click="makeCover(file)">Make cover</button>
+            <!-- <button v-if="isImage(file.file_path)" class="block w-full px-4 py-2 text-left hover:bg-gray-100" @click="makeCover(file)">Make cover</button> -->
+              <template v-if="isImage(file.file_path)">
+    <button 
+      v-if="file.f_cover" 
+      class="block w-full px-4 py-2 text-left hover:bg-gray-100" 
+      @click="removeCover(file)">
+      Remove cover
+    </button>
+    <button 
+      v-else 
+      class="block w-full px-4 py-2 text-left hover:bg-gray-100" 
+      @click="makeCover(file)">
+      Make cover
+    </button>
+  </template>
             <button class="block w-full px-4 py-2 text-left text-red-600 hover:bg-gray-100" @click="deleteFile(file)">Delete</button>
           </div>
         </div>
@@ -194,12 +244,22 @@
     </div>
   </div>
     </div>
-<div v-if="reversedUploads.length > uploadDisplayLimit" class="mt-2 text-center">
+
+ <div v-if="reversedUploads.length > uploadDisplayLimit" class="text-center flex justify-center  py-2  relative z-40 bg-gray-200 rounded-sm ">
   <button
-    @click="showAllUploads = !showAllUploads"
-    class="text-sm text-blue-600 hover:underline"
+    class="focus:outline-none flex items-center justify-center gap-1"
+      @click="showAllUploads = !showAllUploads"
   >
-    {{ showAllUploads ? 'Show less' : 'Show more' }}
+  <template v-if="showAllUploads">
+      <svg xmlns="http://www.w3.org/2000/svg" id="Outline" viewBox="0 0 24 24" width="18" height="18"><path d="M18,15.5a1,1,0,0,1-.71-.29l-4.58-4.59a1,1,0,0,0-1.42,0L6.71,15.21a1,1,0,0,1-1.42-1.42L9.88,9.21a3.06,3.06,0,0,1,4.24,0l4.59,4.58a1,1,0,0,1,0,1.42A1,1,0,0,1,18,15.5Z"/></svg>
+    Show Less
+  </template>
+    <template v-else class="" >
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18">
+        <path d="M18.71,8.21a1,1,0,0,0-1.42,0l-4.58,4.58a1,1,0,0,1-1.42,0L6.71,8.21a1,1,0,0,0-1.42,0,1,1,0,0,0,0,1.41l4.59,4.59a3,3,0,0,0,4.24,0l4.59-4.59A1,1,0,0,0,18.71,8.21Z"/>
+      </svg>
+      Show More
+    </template>
   </button>
 </div>
  
@@ -242,7 +302,7 @@
     <h3 class="text-lg font-medium mb-2">Add a comment</h3>
 <div v-if="isEditingComment">
     <!-- Toolbar -->
-    <div class="flex flex-wrap gap-2 mb-2">
+    <div class="flex flex-wrap gap-2 p-2  bg-white border rounded">
       <button @click="toggleBoldd" class="editor-btn" title="Bold">
         <!-- Bold SVG -->
       <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -353,7 +413,8 @@
 
 
         </div>
-        <div class="flex flex-col">
+        <div class="flex flex-col"
+        v-click-outside="() => showMembers = false">
           <!-- Team -->
           <button id="membersBtn" @click="showMembers = !showMembers"
             class=" text-black px-3 mb-2 py-1 rounded flex gap-3 items-center bg-gray-200 hover:bg-gray-300">
@@ -362,12 +423,13 @@
 
           <!-- Members Popover -->
           <div v-if="showMembers"
-            class="fixed top-[27%] right-[14%] bg-white border border-gray-200 rounded-xl shadow-md w-80 p-4 z-50">
-            <div class=" flex  mb-1">
+            class="fixed top-[29%] right-[26%] bg-white border border-gray-200 rounded-xl shadow-md w-80 p-4 z-50">
+            <div class=" flex justify-between items-center  mb-1">
 
-              <h3 class="text-lg font-semibold mb-3">Members</h3>
-              <button class="close-btn absolute top-4 right-4 text-gray-500 hover:text-black text-xl"
-                @click="closePopover">&times;</button>
+              <h3 class="text-sm font-semibold  text-gray-700">Members</h3>
+              <button class="close-btn p-2 text-gray-600 hover:bg-gray-200 hover:p-2 hover:rounded-md"
+                @click="closePopover"><svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="18" height="18"><path d="M18,6h0a1,1,0,0,0-1.414,0L12,10.586,7.414,6A1,1,0,0,0,6,6H6A1,1,0,0,0,6,7.414L10.586,12,6,16.586A1,1,0,0,0,6,18H6a1,1,0,0,0,1.414,0L12,13.414,16.586,18A1,1,0,0,0,18,18h0a1,1,0,0,0,0-1.414L13.414,12,18,7.414A1,1,0,0,0,18,6Z"/></svg>          </button>
+
             </div>
 
             <!-- Close Button (×) -->
@@ -422,13 +484,6 @@
               </ul>
             </div>
           </div>
-
-
-
-
-
-
-
 <div class="relative mb-2">
   <!-- Label button trigger -->
   <button 
@@ -437,29 +492,33 @@
   <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24" width="14" height="14"><path d="M7.707,9.256c.391,.391,.391,1.024,0,1.414-.391,.391-1.024,.391-1.414,0-.391-.391-.391-1.024,0-1.414,.391-.391,1.024-.391,1.414,0Zm13.852,6.085l-.565,.565c-.027,1.233-.505,2.457-1.435,3.399l-3.167,3.208c-.943,.955-2.201,1.483-3.543,1.487h-.017c-1.335,0-2.59-.52-3.534-1.464L1.882,15.183c-.65-.649-.964-1.542-.864-2.453l.765-6.916c.051-.456,.404-.819,.858-.881l6.889-.942c.932-.124,1.87,.193,2.528,.851l7.475,7.412c.387,.387,.697,.823,.931,1.288,.812-1.166,.698-2.795-.342-3.835L12.531,2.302c-.229-.229-.545-.335-.851-.292l-6.889,.942c-.549,.074-1.052-.309-1.127-.855-.074-.547,.309-1.051,.855-1.126L11.409,.028c.921-.131,1.869,.191,2.528,.852l7.589,7.405c1.946,1.945,1.957,5.107,.032,7.057Zm-3.438-1.67l-7.475-7.412c-.223-.223-.536-.326-.847-.287l-6.115,.837-.679,6.14c-.033,.303,.071,.601,.287,.816l7.416,7.353c.569,.57,1.322,.881,2.123,.881h.01c.806-.002,1.561-.319,2.126-.893l3.167-3.208c1.155-1.17,1.149-3.067-.014-4.229Z"/></svg>
     Label
   </button>
-
   <!-- Label selector popover -->
   <div 
     v-if="showLabelSelector"
     v-click-outside="() => showLabelSelector = false"
-    class="fixed right-[15%] top-[28%] z-50 w-72 bg-white rounded-md shadow-lg border border-gray-200"
+    class="fixed right-[27%] top-[34%] z-50 w-80 bg-white rounded-md shadow-lg border border-gray-200"
   >
     <div class="p-2">
       <!-- Show label list by default -->
       <template v-if="!showLabelEditor">
-        <h3 class="text-sm font-semibold px-2 py-1 text-gray-700">Labels</h3>
-        
+        <div class="flex justify-between items-center mb-1">
+               <h3 class="text-sm font-semibold px-2 py-1 text-gray-700">Labels</h3>
+              <button class="close-btn p-2 text-gray-600 hover:bg-gray-200 hover:p-2 hover:rounded-md"
+                @click="closelableover">
+<svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="18" height="18"><path d="M18,6h0a1,1,0,0,0-1.414,0L12,10.586,7.414,6A1,1,0,0,0,6,6H6A1,1,0,0,0,6,7.414L10.586,12,6,16.586A1,1,0,0,0,6,18H6a1,1,0,0,0,1.414,0L12,13.414,16.586,18A1,1,0,0,0,18,18h0a1,1,0,0,0,0-1.414L13.414,12,18,7.414A1,1,0,0,0,18,6Z"/></svg>          </button>
+
+            </div>    
         <input 
           v-model="labelSearch" 
           placeholder="Search labels..."
-          class="w-full px-2 py-1 mb-2 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+          class="w-full px-2 py-2 mb-2 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
         />
 
-        <div class="max-h-60 overflow-y-auto">
+        <div class="max-h-60 py-2 overflow-y-auto">
           <div 
             v-for="label in filteredLabels" 
             :key="label.id"
-            class="flex items-center justify-between px-2 py-1  rounded "
+            class="flex items-center justify-between px-1 py-1  rounded "
           >
             <label class="flex items-center gap-2 w-full cursor-pointer">
               <input 
@@ -470,7 +529,7 @@
                  @change="handleCheckbox(label)"
               />
               <div 
-                class="flex-1 h-6 rounded px-2 text-xs text-white flex items-center"
+                class=" flex-1 rounded p-3 h-9 text-white flex  items-center overflow-hidden whitespace-nowrap max-w-[215px]"
                 :style="{ backgroundColor: label.color }"
               >
                 {{ label.title || ' ' }}
@@ -478,51 +537,45 @@
             </label>
             <button 
               @click.stop="startEditingLabel(label)" 
-              class="text-gray-500 hover:text-gray-700  hover:bg-gray-100 text-xs p-1"
+              class="text-gray-500 p-2 text-gray-600 hover:bg-gray-200 hover:p-2 hover:rounded-md"
             >
-             ✏️
+             <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" width="16" height="16" data-name="Layer 1" viewBox="0 0 24 24">
+  <path d="M22.987,5.451c-.028-.177-.312-1.767-1.464-2.928-1.157-1.132-2.753-1.412-2.931-1.44-.237-.039-.479,.011-.682,.137-.118,.073-2.954,1.849-8.712,7.566C3.135,14.807,1.545,17.213,1.48,17.312c-.091,.14-.146,.301-.159,.467l-.319,4.071c-.022,.292,.083,.578,.29,.785,.188,.188,.443,.293,.708,.293,.025,0,.051,0,.077-.003l4.101-.316c.165-.013,.324-.066,.463-.155,.1-.064,2.523-1.643,8.585-7.662,5.759-5.718,7.548-8.535,7.622-8.652,.128-.205,.178-.45,.14-.689Zm-9.17,7.922c-4.93,4.895-7.394,6.78-8.064,7.263l-2.665,.206,.206-2.632c.492-.672,2.393-3.119,7.312-8.004,1.523-1.512,2.836-2.741,3.942-3.729,.01,.002,.02,.004,.031,.006,.012,.002,1.237,.214,2.021,.98,.772,.755,.989,1.93,.995,1.959,0,.004,.002,.007,.002,.011-.999,1.103-2.245,2.416-3.78,3.94Zm5.309-5.684c-.239-.534-.597-1.138-1.127-1.656-.524-.513-1.134-.861-1.674-1.093,1.139-.95,1.908-1.516,2.309-1.797,.419,.124,1.049,.377,1.481,.8,.453,.456,.695,1.081,.81,1.469-.285,.4-.851,1.159-1.798,2.278Z"/>
+</svg>
             </button>
           </div>
         </div>
 
         <button 
           @click="startCreatingLabel"
-          class="w-full text-left px-2 py-1 mt-1 text-sm text-gray-700 hover:bg-gray-100 rounded"
+          class="w-full text-center px-2 font-bold py-2 mt-1 text-sm text-gray-700 bg-gray-100 hover:bg-gray-200 rounded"
         >
-          ➕ Create a new label
+       Create a new label
         </button>
       </template>
 
       <!-- Show editor when creating/editing -->
       <template v-else>        
-         <button 
-          @click="backToLabels"
-          class="flex items-center text-sm text-gray-600 hover:text-gray-800 mb-3"
-        >
-          ← Back to labels
-        </button>
-    
         <div class="flex justify-between items-center mb-3">
-          <span class="font-medium text-sm text-gray-700">
+      <button  @click="backToLabels" class="flex items-center p-2 text-gray-600 hover:bg-gray-200 hover:p-2 hover:rounded-md">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18"><g id="_01_align_center" data-name="01 align center"><path d="M13.775,18.707,8.482,13.414a2,2,0,0,1,0-2.828l5.293-5.293,1.414,1.414L9.9,12l5.293,5.293Z"/></g></svg>        </button>
+          <span class="font-medium  text-gray-700">
           {{ editingLabel?.id ? 'Edit label' : 'Create label' }}
           </span>
           <button 
             @click="cancelEditing"
-            class="text-gray-500 hover:text-gray-700"
+            class="text-gray-500 p-2 bg-gray-50 text-gray-600 hover:bg-gray-200 hover:p-2 hover:rounded-md"
           >
-            ✖
-          </button>
+<svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="18" height="18"><path d="M18,6h0a1,1,0,0,0-1.414,0L12,10.586,7.414,6A1,1,0,0,0,6,6H6A1,1,0,0,0,6,7.414L10.586,12,6,16.586A1,1,0,0,0,6,18H6a1,1,0,0,0,1.414,0L12,13.414,16.586,18A1,1,0,0,0,18,18h0a1,1,0,0,0,0-1.414L13.414,12,18,7.414A1,1,0,0,0,18,6Z"/></svg>          </button>
         </div>
-
-        <!-- Color Preview -->
+  <div class="items-center p-3 bg-slate-50">
         <div 
-          class="h-8 w-full rounded mb-3 flex items-center justify-center text-white text-xs"
-          :style="{ backgroundColor: labelColor }"
-        >
-          {{ labelTitle || 'Label preview' }}
-        </div>
-
-        <!-- Title -->
+  class="min-h-9 rounded w-full px-2 py-1 text-white text-xs leading-snug whitespace-normal break-words text-center"
+  :style="{ backgroundColor: labelColor }"
+>
+  {{ labelTitle || 'Label preview' }}
+</div>
+</div>
         <label class="text-xs text-gray-600 mb-1 block">Title</label>
         <input 
           v-model="labelTitle" 
@@ -547,13 +600,13 @@
           <button 
             v-if="editingLabel?.id"
             @click="deleteLabel" 
-            class="text-red-600 hover:text-red-800 text-sm"
+            class="bg-red-600 text-white hover:bg-red-800 px-3 py-1 rounded"
           >
             Delete
           </button>
           <button 
             @click="saveLabel" 
-            class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+            class="bg-blue-600 text-white px-3 py-1 rounded  hover:bg-blue-700"
           >
             Save
           </button>
@@ -566,7 +619,20 @@
   </div>
 </div>
           <!-- Workers -->
-          
+  <div id="confirm-modal" class="hidden fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
+  <div class="bg-white rounded-xl p-6 w-full max-w-sm shadow-lg">
+    <h2 class="text-lg font-semibold mb-3" id="confirm-modal-title">Are you sure?</h2>
+    <p class="text-sm text-gray-600 mb-5" id="confirm-modal-message">This action cannot be undone.</p>
+    <div class="flex justify-end space-x-3">
+      <button onclick="hideConfirm()" class="px-4 py-2 rounded-lg border text-gray-700 hover:bg-gray-100">
+        Cancel
+      </button>
+      <button id="confirm-modal-yes" class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700">
+        Yes, Delete
+      </button>
+    </div>
+  </div>
+</div>
 
           <!-- Owner -->
 
@@ -591,11 +657,63 @@ import { io } from "socket.io-client";
 import { Editor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import Mention from '@tiptap/extension-mention'
-import BulletList from '@tiptap/extension-bullet-list'
-import ListItem from '@tiptap/extension-list-item'
+import { Vibrant } from '@vibrant/core'
 import Image from '@tiptap/extension-image'
 import axios from 'axios'
+ function showToast(type = 'success', message = 'Message here') {
+    const toast = document.createElement('div');
 
+    const colorMap = {
+      success: {
+        bg: 'bg-gray-200',
+        border: 'border-gray-200',
+        text: 'text-gray-800',
+       
+      },
+      error: {
+        bg: 'bg-red-50',
+        border: 'border-red-50',
+        text: 'text-gray-800',     
+      },
+      warning: {
+        bg: 'bg-red-100',
+        border: 'border-red-200',
+        text: 'text-gray-800',
+      },
+    };
+
+    const color = colorMap[type] || colorMap.success;
+
+    toast.className = `flex items-center p-4 rounded-2xl shadow-lg border ${color.bg} ${color.border} ${color.text} max-w-sm w-full`;
+    toast.innerHTML = `
+      <div class="flex-1">
+        <span class="block text-sm">${message}</span>
+      </div>
+    `;
+
+    document.getElementById('toast-container').appendChild(toast);
+
+    // Auto-dismiss after 4 seconds
+    setTimeout(() => toast.remove(), 4000);
+  }
+  function showConfirm(message = 'Are you sure?', callback = () => {}) {
+    document.getElementById('confirm-modal-message').innerText = message;
+    document.getElementById('confirm-modal').classList.remove('hidden');
+
+    // Temporary confirm handler
+    const yesBtn = document.getElementById('confirm-modal-yes');
+    const newYesBtn = yesBtn.cloneNode(true); // clean event listeners
+    yesBtn.parentNode.replaceChild(newYesBtn, yesBtn);
+
+    newYesBtn.addEventListener('click', () => {
+      hideConfirm();
+      callback(); // run the passed function
+    });
+  }
+
+  function hideConfirm() {
+    document.getElementById('confirm-modal').classList.add('hidden');
+  }
 const clickOutsideDirective = {
   mounted(el, binding) {
     setTimeout(() => {
@@ -612,18 +730,17 @@ const clickOutsideDirective = {
   }
 };
 export default {
-   components: {
-  EditorContent
-  },
+  emits: ['close'],
+   components: {  EditorContent  },
   props: ['data'],
-directives: {
-    clickOutside: clickOutsideDirective
-  },
+directives: {    clickOutside: clickOutsideDirective  },
   data() {
     return {
+       editing: false,
+      name: this.data?.data?.card?.name || 'Loading...',
       openMenu: null,
     showFull: false,
-      isTruncated: false,
+      // isTruncated: false,
    showMembers: false,
   searchQuery: '',
    showConfirm: false,
@@ -660,6 +777,7 @@ directives: {
     '#b04632', '#89609e', '#cd5a91', '#4bbf6b', '#00aecc',
   ],
   editingLabel: null,
+  dominantColor: '#1e293b',
  localUploads: [],
   showAllUploads: false,
   uploadDisplayLimit: 4,
@@ -711,12 +829,11 @@ directives: {
   }
   },
   mounted() {
-     this.fetchCard();
-   
- this.localUploads = [...(this.data?.data?.upload || [])];
+ this.fetchCard();   
+this.localUploads = [...(this.data?.data?.upload || [])];
 const cover = this.data.data.upload.find(file => file.f_cover == 1);
 if (cover) {
-this.coverImage = `/wbtask/public/storage/${cover.file_path}`;
+this.coverImage = `https://task.wbsoftech.com/storage/app/public/${cover.file_path}`;
 }
   this.data.data.cardLabels.forEach(label => {
     const exists = this.data.data.labels.some(l =>
@@ -727,10 +844,13 @@ this.coverImage = `/wbtask/public/storage/${cover.file_path}`;
     }
   });
   this.selectedLabelIds = this.data.data.labels.filter(label => {
-    const match = this.data.data.cardLabels.some(cl => cl.status === 0 && cl.board_card_id === label.id);
-    if (label.status === 0 || match) {    
-      return true;
+    const match = this.data.data.cardLabels.some(cl => cl.status == 0 && cl.board_card_id == label.id);
+    if (label.status == 0 ) {    
+          return true;
     }
+      if(match){
+        return true;
+      }
     return false;
   })
   .map(label => label.id);
@@ -756,9 +876,62 @@ this.availableLabels=(this.data.data.labels);
     },
   },
   methods: {
+   savecardname() {
+      this.editing = false;
+
+      // Optionally save back to data object
+      if (this.data?.data?.card) {
+        this.data.data.card.name = this.name;
+      }
+    fetch('https://task.wbsoftech.com/api/update-card-name', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          id: this.data?.data?.card?.id,
+          name: this.name
+        })
+      })
+        .then(response => response.json())
+        .then(result => {
+          console.log('Saved name:', result);
+          // Optional: show success notification
+          this.socket.emit('cardname' ,result);
+        })
+        .catch(error => {
+          console.error('Failed to save name:', error);
+          // Optional: show error message
+        });
+      // Optional: trigger an emit or API call here
+     
+    },
+
+      extractColor() {
+      try {
+        const colorThief = new window.ColorThief()
+        const img = this.$refs.coverImg
+
+        // Wait for image to be fully loaded
+        if (img.complete) {
+          const color = colorThief.getColor(img)
+          this.dominantColor = `rgb(${color.join(',')} , 0.9)`
+        } else {
+          img.addEventListener('load', () => {
+            const color = colorThief.getColor(img)
+            this.dominantColor = `rgb(${color.join(',')} , 0.9)`
+          })
+        }
+      } catch (err) {
+        console.error('Color extraction failed:', err)
+      }
+    
+  
+    },
+  
     async  fetchCard() {
       try {
-        const response = await fetch(`/wbtask/public/api/notify/${this.data.data.card.id}/${this.authUserId}`);
+        const response = await fetch(`https://task.wbsoftech.com/api/notify/${this.data.data.card.id}/${this.authUserId}`);
         if (!response.ok) throw new Error("Network error");
         const data = await response.json();
 this.socket.emit('cardupdate');
@@ -894,7 +1067,7 @@ this.socket.emit('cardupdate');
       const id = this.editingComment.id;
 
       try {
-        const res = await fetch(`/wbtask/public/api/comments/${id}`, {
+        const res = await fetch(`https://task.wbsoftech.com/api/comments/${id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -916,7 +1089,7 @@ this.socket.emit('cardupdate');
       if (!confirm("Delete this comment?")) return;
 
      try {
-    const res = await fetch(`/wbtask/public/api/comments/${id}/delete`, {
+    const res = await fetch(`https://task.wbsoftech.com/api/comments/${id}/delete`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -975,7 +1148,7 @@ this.socket.emit('cardupdate');
       return date.toLocaleString()
     },
   getFullImagePath(path) {
-       const base = '/wbtask/public/';
+       const base = 'https://task.wbsoftech.com/';
     if (path) {
       const shortPath = path.slice(0, 2); 
       return base + '/' + path;
@@ -994,32 +1167,38 @@ this.socket.emit('cardupdate');
 if (!label.card_id) {
     label.card_id = this.data.data.card.id;
   }
+
     const newStatus = isChecked ? 0 : 1;
+  const payload = {
+  title: label.title,
+  color: label.color,
+  card_id:label.card_id,
+  status: newStatus
+};
+
+if(label.board_id != null) {
+  payload.board_id = label.board_id;
+}
+if(label.board_card_id != null) {
+  payload.board_card_id = label.board_card_id;
+}
     if (isChecked) {
-      fetch(`/wbtask/public/api/update-label/${label.id}`, {
+      fetch(`https://task.wbsoftech.com/api/update-label/${label.id}`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-        body: JSON.stringify({
-          title: label.title,
-          color: label.color,
-          status: newStatus
-        })
+        body: JSON.stringify(payload)
       })
-      .then(res => {
+      .then(res => { 
         if (!res.ok) throw new Error('Insert failed');
          label.status = newStatus;
         this.socket.emit('label-Checked-updated', label, this.clientId);
       })
       .catch(err => console.error(err));
     } else {
-      fetch(`/wbtask/public/api/update-label/${label.id}`, {
+      fetch(`https://task.wbsoftech.com/api/update-label/${label.id}`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-          body: JSON.stringify({
-          title:  label.title,
-          color: label.color,
-          status: newStatus
-        })
+       body: JSON.stringify(payload)
       })
       .then(res => {
         if (!res.ok) throw new Error('Remove failed');
@@ -1050,7 +1229,7 @@ if (!label.card_id) {
       this.isEditingDescription = false
 
       try {
-        await fetch(`/wbtask/public/api/card/${this.data.data.card.id}/description`, {
+        await fetch(`https://task.wbsoftech.com/api/card/${this.data.data.card.id}/description`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ description: html }),
@@ -1104,13 +1283,13 @@ addImageToComment() {
     formData.append('image', file);
     formData.append('card_id', this.data.data.card.id);  
     try {
-      const response = await fetch('/wbtask/public/api/upload-image', {
+      const response = await fetch('https://task.wbsoftech.com/api/upload-image', {
         method: 'POST',
         body: formData,
       });
       if (!response.ok) throw new Error('Upload failed');
       const result = await response.json();
-      const imageUrl = `/wbtask/public/storage/${result.uploaded_files.file_path}`;
+      const imageUrl = `https://task.wbsoftech.com/storage/app/public/${result.uploaded_files.file_path}`;
       this.commentEditor.chain().focus().setImage({ src: imageUrl }).run();
 socket.emit('card-file-uploaded', {
       cardId: this.data.data.card.id,
@@ -1133,7 +1312,7 @@ socket.emit('card-file-uploaded', {
     formData.append('image', file);
     formData.append('card_id', this.data.data.card.id); 
     try {
-      const response = await fetch('wbtask/public/api/upload-image', {
+      const response = await fetch('https://task.wbsoftech.com/api/upload-image', {
         method: 'POST',
         body: formData,
       });
@@ -1141,7 +1320,7 @@ socket.emit('card-file-uploaded', {
         throw new Error('Upload failed');
       }
     const result = await response.json();
-    const imageUrl = `/wbtask/public/storage/${result.uploaded_files.file_path}`;
+    const imageUrl = `https://task.wbsoftech.com/storage/app/public/${result.uploaded_files.file_path}`;
       this.editor.chain().focus().setImage({ src: imageUrl }).run();
       this.upload.push(result.uploaded_files);
 socket.emit('card-file-uploaded', {
@@ -1168,7 +1347,7 @@ socket.emit('card-file-uploaded', {
     });
     formData.append('card_id', this.data.data.card.id);
     try {
-      const response = await fetch('wbtask/public/api/upload-attachments', {
+      const response = await fetch('https://task.wbsoftech.com/api/upload-attachments', {
         method: 'POST',
         body: formData,
       });
@@ -1260,26 +1439,34 @@ backToLabels() {
   },
     
   saveLabel() {
-    if (!this.labelTitle.trim()) {
-      alert('Label name cannot be empty');
+if (!this.labelTitle || !this.labelTitle.trim()) {
+      // alert('Label name cannot be empty');
+      showToast('warning', 'Label name cannot be empty');
       return;
     }    
     if (this.editingLabel) {
       const formData = new FormData(); 
           formData.append('id', this.labelId);   
-      formData.append('title', this.labelTitle);   
+    formData.append('title', this.labelTitle);
+  formData.append('card_id', this.data.data.card.id);
+if (this.board_id != null) {
+  formData.append('board_id', this.board_id);
+} if (this.board_card_id != null) {
+  formData.append('board_card_id', this.board_card_id);
+}
     formData.append('color', this.labelColor);
 formData.append('status', 0);
-     const response = fetch('/wbtask/public/api/update-label/' + parseInt(this.editingLabel.id), {
+     const response = fetch('https://task.wbsoftech.com/api/update-label/' + parseInt(this.editingLabel.id), {
         method: 'POST',
         body: formData,
       });
       this.editingLabel.id = this.labelId;
       this.editingLabel.title = this.labelTitle;
+
       this.editingLabel.color = this.labelColor;
   this.socket.emit('label-updated', this.editingLabel);
     } else {
-      fetch(`/wbtask/public/api/labels/insert`, {
+      fetch(`https://task.wbsoftech.com/api/labels/insert`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
@@ -1302,13 +1489,18 @@ formData.append('status', 0);
       };
       this.socket.emit('label-created', newLabel);
        })     
+      
     }    
     this.showLabelEditor = false;
     this.editingLabel = null;
+      setTimeout(() => {
+      this.showLabelSelector = true;
+    }, 10);
+   
   },
   
   deleteLabel() {
-    if (confirm('Are you sure you want to delete this label?')) {
+   showConfirm('Are you sure you want to delete this label?', () => {
       let superid;
        if (this.editingLabel && 'board_card_id' in this.editingLabel) {
    superid = (
@@ -1320,7 +1512,7 @@ formData.append('status', 0);
   superid = this.editingLabel.id;
 }
 
-    fetch(`/wbtask/public/api/labels/${this.editingLabel.id}`, {
+    fetch(`https://task.wbsoftech.com/api/labels/${this.editingLabel.id}`, {
           method: 'POST',
           headers: {'Content-Type': 'application/json','Accept': 'application/json',},
           body: JSON.stringify({superid: superid }),           
@@ -1328,15 +1520,17 @@ formData.append('status', 0);
          .then(response => response.json())
          .then(data => {
       // Success handling
-      alert('Label deleted successfully');
+   
+      showToast('success', 'Label deleted successfully');
        this.socket.emit('delete-label', data.data.id, this.data.data.card.id);
     })
     .catch(error => {
       console.error(error);
-      alert('An error occurred while deleting the label.');
+      // alert('An error occurred while deleting the label.');
+      showToast('error', 'An error occurred while deleting the label.');
     });
      this.backToLabels();
-    }
+   });
   },
     isImage(path) {
       return /\.(jpe?g|png|gif|webp|bmp|svg)$/i.test(path)
@@ -1355,12 +1549,9 @@ formData.append('status', 0);
     toggleMenu(index) {
       this.openMenu = this.openMenu === index ? null : index
     },
-    editAttachment(file) {
-      alert('Edit clicked for ' + file.original_name)
-    },
     makeCover(file) {
        this.selectedFile = file
-  fetch(`/wbtask/public/api/card/${this.data.data.card.id}/makeCover/${this.selectedFile.id}`, {
+  fetch(`https://task.wbsoftech.com/api/card/${this.data.data.card.id}/makeCover/${this.selectedFile.id}`, {
           method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       })
@@ -1372,6 +1563,25 @@ formData.append('status', 0);
       }
     });
     },
+    removeCover(file) {
+  this.selectedFile = file;
+
+  fetch(`https://task.wbsoftech.com/api/card/${this.data.data.card.id}/removeCover/${this.selectedFile.id}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+  this.socket.emit("cover-updated", {
+    cardId: this.data.data.card.id,
+   cover: {
+        id: file.id,
+        file_path: ''
+      }
+  });
+
+  // Optionally update local state
+  this.selectedFile.f_cover = false;
+},
     deleteFile(file) {
       this.selectedFile = file
       this.showDeleteModal = true
@@ -1381,7 +1591,7 @@ formData.append('status', 0);
       this.selectedFile = {}
     },
     confirmDelete() {
-      fetch(`/wbtask/public/api/card/${this.data.data.card.id}/upload/${this.selectedFile.id}`, {
+      fetch(`https://task.wbsoftech.com/api/card/${this.data.data.card.id}/upload/${this.selectedFile.id}`, {
           method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       })
@@ -1429,7 +1639,7 @@ formData.append('status', 0);
 
 
   fileUrl(path) {
-   return `/wbtask/public/storage/${path}`;
+   return `https://task.wbsoftech.com/storage/app/public/${path}`;
   },
     initSocket() {
        this.socket = io("http://localhost:3000"); 
@@ -1486,10 +1696,23 @@ this.localUploads = [...this.localUploads, ...files];
 this.socket.on("cover-updated", (payload) => {
     if (payload.cardId == this.data.data.card.id) {
       const newCover = payload.cover;
-      this.coverImage = `/wbtask/public/storage/${newCover.file_path}`;
+    if (newCover) {
+  this.coverImage = `https://task.wbsoftech.com/storage/app/public/${newCover.file_path}`;
+} else {
+  this.coverImage = null; // Or an empty string: ''
+}
+
       this.data.data.upload.forEach(f => f.f_cover = f.id === newCover.id ? 1 : 0);
     }
   });
+  this.socket.on("cardname", ( cardId,newName ) => {
+     console.log("card name",cardId,newName )
+  if (this.data?.data?.card?.id == cardId) {
+    this.data.data.card.name = newName;
+    this.name = newName; // if needed
+    console.log("card name",this.name,newName )
+  }
+});
 this.socket.on("card-file-deleted", ({ cardId, fileId }) => {
   if (this.data?.data?.card?.id == cardId) {
     this.localUploads = this.localUploads.filter(f => f.id != fileId);
@@ -1500,47 +1723,32 @@ this.socket.on("card-file-deleted", ({ cardId, fileId }) => {
       if (!exists) {
         this.localChatUser.push({ user: { id: user.user.id, name: user.user.name } });
       }            
-      this.localChatUser = this.localChatUser.filter(Boolean);
-      
-
-
+      this.localChatUser = this.localChatUser.filter(Boolean); 
 });
   this.socket.on('card-description-updated', (data) => {
     if (data.cardId == this.data.data.card.id) {
       this.data.data.card.description = data.description
             this.originalDescription = data.description
-
    if (this.editor?.commands) {
-
    this.editor.commands.setContent(data.description, false);
-}
-   
+}   
     }
   });
-
-
-
 this.socket.on("commentinserted", (comment) => {
    this.comments.push(comment);
 });
-
-
 this.socket.on("commentupdated", (comment) => {
   const index = this.comments.findIndex(c => c.id == comment.id);
  if (index != -1) {
     this.comments[index].content = comment.content;
   }
 });
-
-
 this.socket.on("commentdeleted", (id) => {
   this.comments = this.comments.filter(c => c.id != id);
 });
-
 this.socket.on("member-remove", (userId) => {
   this.localChatUser = this.localChatUser.filter(m => m.user.id !== userId.userId);
 });
-
  this.socket.on('label-deleted', (deletedId) => {
     this.availableLabels = this.availableLabels.filter(
         l => l.id != deletedId
@@ -1577,7 +1785,7 @@ this.socket.on("member-remove", (userId) => {
 
     async removeUserFromCard(member) {
       try {
-        await axios.post(`/wbtask/public/api/board/${this.data.data.board.id}/card/${this.data.data.card.id}/leave`, {
+        await axios.post(`https://task.wbsoftech.com/api/board/${this.data.data.board.id}/card/${this.data.data.card.id}/leave`, {
           user_id: member.user.id
         });
 
@@ -1594,11 +1802,14 @@ this.socket.on("member-remove", (userId) => {
     },
 
     close() {
-      this.$el.remove();
+      this.$emit('close');
     },
 
     closePopover() {
       this.showMembers = false;
+    },
+     closelableover() {
+      this.showLabelSelector = false;
     }
   }
 };
@@ -1655,8 +1866,8 @@ this.socket.on("member-remove", (userId) => {
   border-radius: 8px;
   object-fit: contain;
 }.editor-btn {
-  background-color: #f4f5f7;
-  border: 1px solid #dfe1e6;
+  
+   border: 1px solid #fff;
   border-radius: 6px;
   padding: 6px;
   cursor: pointer;
@@ -1667,11 +1878,28 @@ this.socket.on("member-remove", (userId) => {
 }
 .editor-btn:hover {
   background-color: #ebecf0;
-}::v-deep .editor-box > div {
+  border: 1px solid #dfe1e6;
+}
+
+::v-deep .descp > div {
+    min-height: 40px;
+}
+::v-deep .editor-box > div {
   min-height: 80px;
   border: 1px solid #dfe1e6;
   border-radius: 6px;
   padding: 8px;  
   background-color: white;
+}
+.glass-box {
+  padding: 1rem;
+  border-radius: 1rem;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: background-color 0.3s ease;
+  max-width: 600px;
+  margin: 1rem auto;
 }
 </style>

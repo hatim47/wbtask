@@ -27,8 +27,7 @@ class BoardController extends Controller
         protected TeamLogic $teamLogic,
         protected BoardLogic $boardLogic,
         protected CardLogic $cardLogic
-    ) {
-    }
+    ){}
 
     public function createBoard(Request $request, $team_id)
     {
@@ -44,11 +43,11 @@ class BoardController extends Controller
             $request->board_name,
             $request->board_pattern,
         );
-
-        if ($createdBoard == null)
-            return redirect()->back()->with("notif", ["Error\nFail to create board, please try again"]);
-           
-        return redirect()->back()->with("notif", ["Success\nBoard created successfully!"]);
+        return redirect()->route('board', [
+            'team_id' => $createdBoard->team_id,
+            'board_id' => $createdBoard->id,
+        ]);
+     
     }
 
 
@@ -80,11 +79,13 @@ class BoardController extends Controller
         $user = User::find(Auth::user()->id);
         $assign_board = $user->boards()->wherePivotIn('status', ['member', 'owner'])->get();
 // dd($board);
+
         return view("board")
             ->with("team", $team)
             ->with("owner", $teamOwner)
             ->with("board", $board)
             ->with("members", $team_members)
+            ->with("user", $user)
             ->with("assign_board", $assign_board);
     }
     public function viewmember(Request $request, $team_id)
@@ -109,67 +110,55 @@ class BoardController extends Controller
 
         return redirect()->back()->with("notif", ["Success\nBoard is successfully updated!"]);
     }
-
-
-
-
-
+    public function updateRole(Request $request,$team_id,$board_id)
+    {
+        $request->validate([
+            'role' => 'required|in:Owner,Member',
+        ]);
+        $board = BoardUser::updateOrCreate([
+            'user_id' => $request->userids,            
+            'board_id' => $board_id,
+        ], [
+            'status' => $request->role,
+        ]);
+        return response()->json(['message' => 'Role updated']);
+    }
 public function inviteUser(Request $request, $team_id, $board_id)
 {
     $request->validate([
         'invitemail' => 'required|email',
         'role' => 'required|in:Member,Owner',
     ]);
-
     $email = $request->invitemail;
     $role = $request->role;
-
     $user = User::where('email', $email)->first();
-
     if ($user) {
-        // If user exists, attach to the team
-        UserTeam::updateOrCreate([
-            'user_id' => $user->id,
-            'team_id' => $team_id,
-        ], [
-            'status' => 'Member',
-        ]);
-
-
-  BoardUser::updateOrCreate([
+ $board = BoardUser::updateOrCreate([
         'user_id' => $user->id,
         'board_id' => $board_id,
     ], [
         'status' => $role,
     ]);
-
-
-
-
-
-
-    } else {
-        // If user doesn't exist, send invitation
+    return response()->json(['message' => 'update successfully' , 'board' =>  $board ]);
+} else {
         $token = Str::uuid();
  $link = "http://task.wbsoftech.com/";
-
         TeamInvitation::updateOrCreate(
             ['email' => $email, 'team_id' => $team_id, 'board_id' => $board_id, 'board_role' => $role],
             ['token' => $token, 'status' => 'Pending']
         );
-
-        // Send email with invite link (optional: use a mailable)
           $subject = "Request from TaskVerse";
-        $message = "Click to log in: $link"; // Email body
-
+        $message = "Click to log in: $link"; 
         Mail::raw($message, function ($mail) use ($email, $subject) {
             $mail->to($email)
                  ->subject($subject)
                  ->from('no-reply@task.wbsoftech.com', 'TaskVerse');
         });
+        return response()->json(['message' => 'Invitation sent successfully']);
+
     }
 
-    return response()->json(['message' => 'Invitation sent successfully']);
+   
 }
     public function addCard(Request $request, $team_id, $board_id, $column_id)
     {

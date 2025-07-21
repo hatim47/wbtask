@@ -1,5 +1,4 @@
 @extends('layout.base')
-
 @section('body')
 
     <div id="app board-background" x-data="{ sidebar_is_open: true }" data-role="layout-page" class="flex w-full h-screen overflow-hidden bg-grad-{{ $board->pattern }}">

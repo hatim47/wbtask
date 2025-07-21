@@ -72,6 +72,7 @@ Route::middleware(["auth", "auth.session", "userInTeam"])->post("team/{team_id}u
 Route::middleware(["auth", "auth.session", "userInTeam"])->post("team/{team_id}/board", [BoardController::class, "createBoard"])->name("createBoard");
 
 Route::middleware(["auth", "auth.session", "boardAccess"])->post('team/{team_id}/board/{board_id}/invite', [BoardController::class, 'inviteUser'])->name('invite.user');
+Route::middleware(["auth", "auth.session", "boardAccess"])->post('team/{team_id}/board/{board_id}/update', [BoardController::class, 'updateRole'])->name('update.role');
 Route::middleware(["auth", "auth.session", "boardAccess"])->get("team/{team_id}/board/{board_id}", [BoardController::class, "showBoard"])->name("board");
 Route::middleware(["auth", "auth.session", "boardAccess"])->post("team/{team_id}/board/{board_id}/delete", [BoardController::class, "deleteBoard"])->name("deleteBoard");
 Route::middleware(["auth", "auth.session", "boardAccess"])->post("team/{team_id}/board/{board_id}/remove", [BoardController::class, "removeMember"])->name("removeMember");
@@ -96,7 +97,7 @@ Route::middleware(["auth", "auth.session", "boardAccess","cardExist"])->post("te
 
 Route::middleware(["auth", "auth.session"])->get("user/member/{card_id}/{team_id}/{board_id}", [CardController::class, "viewmember"])->name("viewmember");
 Route::middleware(["auth", "auth.session"])->get("members/{team_id}", [BoardController::class, "viewmember"])->name("boardmember");
-Route::middleware(["auth", "auth.session"])->get("user/setting", [UserController::class, "showSetting"])->name("setting");
+Route::middleware(["auth", "auth.session"])->get("user/setting", [TeamController::class, "showSetting"])->name("setting");
 Route::middleware(["auth", "auth.session"])->get("user/logout", [UserController::class, "logout"])->name("doLogout");
 Route::middleware(["auth", "auth.session"])->post("user/deactivate", [UserController::class, "deactivate"])->name("doDeactivateUser");
 Route::middleware(["auth", "auth.session"])->post("user/update/profile", [UserController::class, "updateData"])->name("doUserDataUpdate");

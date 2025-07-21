@@ -105,6 +105,11 @@ socket.on('delete-label',  (labelId,cardId ) => {
       console.log(`Label ${labelId} deleted`);   
        io.emit('label-createddd' , cardId);     
   });
+  socket.on('cardname',(cards ) => {      
+        io.to(`card-${cards.id}`).emit('cardname', cards.id , cards.name);
+      console.log(`Label ${cards.id} or ${cards.name} cardname`);   
+       io.emit('label-createddd' , cards);     
+  });
 socket.on('commentinsert', (comment) => {
     console.log('💬 Comment inserted:', comment);
     io.to(`card-${comment.card_id}`).emit('commentinserted', comment);

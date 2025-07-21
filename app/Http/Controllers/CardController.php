@@ -29,7 +29,6 @@ class CardController extends Controller
     {
         $board_id = intval($board_id);
         $team_id = intval($team_id);
-
         $card = Card::find($card_id);
         $board = Board::find($board_id);
         $team = Team::find($team_id);
@@ -42,8 +41,6 @@ class CardController extends Controller
         $chatOwner = CardUser::with('user')->where("card_id", $card->id)->where("status","Owner")->get()->first();
         $cardLabels = Lable::where("card_id", $card->id)->get()->all();
         $labels = BoardLabel::where("board_id", $board_id)->get()->all();
-
-
 return response()->json([
     'card' => $card,
     'upload' => $upload,
@@ -59,40 +56,86 @@ return response()->json([
     'chatOwner' => $chatOwner,
    
 ]);
-
-    }
-    
-
- public function updateLabel(Request $request ,int $label)
+    }   
+public function updateLabel(Request $request, int $label)
 {
-$labelId = $label;
     $request->validate([
-           'id' => 'nullable|integer',
+        'id' => 'nullable|integer',
         'color' => 'required|string|max:10', 
         'title' => 'required|string|max:50',
-        'status' => 'required|boolean'
+        'status' => 'required|boolean',
+        'board_id' => 'nullable|integer',
+        'board_card_id' => 'nullable|integer',
+        'card_id' => 'nullable|integer',
     ]);
 
-    // $label = BoardLabel::findOrFail($label);
-  try {
-        // Try to find in BoardLabel
-        $label = BoardLabel::findOrFail($labelId);
+    // Determine which model to use
+    if ($request->filled('board_id')) {
+         $labelcheck = Lable::where('board_card_id', $label)->where('card_id', $request->card_id)->first();
+     
+         if ($labelcheck) {
+           $labelcheck->update($request->only(['color', 'title', 'status']));
 
-    } catch (ModelNotFoundException $e) {
-        // Fallback to Label if not found
-        $label = Lable::findOrFail($labelId);
-        
+    return response()->json([
+        'success' => true,
+        'message' => 'only Label updated successfully',
+        'data' => $labelcheck
+    ]);
+         }
+         else{        
+        $labelModel = BoardLabel::where('id', $label)
+                                ->where('board_id', $request->board_id)
+                                ->firstOrFail();
+         }
+    } else {
+        // Update Card Label (fallback)
+            if ($request->filled('board_card_id')) {
+            $labelModel = Lable::where('id', $label)
+                                ->where('card_id', $request->card_id)
+                                ->firstOrFail();
+            }
+            else{
+ $labell = Lable::create([
+            'board_card_id' => $request->id,
+            'card_id' => $request->card_id,
+            'color' => $request->color,
+            'title' => $request->title,
+            'status' => 0
+        ]);
+  return response()->json([
+        'success' => true,
+        'message' => 'Label create successfully',
+        'data' => $labell
+    ]);
+            }        
     }
-    
-    $label->update($request->only(['color', 'title', 'status']));
 
-    return response()->json(['success' => true, 'message' => 'Label updated successfully']);
+    // Update the label
+    $labelModel->update($request->only(['color', 'title', 'status']));
 
-
-
-
-
+    return response()->json([
+        'success' => true,
+        'message' => 'Label updated successfully',
+        'data' => $labelModel
+    ]);
 }
+public function cardnameUpdate(Request $request)
+{
+    $request->validate([
+        'id' => 'required|integer',
+        'name' => 'required',
+    ]);
+    $card = Card::where('id', $request->id)->first();
+    if ($card) {
+$card->name = $request->name;
+$card->save();
+        return response()->json([
+        'name' => $card->name,
+        'id' => $card->id    ]);
+    }
+ return response()->json(['error' => 'Card not found.'], 404);   
+}
+
 public function addLabel(Request $request){
     $request->validate([
         'id' => 'nullable|integer',
@@ -361,6 +404,23 @@ public function MakeCover (Request $request,  $card,  $upload)
     $newCover->save();
     return response()->json(['message' => 'Cover updated successfully.']);
  }
+
+public function removeCover (Request $request,  $card,  $upload)
+ {
+ $newCover = Upload::where('card_id', $card)
+                      ->where('id', $upload)
+                      ->first();
+    if (!$newCover) {
+        return response()->json(['message' => 'File not found for this card.'], 404);
+    }
+  
+    $newCover->f_cover = 0;
+    $newCover->save();
+    return response()->json(['message' => 'Cover updated successfully.']);
+ }
+
+
+
 public function AddTeamMember(Request $request) {
                  $id_card =  $request->card_id;
                  $status = $request->status;

@@ -25,35 +25,18 @@ Alpine.start();
 window.Croppie = Croppie;
 import ParentChat from './components/ParentChat.vue';
 import Popup from './components/Popup.vue';
-// Setup Vue    
-// const app = createApp({
-//   data() {
-//     return {
-//       message: "Hello from Vue!",
-//     };
-//   },
-//   mounted() {
-//     console.log("Vue app mounted");
-//   },
-// });
 const app = createApp(ParentChat, Popup);
 const vfm = createVfm()
 app.component('font-awesome-icon', FontAwesomeIcon);
 app.use(vfm)
 app.mount("#appp");
-
-
 let currentPopup = null;
-
 window.showPopup = function(data) {
-  // Close existing popup if one is open
   if (currentPopup) {
     currentPopup.close(); // This should properly clean up the previous popup
   }
-
   const container = document.createElement("div");
   document.body.appendChild(container);
-
   const modalApp = createApp({
     render() {
       return h(Popup, {
@@ -66,7 +49,6 @@ window.showPopup = function(data) {
       });
     }
   });
-
   modalApp.mount(container);
   
   // Store reference to the current popup

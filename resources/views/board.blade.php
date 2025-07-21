@@ -15,13 +15,12 @@
         editing: false,
         csrfToken: @js(csrf_token()),
         saveUrl: @js(isset($board) ? route('updateBoard', [$board->team_id, $board->id]) : ''),
-        
         init() {
            if (!this.saveUrl) {
                 console.error('Missing board data!');
                 this.title = 'Error: Board not loaded';
             }
-             console.log('Board ID:', {{ $board->id ?? 'null' }});
+        console.log('Board ID:', {{ $board->id ?? 'null' }});
         },
         enableEdit() {
             this.editing = true;
@@ -33,7 +32,6 @@
         },
         save() {
             if (this.title === this.original) return this.cancel();
-            
             fetch(this.saveUrl, {
                 method: 'POST',
                 headers: {
@@ -48,20 +46,15 @@
         }
     }"
     class="text-xl font-semibold cursor-pointer">
-    
     <span x-show="!editing" @click="enableEdit" x-text="title" id="board-title"
           class="hover:border-gray-100 hover:border px-2 py-1 rounded transition"></span>
-          
     <input x-show="editing" x-model="title" x-ref="input"
            @blur="save" @keydown.enter="save" @keydown.escape="cancel"
            class="border-b border-blue-500 outline-none w-full px-2 text-black py-1 bg-gray-50">
-</div>
-
-     
+</div> 
     </div>
        <div class="flex items-center ">
   <!-- Circle 1 (HN) -->
- 
   @foreach ($members as $index => $member)
     <div class="relative flex items-center gap-4 {{ $index > 0 ? '-ml-2' : '' }}">
         <x-avatar name="{{ $member->name }}" asset="{{ $member->image_path }}"
@@ -77,16 +70,11 @@
         @endif
     </div>
 @endforeach
- 
-
   <!-- Circle 2 (H) -->
-  
 @if ($owner->contains('user_id', Auth::user()->id))
   <!-- Share Button -->
   <button onclick="ModalView.show('sharebtn')" class="flex items-center space-x-1 px-3 mx-3 py-1 bg-gray-200 rounded border text-sm font-medium text-gray-700 hover:bg-white">
-    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M4 12v.01M12 20h.01M20 12v.01M12 4h.01M12 12l8-8M12 12L4 4m0 16l8-8m0 0l8 8" />
-    </svg>
+    <svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="18" height="18"><path d="M17,11H13V7a1,1,0,0,0-2,0v4H7a1,1,0,0,0,0,2h4v4a1,1,0,0,0,2,0V13h4a1,1,0,0,0,0-2Z"/></svg>
     <span>Share</span>
   </button>
 @endif
@@ -96,8 +84,38 @@
       <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zm6 0a2 2 0 11-4 0 2 2 0 014 0zm6 0a2 2 0 11-4 0 2 2 0 014 0z" />
     </svg>
   </button>
+{{-- {{dd($user);}} --}}
+<div class="relative inline-block text-left">
+  <!-- Avatar Button -->
+  <button onclick="toggleDropdown()" class="focus:outline-none">
+   <x-avatar name="{{ $user->name }}" asset="{{ $user->image_path }}"
+            class="!flex-shrink-0 !flex-grow-0  border-white border w-10 z-10" />
+  </button>
+
+
+  <div
+    id="dropdown"
+    class="hidden absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-gray-200 z-50"
+  >
+    <div class="p-4">
+      <p class="text-sm font-medium text-gray-800">{{$user->name}}</p>
+      <p class="text-xs text-gray-500">{{$user->email}}</p>
+    </div>
+    <hr />
+   
+      <a
+       href="{{ route('doLogout') }}"
+        class="w-full flex text-left text-gray-800 px-3 py-2 rounded-md text-sm font-medium"
+      >
+        Log out
+      </a>
+   
+  </div>
 </div>
 </div>
+
+</div>
+
 @endsection
 
 <!-- mindrelaxation7860@gmail.com -->
@@ -115,17 +133,13 @@
  <a data-role="menu-item" href="{{ route('viewWorkspace', ['team_id' => $team->id]) }}"
         class="flex items-center justify-start w-full gap-3 px-6 py-2  text-white cursor-pointer  select-none {{ Route::currentRouteName() == 'home' ? 'bg-neutral-100' : 'hover:bg-neutral-200 ' }}">
         <p class=" "> Member   </p>
-    </a> 
-   
-        {{-- <div data-role="menu-item"  onclick="ModalView.show('deleteBoard')"
-        class="flex items-center justify-start w-4/5 gap-3 px-6 py-2 text-sm text-white cursor-pointer rounded-xl select-none hover:bg-neutral-500">
-        <x-fas-trash class="w-6 h-6" />
-        <p class="text-lg font-normal"> Delete </p>
-    </div> --}}
-   
-
-          
-     
+    </a>  
+    
+ <a data-role="menu-item" href="{{ route('setting') }}"
+        class="flex items-center justify-start w-full gap-3 px-6 py-2  text-white cursor-pointer  select-none {{ Route::currentRouteName() == 'Setting' ? 'bg-neutral-100' : 'hover:bg-neutral-200 ' }}">
+       
+        <p class=" "> Setting   </p>
+    </a>                     
     </div>
 
     <div class="flex flex-col gap-1  pl-4 mt-2" >
@@ -229,10 +243,17 @@
                             <div class="text-sm text-gray-500">{{ '@' . $member->username }} • Workspace admin</div>
                         </div>
                     </div>
-                    <select class="border rounded px-2 py-1 text-sm">
-                        <option {{ $member->pivot->status === 'Owner' ? 'selected' : '' }}>Owner</option>
-                        <option {{ $member->pivot->status === 'Member' ? 'selected' : '' }}>Member</option>
-                    </select>
+                  <div x-data="roleUpdater('{{ $member->id }}', '{{ $member->pivot->status }}')">
+    <select x-model="role"
+            @change="updateRole"
+            class="border rounded px-2 py-1 text-sm">
+        <option value="Owner">Owner</option>
+        <option value="Member">Member</option>
+    </select>
+
+    <!-- optional status message -->
+    <p x-text="message" class="text-xs mt-1 text-green-600" x-show="message"></p>
+</div>
                 </div>
             @endforeach
         </div>
@@ -364,7 +385,7 @@
 {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/laravel-echo/1.11.1/echo.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script> --}}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/colorthief@2.6.0/dist/color-thief.min.js"></script>
 <script>
 
 
@@ -571,7 +592,7 @@ function inviteForm() {
                 this.statusClass = 'bg-white text-green-800 border border-green-300';
 
                 // Optionally emit socket event:
-                socket.emit("board-action");
+               
 
             } catch (error) {
                 this.message = error.message + 'Error occurredError occurredError occurredError occurredError occurred' || 'Error occurred.';
@@ -583,9 +604,67 @@ function inviteForm() {
                 this.message = '';
                 this.statusClass = '';
             }, 4000);
+
+        this.board.refresh();  
+
+
         }
     };
 }
+
+function roleUpdater(userId, initialRole) {
+    return {
+        role: initialRole,
+        userids : userId,
+        message: '',
+
+        async updateRole() {
+            this.message = '';
+            try {
+               const response = await fetch('{{ route("update.role", ["team_id" => $team->id, "board_id" => $board->id ]) }}', {
+                    method: 'post',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ role: this.role ,userids: this.userids })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to update role');
+                }
+
+                this.message = data.message || 'Role updated!';
+                setTimeout(() => this.message = '', 3000);
+            } catch (err) {
+                this.message = 'Error updating role';
+                setTimeout(() => this.message = '', 3000);
+            }
+        }
+    }
+}
+  function toggleDropdown() {
+    const dropdown = document.getElementById("dropdown");
+    dropdown.classList.toggle("hidden");
+  }
+
+  function handleLogout() {
+    // Example: clear token and redirect
+    localStorage.removeItem("authToken");
+    alert("Logged out!");
+    window.location.href = "/login";
+  }
+
+  // Optional: close dropdown when clicking outside
+  window.addEventListener("click", function (e) {
+    const dropdown = document.getElementById("dropdown");
+    if (!e.target.closest("button") && !e.target.closest("#dropdown")) {
+      dropdown.classList.add("hidden");
+    }
+  });
 function initializeBoardTitleEditor() {
     const componentDefinition = {
         title: '',

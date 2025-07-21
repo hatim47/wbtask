@@ -3,9 +3,9 @@
     style="display: none">
 
     <div class="min-w-[40rem] max-w-[70%] max-h-[70%] flex flex-col bg-white rounded-xl overflow-hidden">
-        <header class="flex items-center justify-between flex-grow-0 w-full px-4 py-2 bg-black">
+        <header class="flex items-center justify-between flex-grow-0 w-full px-4 py-2 bg-white">
             <h1 class="text-2xl font-bold text-white" id="modal-title"></h1>
-            <x-fas-square-xmark class="w-8 h-8 text-white" onclick="ModalView.close()" />
+            <x-fas-square-xmark class="w-8 h-8 text-gray-700" onclick="ModalView.close()" />
         </header>
         <div class="flex-grow w-full h-full p-4" id="modal-content">
         </div>
