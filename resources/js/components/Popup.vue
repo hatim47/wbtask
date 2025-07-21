@@ -1109,7 +1109,7 @@ this.socket.emit('cardupdate');
       if (!html || html === '<p></p>') return
       this.loading = true
 
-      const response =  fetch('wbtask/public/api/comments', {
+      const response =  fetch('https://task.wbsoftech.com/api/comments', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
