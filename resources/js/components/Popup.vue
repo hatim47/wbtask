@@ -1375,7 +1375,6 @@ socket.emit('card-file-uploaded', {
       });
     }
   },
-
 backToLabels() {
       this.showLabelSelector = true;
       this.showLabelEditor = false;
@@ -1417,8 +1416,7 @@ backToLabels() {
     const rect = labelSelector.getBoundingClientRect();
     this.editorTop = rect.bottom + window.scrollY;
     this.editorLeft = rect.left + window.scrollX;
-  }
-  
+  }  
   this.showInlineEditor = true;
   this.showLabelSelector = false;
 
