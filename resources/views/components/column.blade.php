@@ -395,7 +395,7 @@ function getContrastColor(hex) {
     const imageContainer = document.createElement("div");
     imageContainer.classList.add("image-container");
     const firstImage = cardData.images[0]; 
-    const imageUrl = `/wbtask/public/storage/${firstImage.file_path}`;
+    const imageUrl = `https://task.wbsoftech.com/storage/app/public/${firstImage.file_path}`;
     imageContainer.style.backgroundImage = `url('${imageUrl}')`;   
    imageContainer.style.backgroundSize = "contain"; // Ensures small images fit
     imageContainer.style.backgroundPosition = "center"; // Centers images
