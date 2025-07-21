@@ -1409,8 +1409,7 @@ backToLabels() {
     color: this.colorOptions[0] 
   };
   this.labelTitle = this.editingLabel.name;
-  this.labelColor = this.editingLabel.color;
-  
+  this.labelColor = this.editingLabel.color;  
   const labelSelector = this.$el.querySelector('.relative > div[v-click-outside]');
   if (labelSelector) {
     const rect = labelSelector.getBoundingClientRect();
@@ -1419,13 +1418,11 @@ backToLabels() {
   }  
   this.showInlineEditor = true;
   this.showLabelSelector = false;
-
   },
     editLabel(label, event) {
     this.editingLabel = label;
     this.labelTitle = label.title;
-    this.labelColor = label.color;
-       
+    this.labelColor = label.color;       
     this.showInlineEditor = true;
   },  
   startEditingLabel(label) {
@@ -1434,8 +1431,7 @@ backToLabels() {
     this.labelTitle = label.title;
     this.labelColor = label.color;
     this.showLabelEditor = true;
-  },
-    
+  },    
   saveLabel() {
 if (!this.labelTitle || !this.labelTitle.trim()) {
       // alert('Label name cannot be empty');
@@ -1460,7 +1456,6 @@ formData.append('status', 0);
       });
       this.editingLabel.id = this.labelId;
       this.editingLabel.title = this.labelTitle;
-
       this.editingLabel.color = this.labelColor;
   this.socket.emit('label-updated', this.editingLabel);
     } else {
@@ -1486,17 +1481,14 @@ formData.append('status', 0);
       color: this.labelColor
       };
       this.socket.emit('label-created', newLabel);
-       })     
-      
+       })      
     }    
     this.showLabelEditor = false;
     this.editingLabel = null;
       setTimeout(() => {
       this.showLabelSelector = true;
-    }, 10);
-   
-  },
-  
+    }, 10);   
+  },  
   deleteLabel() {
    showConfirm('Are you sure you want to delete this label?', () => {
       let superid;
@@ -1509,8 +1501,7 @@ formData.append('status', 0);
 } else {
   superid = this.editingLabel.id;
 }
-
-    fetch(`https://task.wbsoftech.com/api/labels/${this.editingLabel.id}`, {
+fetch(`https://task.wbsoftech.com/api/labels/${this.editingLabel.id}`, {
           method: 'POST',
           headers: {'Content-Type': 'application/json','Accept': 'application/json',},
           body: JSON.stringify({superid: superid }),           
@@ -1568,7 +1559,6 @@ formData.append('status', 0);
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
   });
-
   this.socket.emit("cover-updated", {
     cardId: this.data.data.card.id,
    cover: {
@@ -1576,7 +1566,6 @@ formData.append('status', 0);
         file_path: ''
       }
   });
-
   // Optionally update local state
   this.selectedFile.f_cover = false;
 },
@@ -1609,8 +1598,8 @@ formData.append('status', 0);
         if (f.f_cover == 1) f.f_cover = 0;
       });
     }
-  }
-          this.openMenu = null
+  } 
+  this.openMenu = null
         })
         .catch(err => {
           console.error('Delete failed:', err)
@@ -1631,20 +1620,17 @@ formData.append('status', 0);
   if (this.editor) {
     this.editor.commands.setContent(newHTML);
   }
-  this.data.data.card.description = newHTML;
- 
+  this.data.data.card.description = newHTML; 
 },
-
-
   fileUrl(path) {
    return `https://task.wbsoftech.com/storage/app/public/${path}`;
   },
     initSocket() {
-       this.socket = io("http://localhost:3000"); 
-// this.socket = io("wbtask/public/", {
-//         path: "/socket.io",
-//         transports: ["websocket", "polling"]
-// });
+      //  this.socket = io("http://localhost:3000"); 
+this.socket = io("https://task.wbsoftech.com/", {
+        path: "/socket.io",
+        transports: ["websocket", "polling"]
+});
       this.socket.on("connect", () => {
           this.clientId = this.socket.id;
           const cardId = this.data?.data?.card?.id;
