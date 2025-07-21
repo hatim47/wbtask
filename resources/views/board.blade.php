@@ -393,7 +393,7 @@
 
 const boardId = @json($board->id);
     {{--  const socket = io("http://localhost:3000"); --}}
-    const socket = io("http://task.wbsoftech.com/", {
+    const socket = io("https://task.wbsoftech.com/", {
         path: "/socket.io",
         transports: ["websocket", "polling"]
 });
