@@ -1634,8 +1634,7 @@ this.socket = io("https://task.wbsoftech.com/", {
       this.socket.on("connect", () => {
           this.clientId = this.socket.id;
           const cardId = this.data?.data?.card?.id;
-        this.socket.emit("join-card", this.data.data.card.id); 
-  
+        this.socket.emit("join-card", this.data.data.card.id);   
       });
 
   this.socket.on('label-created', (label) => {
