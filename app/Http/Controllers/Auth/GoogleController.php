@@ -27,7 +27,6 @@ public function handleGoogleCallback()
     try {
         $googleUser = Socialite::driver('google')->user();
 
-        // Find or create user
         $user = User::updateOrCreate(
             ['google_id' => $googleUser->id],
             [
@@ -36,10 +35,8 @@ public function handleGoogleCallback()
                 'password' => bcrypt(Str::random(12)),
             ]
         );
-
         // Check for team invitation
         $teamInvitation = TeamInvitation::where('email', $googleUser->email)->where('status','pending')->first();
-
         if ($teamInvitation) {
             // ✅ Update invitation status
             $teamInvitation->status = 'accepted';
@@ -75,16 +72,16 @@ public function handleGoogleCallback()
                 ]);
             }
         }
-
         // ✅ Login once and redirect
         Auth::login($user);
         session(['user_id' => Auth::id()]);
         return redirect('/Home/show')->with('success', 'Successfully logged in with Google!');
-    } catch (\Exception $e) {
+    } 
+    catch (\Exception $e) {
         return redirect('/')->with('error', 'Google login failed!');
     }
 }
-    // Handle Google callback
+// Handle Google callback
 //     public function handleGoogleCallback()
 //     {
 //         // Get user from Google
@@ -145,7 +142,7 @@ public function handleGoogleCallback()
 //             return redirect('/Home/show')->with('success', 'Successfully logged in with Google!');
 //         } catch (Exception $e) {            
 //             return redirect('/')->with('error', 'Google login failed!');
-//         } 
-
+//         }
 //     }
+
 }
