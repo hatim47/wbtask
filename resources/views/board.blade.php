@@ -724,6 +724,42 @@ function initializeBoardTitleEditor() {
         });
     }
 }
+function closeModal() {
+  document.getElementById("modal-views").style.display = "none";
+  board.IS_EDITING = false;
+  let btnAddd = document.getElementById("btn-add");
+  if (btnAddd) {
+    btnAddd.style.display = "flex";
+  }
+}
+const boardWrapper = document.getElementById("board-background");
+
+let isDown = false;
+let startX;
+let scrollLeft;
+
+boardWrapper.addEventListener("mousedown", (e) => {
+  isDown = true;
+  startX = e.pageX - boardWrapper.offsetLeft;
+  scrollLeft = boardWrapper.scrollLeft;
+});
+
+boardWrapper.addEventListener("mouseleave", () => {
+  isDown = false;
+});
+
+boardWrapper.addEventListener("mouseup", () => {
+  isDown = false;
+});
+
+boardWrapper.addEventListener("mousemove", (e) => {
+  if (!isDown) return;
+  e.preventDefault();
+  const x = e.pageX - boardWrapper.offsetLeft;
+  const walk = (x - startX) * 2; // speed multiplier
+  boardWrapper.scrollLeft = scrollLeft - walk;
+});
+
 
 // Initialize the component
 initializeBoardTitleEditor();
