@@ -118,39 +118,19 @@
         
     
 
-        <template is-modal="inviteMember" class="bg-red-200">
+       <template is-modal="inviteMember" class="bg-red-200">
             <div class="flex flex-col w-full gap-4 p-4">
                 <h1 class="text-3xl font-bold">Invite People</h1>
                 <hr>
-                <div class="flex flex-col gap-4">
+                <div class="flex flex-col gap-4 ">
                     <label for="input-text-inv-email">Enter email address</label>
                     <div class="flex gap-4">
-                        <x-form.text name="inv-email" icon="fas-user-plus" placeholder="name@email.com..." />
-                        <x-form.button type="button" primary class="w-min" id="add-btn">
-                            <x-fas-plus class="w-6 h-6" />
-                            Add
-                        </x-form.button>
+                    <form method="POST" class="w-full" id="invite-members-form" action="{{ route('InviteMemberto') }}">
+                      @csrf
+                       <input type="hidden" name="team_id" value="{{ $team->id }}"> 
+                        <x-form.email name="inv-email" icon="fas-user-plus" placeholder="name@email.com..." />                      
+                        </form>
                     </div>
-
-                    <form method="POST" id="invite-members-form" action=""
-                        class="flex justify-center w-full p-4 overflow-hidden overflow-y-auto border-2 border-black h-80 rounded-xl">
-                        @csrf
-                        <input type="hidden" name="team_id", value="">
-                        <div class="flex flex-col w-full gap-2" id="invite-container">
-
-                            <div class="flex gap-2" id="email-tag-1">
-                                <input type="hidden" value="">
-                                <p class="flex-grow overflow-hidden truncate">William@email.com</p>
-                                <x-form.button outline type="button" action="DOM.find('#email-tag-1')?.remove()"
-                                    class="!border-2 ! w-min !px-4">
-                                    <x-fas-trash class="w-6 h-6" />
-                                </x-form.button>
-                            </div> 
-
-
-                        </div>
-                    </form>
-
                     <x-form.button primary type="submit" id="save-btn" form="invite-members-form">Save</x-form.button>
                 </div>
             </div>
@@ -383,8 +363,8 @@
                 })
             });
 
-            ModalView.onShow("inviteMember", (modal) => {
-                const addBtn = modal.querySelector('#add-btn');
+             ModalView.onShow("inviteMember", (modal) => {
+              
                 const saveBtn = modal.querySelector('#save-btn');
                 const emailField = modal.querySelector('#input-text-inv-email');
                 const inviteList = modal.querySelector('#invite-container');
@@ -394,35 +374,8 @@
                         event.preventDefault();
                         handleInsert();
                     }
-                });
-
-                addBtn.addEventListener('click', handleInsert);
-
-                saveBtn.addEventListener('click', () => PageLoader.show());
-
-                function handleInsert() {
-                    const email = emailField.value.trim();
-
-                    if (email === "") return;
-                    if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) return;
-
-                    emailField.value = "";
-                    const id = DOM.newid();
-                    let emailtag = DOM.create(`
-                    <div class="flex gap-2" id="email-tag-${id}">
-                        <input type="hidden" name="emails[]" value="${email}">
-                        <p class="flex-grow overflow-hidden truncate">
-                            ${email}
-                        </p>
-                        <button onclick="DOM.find('#email-tag-${id}')?.remove()" type="button" class="flex items-center justify-center w-full gap-2 px-6 py-1 text-base font-bold border-4 border-black rounded-full bg-white text-gray-600 hover:bg-black hover:text-white !border-2 ! w-min !px-4">
-                                <svg class="w-6 h-6" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.3.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc. --><path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"></path></svg>
-                        </button>
-                    </div>
-                    `);
-
-                    inviteList.append(emailtag);
-                }
-
+                });               
+                {{-- saveBtn.addEventListener('click', () => PageLoader.show()); --}}
             })
             
             {{-- @if (Auth::user()->id == $owner->id) --}}
